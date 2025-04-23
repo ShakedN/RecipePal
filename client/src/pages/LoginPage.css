@@ -1,0 +1,94 @@
+.login-container {
+    display: flex;
+    flex-direction: row; /* default left-to-right */
+    height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+    background: url("/public/images/bg-pattern.png") no-repeat center center;
+    background-size: cover;
+  }
+  
+  
+  
+  
+  .login-left {
+    flex: 1;
+    padding: 60px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;  /* חשוב – מתחיל מלמעלה */
+    align-items: flex-start;     /* יישור לשמאל */
+  }
+  
+  
+  
+  .big-logo {
+
+    width: 220px;
+  }
+  
+  .login-left h1 {
+    font-size: 48px;
+    margin: 0;
+  }
+  
+  .slogan {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #ff9933;
+  }
+  
+
+  
+  
+  .login-card {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin-top: 40px; /* רווח מהלמעלה */
+  }
+  
+  
+  .login-card h2 {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .login-card input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #f8f8ff;
+  }
+  
+  .login-card button {
+    width: 100%;
+    padding: 12px;
+    background: #ff7a00;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  
+  .login-card button:hover {
+    background: #e96b00;
+  }
+  
+  .register-link {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 15px;
+  }
+  
+  .register-link a {
+    color: #ff7a00;
+    text-decoration: none;
+  }
+  
