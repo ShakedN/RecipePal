@@ -7,21 +7,37 @@ export default function RegisterPage() {
   const [form, setForm] = useState({
     username: "",
     email: "",
-    password: ""
+    phone_number: "",
+    password: "",
+    profile_image: null, // Add profile_image field
   });
 
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, files } = e.target;
+    if (name === "profile_image") {
+      setForm({ ...form, profile_image: files[0] }); // Handle file input
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    const formData = new FormData();
+    for (const key in form) {
+      formData.append(key, form[key]);
+    }
+
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", form);
+      const res = await axios.post("http://localhost:5000/api/auth/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       localStorage.setItem("token", res.data.token);
       navigate("/feed");
     } catch (err) {
@@ -50,10 +66,26 @@ export default function RegisterPage() {
           required
         />
         <input
+          name="phone_number"
+          type="tel"
+          placeholder="Phone Number"
+          value={form.phone_number}
+          onChange={handleChange}
+          required
+        />
+        <input
           name="password"
           type="password"
           placeholder="Password"
           value={form.password}
+          onChange={handleChange}
+          required
+        />
+        <input
+        // Add file input for profile image
+          name="profile_image"
+          type="file"
+          accept="image/*"
           onChange={handleChange}
           required
         />

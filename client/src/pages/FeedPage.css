@@ -1,0 +1,38 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  background-color: #FF9B17;
+  color: white;
+}
+
+.navbar-logo {
+    height: 55px; /* Increase the height for better visibility */
+    width: auto; /* Maintain aspect ratio */
+    margin-right: 15px; /* Add spacing between the logo and the links */
+  }
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links li {
+  display: inline;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.navbar-links a:hover {
+  text-decoration: underline;
+}
+
+.feed-content{
+    background-color: #FAF9F6;
+}
