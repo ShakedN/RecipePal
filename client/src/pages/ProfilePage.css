@@ -1,0 +1,56 @@
+.profile-page {
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.background-photo img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+.profile-info {
+  text-align: center;
+  margin-top: -50px; /* Pull profile photo up */
+}
+
+.profile-photo img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.profile-birthday,
+.profile-about {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+.profile-sections {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.friends-section,
+.posts-section {
+  width: 45%;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.friends-section h2,
+.posts-section h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}

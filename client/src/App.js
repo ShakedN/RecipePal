@@ -3,14 +3,20 @@ import LoginPage from "./pages/LoginPage";
 import FeedPage from "./pages/FeedPage";
 import GroupPage from "./pages/GroupPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProfilePage from "./pages/ProfilePage";
+import Layout from "./components/Layout"; // Import the Layout component
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/feed" element={<FeedPage />} />
-        <Route path="/groups/:id" element={<GroupPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route element={<Layout />}>
+          <Route path="/feed" element={<FeedPage />} />
+          <Route path="/groups/:id" element={<GroupPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+        </Route>
       </Routes>
     </Router>
   );
