@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProfilePage.css"; // Add a CSS file for stylingimport React, { useState } from "react";
-import "./ProfilePage.css";
+
 
 export default function ProfilePage() {
   const [user, setUser] = useState({

@@ -1,17 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css"; // נשייך CSS ייעודי
+import axios from "axios";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ username: "", password: "" });
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    localStorage.setItem("token", "fake-jwt-token");
-    localStorage.setItem("username", form.username);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/login", {
+      username: form.username, // assuming username is actually the email
+      password: form.password,
+    });
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("username", res.data.user.username);
     navigate("/feed");
-  };
+  } catch (err) {
+    alert(
+      err.response?.data?.message ||
+      "Login failed. Please check your credentials."
+    );
+  }
+};
 
   return (
   <div className="login-container">

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import "./RegisterPage.css"; // Add a CSS file for styling
 import { useNavigate } from "react-router-dom";
-
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -9,39 +9,34 @@ export default function RegisterPage() {
     email: "",
     phone_number: "",
     password: "",
-    profile_image: null, // Add profile_image field
   });
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "profile_image") {
-      setForm({ ...form, profile_image: files[0] }); // Handle file input
-    } else {
-      setForm({ ...form, [name]: value });
-    }
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    const formData = new FormData();
-    for (const key in form) {
-      formData.append(key, form[key]);
-    }
+    setSuccess("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", formData, {
+      console.log("Submitting form:", form);
+      const res = await axios.post("http://localhost:5000/api/auth/register", form, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
-      localStorage.setItem("token", res.data.token);
-      navigate("/feed");
+
+      setSuccess("Registration successful! Please check your email to verify your account.");
+      console.log("Verification email sent to:", form.email);
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      console.error("Error in registration:", err.response?.data);
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     }
   };
 
@@ -81,16 +76,10 @@ export default function RegisterPage() {
           onChange={handleChange}
           required
         />
-        <input
-        // Add file input for profile image
-          name="profile_image"
-          type="file"
-          accept="image/*"
-          onChange={handleChange}
-          required
-        />
+
         <button type="submit">Sign Up</button>
         {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
       </form>
     </div>
   );

@@ -5,6 +5,7 @@ import GroupPage from "./pages/GroupPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import Layout from "./components/Layout"; // Import the Layout component
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route element={<Layout />}>
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/groups/:id" element={<GroupPage />} />
