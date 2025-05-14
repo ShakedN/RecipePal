@@ -24,12 +24,19 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     profile_image: {
-      type: String, // URL or file path to the profile image
-      default: "/images/default-profile.png",
+      type: String,
+      default: null,
+    },
+    verificationToken: {
+      type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 
