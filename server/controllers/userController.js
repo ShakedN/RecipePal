@@ -3,10 +3,20 @@ import crypto from "crypto";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-
+import Post from "../models/Post.js";
 export const registerUser = async (req, res) => {
-  const { username, email, password, phone_number, profile_image } = req.body;
-
+const {
+    username,
+    firstName,
+    lastName,
+    email,
+    about,
+    cookingRole,
+    password,
+    phone_number,
+    birthDate,
+    profile_image,
+  } = req.body;
   try {
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
@@ -23,12 +33,17 @@ export const registerUser = async (req, res) => {
     // Create a new user
     const user = await User.create({
       username,
+      firstName,
+      lastName,
       email,
+      about,
+      cookingRole,
       password: hashedPassword,
       phone_number,
-      profile_image: null,
+      birthDate,
+      profile_image,
       verificationToken,
-      isVerified: false, // Add a field to track email verification
+      isVerified: false,
     });
 
     // Send verification email
@@ -99,5 +114,37 @@ export const loginUser = async (req, res) => {
     res.status(200).json({ token, user });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
+  }
+};
+export const createPost = async (req, res) => {
+  const {
+    userId,
+    userName,
+    kindOfPost,
+    typeRecipe,
+    dietaryPreferences,
+    title,
+    content,
+    image,
+  } = req.body;
+  try {
+    const post = await Post.create({
+      user: userId,
+      userName,
+      kindOfPost,
+      typeRecipe,
+      dietaryPreferences,
+      title,
+      content,
+      image,
+      likes: [],
+      comments: [],
+    });
+
+    await User.findByIdAndUpdate(userId, { $push: { posts: post._id } });
+
+    res.status(201).json(post);
+  } catch (error) {
+    res.status(500).json({ message: "Error creating post", error: error.message });
   }
 };

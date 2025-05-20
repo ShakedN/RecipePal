@@ -1,0 +1,113 @@
+/* client/src/components/PostCard.css */
+.post-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 24px;
+  padding: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.post-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+}
+
+/* Header */
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid #eee;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: 600;
+  font-size: 1.1em;
+  color: #333;
+}
+
+.timestamp {
+  font-size: 0.85em;
+  color: #888;
+}
+
+/* Body */
+.post-title {
+  font-size: 1.25em;
+  margin: 8px 0;
+  color: #222;
+}
+
+.post-content {
+  font-size: 1em;
+  color: #444;
+  margin-bottom: 12px;
+  white-space: pre-line;
+}
+
+.post-image {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #f5f5f5;
+}
+
+/* Actions */
+.post-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+  border-top: 1px solid #eee;
+  padding-top: 12px;
+}
+
+/* ...existing code... */
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff7ed;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  color: #ff7a00; /* orange */
+  font-size: 0.95em;
+}
+
+.action-btn .icon {
+  stroke-width: 1.5;
+  color:#f5f5f5;      /* outline color */
+  fill: #FFA500;       /* fill color for solid icons */
+  transition: color 0.15s, fill 0.15s;
+}
+
+.action-btn .count {
+  line-height: 1;
+  color: #FFA500;
+  font-weight: bold;
+}
+
+.action-btn:hover .icon,
+.action-btn:hover .count {
+  color: #FFA500;
+  fill: #FFA500;
+}
