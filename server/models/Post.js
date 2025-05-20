@@ -7,6 +7,28 @@ const postSchema = new mongoose.Schema(
       ref: "User", // Reference to the User model
       required: true,
     },
+    userName: {
+      type: mongoose.Schema.Types.String,
+      required: true,
+    },
+    kindOfPost: {
+      type: String,
+      enum: ["recipe", "shared thoughts"],
+      required: true,
+    },
+    typeRecipe: {
+      type: String,
+      enum: ["desert", "main dish", "appetize", "side dish"],
+      required: function () {
+        return this.kindOfPost === "recipe";
+      },
+    },
+    dietaryPreferences: [
+      {
+        type: String,
+        enum: ["dairy-free", "gluten-free", "vegan", "vegeterian"],
+      },
+    ],
     title: {
       type: String,
       required: true,

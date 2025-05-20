@@ -8,12 +8,31 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
       trim: true,
+    },
+    about: {
+      type: String,
+      default: null,
+    },
+    cookingRole: {
+      type: String,
+      enum: ["Professional Chef", "Home Cook", "Beginner", "Food lover"],
+      required: true,
     },
     password: {
       type: String,
@@ -25,8 +44,30 @@ const userSchema = new mongoose.Schema(
     },
     profile_image: {
       type: String,
-      default: null,
+      default: "/images/default-profile.png",
     },
+    posts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
+    birthDate: {
+      type: Date,
+      required: true,
+    },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    groups: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group",
+      },
+    ],
     verificationToken: {
       type: String,
     },

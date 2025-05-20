@@ -11,11 +11,12 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   try {
     const res = await axios.post("http://localhost:5000/api/auth/login", {
-      username: form.username, // assuming username is actually the email
+      username: form.username,
       password: form.password,
     });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("username", res.data.user.username);
+    localStorage.setItem("userId", res.data.user._id); // <-- Add this line
     navigate("/feed");
   } catch (err) {
     alert(
