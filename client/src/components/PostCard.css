@@ -111,3 +111,161 @@
   color: #FFA500;
   fill: #FFA500;
 }
+.action-btn.liked {
+  color: #ff4757;
+}
+
+.action-btn.liked .icon {
+  color: #ff4757;
+  fill: #ff4757;
+}
+
+.likes-info {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+.comments-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.comments-section h4 {
+  margin-bottom: 12px;
+  font-size: 1em;
+  color: #333;
+}
+
+.comment {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.comment-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.comment-username {
+  font-weight: 600;
+  font-size: 0.9em;
+  margin-right: 8px;
+}
+
+.comment-time {
+  font-size: 0.8em;
+  color: #666;
+  margin-left: auto;
+}
+
+.comment-content {
+  font-size: 0.9em;
+  color: #444;
+  margin: 0;
+}
+
+.delete-comment-btn {
+  background: none;
+  border: none;
+  color: #ff4757;
+  font-size: 0.8em;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.delete-comment-btn:hover {
+  text-decoration: underline;
+}
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.edit-comment-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+}
+
+.edit-comment-btn:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.edit-comment-form {
+  margin-top: 8px;
+}
+
+.edit-comment-input {
+  width: 100%;
+  min-height: 60px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9em;
+  resize: vertical;
+  margin-bottom: 8px;
+}
+
+.edit-comment-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.save-comment-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+.save-comment-btn:hover {
+  background: #45a049;
+}
+
+.cancel-comment-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+.cancel-comment-btn:hover {
+  background: #da190b;
+}
+
+.delete-comment-btn {
+  background: none;
+  border: none;
+  color: #ff4757;
+  font-size: 0.8em;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.delete-comment-btn:hover {
+  text-decoration: underline;
+}

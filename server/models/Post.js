@@ -18,9 +18,13 @@ const postSchema = new mongoose.Schema(
     },
     typeRecipe: {
       type: String,
-      enum: ["desert", "main dish", "appetize", "side dish"],
+      enum: ["desert", "main dish", "appetize", "side dish",""],
+      defualt:"",
       required: function () {
-        return this.kindOfPost === "recipe";
+        if (this.kindOfPost != "recipe") {
+          return false; // typeRecipe is not required for non-recipe posts
+        }
+        return true; // typeRecipe is required for recipe posts
       },
     },
     dietaryPreferences: [
@@ -39,7 +43,7 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     image: {
-      type: String, // URL or file path to the post image
+      type: String, 
     },
     likes: [
       {
