@@ -155,3 +155,270 @@
 .post-content {
   white-space: pre-line;
 }
+/* Beautiful New Post Styling */
+.new-post-container {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 32px;
+  padding: 24px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.new-post-container:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.new-post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f3f4;
+}
+
+.new-post-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 16px;
+  border: 3px solid #ff7a00;
+  box-shadow: 0 2px 8px rgba(255, 122, 0, 0.2);
+}
+
+.new-post-greeting {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.new-post-greeting span {
+  background: linear-gradient(45deg, #ff7a00, #ff9933);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.new-post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95em;
+  margin-bottom: 4px;
+}
+
+.styled-select,
+.styled-input,
+.styled-textarea {
+  padding: 14px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  background: #fff;
+  font-family: inherit;
+}
+
+.styled-select:focus,
+.styled-input:focus,
+.styled-textarea:focus {
+  outline: none;
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.styled-select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  appearance: none;
+}
+
+.title-input {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+.styled-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.recipe-details {
+  background: linear-gradient(135deg, #fff5f0 0%, #fff8f5 100%);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #ffe0cc;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dietary-preferences {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9em;
+}
+
+.checkbox-label:hover {
+  border-color: #ff7a00;
+  background: #fff8f5;
+  transform: translateY(-1px);
+}
+
+.styled-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #ff7a00;
+  cursor: pointer;
+}
+
+.checkbox-text {
+  font-weight: 500;
+  color: #495057;
+  user-select: none;
+}
+
+.image-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.image-input {
+  display: none;
+}
+
+.image-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px dashed #adb5bd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.3s ease;
+}
+
+.image-upload-label:hover {
+  background: linear-gradient(135deg, #fff5f0 0%, #fff8f5 100%);
+  border-color: #ff7a00;
+  color: #ff7a00;
+  transform: translateY(-1px);
+}
+
+.file-selected {
+  color: #28a745;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.post-submit-btn {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #ff7a00 0%, #ff9933 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-submit-btn:hover {
+  background: linear-gradient(135deg, #e96b00 0%, #ff8c00 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
+}
+
+.post-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .new-post-container {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .dietary-preferences {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+  }
+  
+  .checkbox-label {
+    padding: 10px 12px;
+    font-size: 0.85em;
+  }
+  
+  .new-post-avatar {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .new-post-greeting {
+    font-size: 1.1em;
+  }
+}
+
+/* Animation for form appearance */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.recipe-details {
+  animation: slideIn 0.3s ease-out;
+}

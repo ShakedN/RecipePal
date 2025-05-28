@@ -3,7 +3,7 @@ import crypto from "crypto";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Post from "../models/Post.js";
+
 export const registerUser = async (req, res) => {
 const {
     username,
@@ -114,37 +114,5 @@ export const loginUser = async (req, res) => {
     res.status(200).json({ token, user });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
-  }
-};
-export const createPost = async (req, res) => {
-  const {
-    userId,
-    userName,
-    kindOfPost,
-    typeRecipe,
-    dietaryPreferences,
-    title,
-    content,
-    image,
-  } = req.body;
-  try {
-    const post = await Post.create({
-      user: userId,
-      userName,
-      kindOfPost,
-      typeRecipe,
-      dietaryPreferences,
-      title,
-      content,
-      image,
-      likes: [],
-      comments: [],
-    });
-
-    await User.findByIdAndUpdate(userId, { $push: { posts: post._id } });
-
-    res.status(201).json(post);
-  } catch (error) {
-    res.status(500).json({ message: "Error creating post", error: error.message });
   }
 };
