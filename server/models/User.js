@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    background_image: {
+      type: String,
+      default: "/images/default-background.png",
+    },
     cookingRole: {
       type: String,
       enum: ["Professional Chef", "Home Cook", "Beginner", "Food lover"],
@@ -84,3 +88,4 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 export default User;
+// Remove any extra closing brace here: }
