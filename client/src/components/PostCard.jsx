@@ -1,5 +1,5 @@
-import React, { useState } from "react"; // Add useState here
-import { Heart, MessageCircle, Edit } from "lucide-react"; // Add Edit here
+import React, { useState } from "react";
+import { Heart, MessageCircle, Edit } from "lucide-react";
 import "./PostCard.css";
 
 export default function PostCard({
@@ -10,10 +10,9 @@ export default function PostCard({
   onEditComment
 }) {
   const userId = localStorage.getItem("userId");
-  const isLiked = post.likes?.some(like => like._id === userId);
+  const isLiked = post.likes?.some(like => like && like._id === userId);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
-  
 
   const handleEditClick = (comment) => {
     setEditingCommentId(comment._id);
@@ -32,16 +31,17 @@ export default function PostCard({
     setEditingCommentId(null);
     setEditContent("");
   };
+
   return (
     <div className="post-card">
       <div className="post-header">
         <img
-          src="/images/default-profile.png"
+          src={post.user?.profile_image || "/images/default-profile.png"}
           alt="User"
           className="avatar"
         />
         <div className="header-text">
-          <span className="username">{post.userName}</span>
+          <span className="username">{post.user?.username || "Unknown User"}</span>
           <span className="timestamp">
             {new Date(post.createdAt).toLocaleString()}
           </span>
@@ -89,6 +89,7 @@ export default function PostCard({
         </button>
       </div>
 
+      {/* Comments Section */}
       {post.comments?.length > 0 && (
         <div className="comments-section">
           <h4>Comments:</h4>
@@ -96,17 +97,17 @@ export default function PostCard({
             <div key={comment._id} className="comment">
               <div className="comment-header">
                 <img
-                  src="/images/default-profile.png"
+                  src={comment.user?.profile_image || "/images/default-profile.png"}
                   alt="User"
                   className="comment-avatar"
                 />
                 <span className="comment-username">
-                  {comment.user.username}
+                  {comment.user?.username || "Unknown User"}
                 </span>
                 <span className="comment-time">
                   {new Date(comment.createdAt).toLocaleString()}
                 </span>
-                {comment.user._id === userId && (
+                {comment.user?._id === userId && (
                   <div className="comment-actions">
                     <button
                       onClick={() => handleEditClick(comment)}
@@ -154,10 +155,14 @@ export default function PostCard({
         </div>
       )}
 
-      {/* Optional: Show who liked the post */}
+      {/* Likes Section */}
       {post.likes?.length > 0 && (
         <div className="likes-info">
-          Liked by: {post.likes.map(like => like.username).join(", ")}
+          Liked by: {post.likes
+            .filter(like => like && like.username) // Filter out null likes
+            .map(like => like.username)
+            .join(", ")
+          }
         </div>
       )}
     </div>

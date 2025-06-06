@@ -3,6 +3,7 @@ import crypto from "crypto";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import express from "express";
 
 export const registerUser = async (req, res) => {
 const {
@@ -92,6 +93,7 @@ export const verifyEmail = async (req, res) => {
     res.status(500).json({ message: "Error verifying email", error: error.message });
   }
 };
+
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
 
@@ -114,5 +116,52 @@ export const loginUser = async (req, res) => {
     res.status(200).json({ token, user });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  const { userId } = req.params;
+  
+  try {
+    const user = await User.findById(userId)
+      .populate("posts")
+      .populate("friends", "username profile_image firstName lastName")
+      .select("-password -verificationToken"); // Exclude sensitive data
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user profile", error: error.message });
+  }
+};
+
+export const updateUserProfile = async (req, res) => {
+  const { userId } = req.params;
+  const { about, profile_image, background_image } = req.body;
+  
+  try {
+    const updateData = {};
+    
+    // Only update fields that are provided
+    if (about !== undefined) updateData.about = about;
+    if (profile_image) updateData.profile_image = profile_image;
+    if (background_image) updateData.background_image = background_image;
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      { new: true } // Return the updated document
+    ).select("-password -verificationToken"); // Exclude sensitive data
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user profile", error: error.message });
   }
 };
