@@ -366,3 +366,31 @@ export const getFriendshipStatus = async (req, res) => {
     res.status(500).json({ message: "Error checking friendship status", error: error.message });
   }
 };
+export const unfriend = async (req, res) => {
+  const { userId, friendId } = req.body;
+  
+  try {
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+
+    if (!user || !friend) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if they are actually friends
+    if (!user.friends.includes(friendId) || !friend.friends.includes(userId)) {
+      return res.status(400).json({ message: "Users are not friends" });
+    }
+
+    // Remove from both users' friends lists
+    user.friends = user.friends.filter(id => id.toString() !== friendId);
+    friend.friends = friend.friends.filter(id => id.toString() !== userId);
+
+    await user.save();
+    await friend.save();
+
+    res.status(200).json({ message: "Friendship removed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing friendship", error: error.message });
+  }
+};

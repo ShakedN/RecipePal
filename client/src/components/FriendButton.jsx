@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { UserPlus, UserCheck, Clock, X } from "lucide-react";
+import { UserPlus, UserCheck, Clock, X, UserMinus } from "lucide-react";
 import "./FriendButton.css";
 
 export default function FriendButton({ targetUserId, onStatusChange }) {
   const [friendshipStatus, setFriendshipStatus] = useState("none");
   const [loading, setLoading] = useState(false);
+  const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const currentUserId = localStorage.getItem("userId");
 
   useEffect(() => {
@@ -69,14 +70,64 @@ export default function FriendButton({ targetUserId, onStatusChange }) {
     }
   };
 
+  const unfriend = async () => {
+    setLoading(true);
+    try {
+      await axios.post("http://localhost:5000/api/auth/unfriend", {
+        userId: currentUserId,
+        friendId: targetUserId
+      });
+      setFriendshipStatus("none");
+      setShowUnfriendConfirm(false);
+      if (onStatusChange) onStatusChange("none");
+    } catch (err) {
+      alert("Failed to unfriend: " + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnfriendClick = () => {
+    setShowUnfriendConfirm(true);
+  };
+
+  const cancelUnfriend = () => {
+    setShowUnfriendConfirm(false);
+  };
+
   const renderButton = () => {
     switch (friendshipStatus) {
       case "friends":
         return (
-          <button className="friend-btn friends" disabled>
-            <UserCheck size={16} />
-            Friends
-          </button>
+          <div className="friend-button-group">
+            {!showUnfriendConfirm ? (
+              <button className="friend-btn friends" onClick={handleUnfriendClick}>
+                <UserCheck size={16} />
+                Friends
+              </button>
+            ) : (
+              <div className="unfriend-confirm">
+                <p>Remove from friends?</p>
+                <div className="unfriend-actions">
+                  <button 
+                    className="friend-btn unfriend-confirm-btn" 
+                    onClick={unfriend}
+                    disabled={loading}
+                  >
+                    <UserMinus size={16} />
+                    Unfriend
+                  </button>
+                  <button 
+                    className="friend-btn cancel-unfriend-btn" 
+                    onClick={cancelUnfriend}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         );
       
       case "request_sent":

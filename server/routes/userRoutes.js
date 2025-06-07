@@ -10,7 +10,8 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
   getFriendRequests,
-  getFriendshipStatus
+  getFriendshipStatus,
+  unfriend
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -28,5 +29,5 @@ router.post("/accept-friend", acceptFriendRequest);
 router.post("/reject-friend", rejectFriendRequest);
 router.get("/friend-requests/:userId", getFriendRequests);
 router.get("/friendship-status/:userId/:targetUserId", getFriendshipStatus);
-
+router.post("/unfriend", unfriend); 
 export default router;

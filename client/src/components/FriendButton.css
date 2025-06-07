@@ -2,6 +2,12 @@
   margin: 15px 0;
 }
 
+.friend-button-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .friend-btn {
   display: inline-flex;
   align-items: center;
@@ -37,6 +43,11 @@
   color: white;
 }
 
+.friend-btn.friends:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
 .friend-btn.request-sent {
   background: #6c757d;
   color: white;
@@ -61,6 +72,48 @@
   background: #c82333;
 }
 
+/* Unfriend confirmation styles */
+.unfriend-confirm {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+  text-align: center;
+  min-width: 200px;
+}
+
+.unfriend-confirm p {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.unfriend-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.friend-btn.unfriend-confirm-btn {
+  background: #dc3545;
+  color: white;
+  flex: 1;
+}
+
+.friend-btn.unfriend-confirm-btn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.friend-btn.cancel-unfriend-btn {
+  background: #6c757d;
+  color: white;
+  flex: 1;
+}
+
+.friend-btn.cancel-unfriend-btn:hover:not(:disabled) {
+  background: #5a6268;
+}
+
 .friend-request-actions {
   display: flex;
   gap: 8px;
@@ -82,5 +135,14 @@
   .friend-btn.accept {
     margin-right: 0;
     margin-bottom: 8px;
+  }
+  
+  .unfriend-confirm {
+    padding: 12px;
+    min-width: 180px;
+  }
+  
+  .unfriend-actions {
+    flex-direction: column;
   }
 }
