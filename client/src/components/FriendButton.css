@@ -1,0 +1,86 @@
+.friend-button-container {
+  margin: 15px 0;
+}
+
+.friend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.friend-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.friend-btn.add-friend {
+  background: #ff7a00;
+  color: white;
+}
+
+.friend-btn.add-friend:hover:not(:disabled) {
+  background: #e96b00;
+  transform: translateY(-2px);
+}
+
+.friend-btn.friends {
+  background: #28a745;
+  color: white;
+}
+
+.friend-btn.request-sent {
+  background: #6c757d;
+  color: white;
+}
+
+.friend-btn.accept {
+  background: #28a745;
+  color: white;
+  margin-right: 8px;
+}
+
+.friend-btn.accept:hover:not(:disabled) {
+  background: #218838;
+}
+
+.friend-btn.reject {
+  background: #dc3545;
+  color: white;
+}
+
+.friend-btn.reject:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.friend-request-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .friend-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-width: 100px;
+  }
+  
+  .friend-request-actions {
+    flex-direction: column;
+  }
+  
+  .friend-btn.accept {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+}
