@@ -121,3 +121,182 @@
       font-size: 12px;
     }
   }
+  .friend-requests-container {
+  position: relative;
+}
+
+.friend-requests-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.friend-requests-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.friend-requests-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ff9933;
+}
+
+.friend-requests-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  min-width: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 10px;
+  padding: 16px;
+}
+
+.friend-requests-dropdown h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 18px;
+  border-bottom: 2px solid #f1f3f4;
+  padding-bottom: 8px;
+}
+
+.no-requests {
+  color: #666;
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.request-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.request-item:hover {
+  background: #e9ecef;
+}
+
+.request-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid #e9ecef;
+}
+
+.request-info {
+  flex: 1;
+  margin-right: 12px;
+}
+
+.request-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.request-username {
+  color: #666;
+  font-size: 12px;
+}
+
+.request-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.accept-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.accept-btn:hover {
+  background: #218838;
+}
+
+.reject-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.reject-btn:hover {
+  background: #c82333;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .friend-requests-dropdown {
+    min-width: 300px;
+    right: -20px;
+  }
+  
+  .request-item {
+    padding: 10px;
+  }
+  
+  .request-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .request-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .accept-btn,
+  .reject-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}

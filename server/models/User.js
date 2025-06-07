@@ -66,6 +66,32 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    friendRequests: [
+      {
+        from: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    sentFriendRequests: [
+      {
+        to: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ], // Add this missing closing bracket and comma
     groups: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -88,4 +114,3 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 export default User;
-// Remove any extra closing brace here: }

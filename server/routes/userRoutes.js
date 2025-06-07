@@ -5,7 +5,13 @@ import {
   verifyEmail, 
   getUserProfile, 
   updateUserProfile, 
-  searchUsers 
+  searchUsers,
+  sendFriendRequest,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  getFriendRequests,
+  getFriendshipStatus,
+  unfriend
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -15,6 +21,13 @@ router.post("/login", loginUser);
 router.get("/verify-email/:token", verifyEmail);
 router.get("/profile/:userId", getUserProfile);
 router.put("/profile/:userId", updateUserProfile);
-router.get("/search", searchUsers); // Add this line
+router.get("/search", searchUsers);
 
+// Friend request routes
+router.post("/friend-request", sendFriendRequest);
+router.post("/accept-friend", acceptFriendRequest);
+router.post("/reject-friend", rejectFriendRequest);
+router.get("/friend-requests/:userId", getFriendRequests);
+router.get("/friendship-status/:userId/:targetUserId", getFriendshipStatus);
+router.post("/unfriend", unfriend); 
 export default router;

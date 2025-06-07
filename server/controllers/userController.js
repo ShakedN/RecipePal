@@ -199,3 +199,198 @@ export const searchUsers = async (req, res) => {
     res.status(500).json({ message: "Error searching users", error: error.message });
   }
 };
+// Add friend request
+export const sendFriendRequest = async (req, res) => {
+  const { fromUserId, toUserId } = req.body;
+  
+  try {
+    if (fromUserId === toUserId) {
+      return res.status(400).json({ message: "Cannot send friend request to yourself" });
+    }
+
+    const fromUser = await User.findById(fromUserId);
+    const toUser = await User.findById(toUserId);
+
+    if (!fromUser || !toUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if they are already friends
+    if (fromUser.friends.includes(toUserId)) {
+      return res.status(400).json({ message: "Already friends" });
+    }
+
+    // Check if request already sent
+    const existingRequest = toUser.friendRequests.find(
+      req => req.from.toString() === fromUserId
+    );
+    if (existingRequest) {
+      return res.status(400).json({ message: "Friend request already sent" });
+    }
+
+    // Add to recipient's friend requests
+    toUser.friendRequests.push({ from: fromUserId });
+    
+    // Add to sender's sent requests
+    fromUser.sentFriendRequests.push({ to: toUserId });
+
+    await toUser.save();
+    await fromUser.save();
+
+    res.status(200).json({ message: "Friend request sent successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending friend request", error: error.message });
+  }
+};
+
+// Accept friend request
+export const acceptFriendRequest = async (req, res) => {
+  const { userId, requesterId } = req.body;
+  
+  try {
+    const user = await User.findById(userId);
+    const requester = await User.findById(requesterId);
+
+    if (!user || !requester) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Remove from friend requests
+    user.friendRequests = user.friendRequests.filter(
+      req => req.from.toString() !== requesterId
+    );
+
+    // Remove from sent requests
+    requester.sentFriendRequests = requester.sentFriendRequests.filter(
+      req => req.to.toString() !== userId
+    );
+
+    // Add to friends list
+    user.friends.push(requesterId);
+    requester.friends.push(userId);
+
+    await user.save();
+    await requester.save();
+
+    res.status(200).json({ message: "Friend request accepted" });
+  } catch (error) {
+    res.status(500).json({ message: "Error accepting friend request", error: error.message });
+  }
+};
+
+// Reject friend request
+export const rejectFriendRequest = async (req, res) => {
+  const { userId, requesterId } = req.body;
+  
+  try {
+    const user = await User.findById(userId);
+    const requester = await User.findById(requesterId);
+
+    if (!user || !requester) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Remove from friend requests
+    user.friendRequests = user.friendRequests.filter(
+      req => req.from.toString() !== requesterId
+    );
+
+    // Remove from sent requests
+    requester.sentFriendRequests = requester.sentFriendRequests.filter(
+      req => req.to.toString() !== userId
+    );
+
+    await user.save();
+    await requester.save();
+
+    res.status(200).json({ message: "Friend request rejected" });
+  } catch (error) {
+    res.status(500).json({ message: "Error rejecting friend request", error: error.message });
+  }
+};
+
+// Get friend requests
+export const getFriendRequests = async (req, res) => {
+  const { userId } = req.params;
+  
+  try {
+    const user = await User.findById(userId)
+      .populate('friendRequests.from', 'username firstName lastName profile_image')
+      .select('friendRequests');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user.friendRequests);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching friend requests", error: error.message });
+  }
+};
+
+// Check friendship status
+export const getFriendshipStatus = async (req, res) => {
+  const { userId, targetUserId } = req.params;
+  
+  try {
+    const user = await User.findById(userId);
+    const targetUser = await User.findById(targetUserId);
+
+    if (!user || !targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if already friends
+    if (user.friends.includes(targetUserId)) {
+      return res.status(200).json({ status: "friends" });
+    }
+
+    // Check if request sent
+    const sentRequest = user.sentFriendRequests.find(
+      req => req.to.toString() === targetUserId
+    );
+    if (sentRequest) {
+      return res.status(200).json({ status: "request_sent" });
+    }
+
+    // Check if request received
+    const receivedRequest = user.friendRequests.find(
+      req => req.from.toString() === targetUserId
+    );
+    if (receivedRequest) {
+      return res.status(200).json({ status: "request_received" });
+    }
+
+    res.status(200).json({ status: "none" });
+  } catch (error) {
+    res.status(500).json({ message: "Error checking friendship status", error: error.message });
+  }
+};
+export const unfriend = async (req, res) => {
+  const { userId, friendId } = req.body;
+  
+  try {
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+
+    if (!user || !friend) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if they are actually friends
+    if (!user.friends.includes(friendId) || !friend.friends.includes(userId)) {
+      return res.status(400).json({ message: "Users are not friends" });
+    }
+
+    // Remove from both users' friends lists
+    user.friends = user.friends.filter(id => id.toString() !== friendId);
+    friend.friends = friend.friends.filter(id => id.toString() !== userId);
+
+    await user.save();
+    await friend.save();
+
+    res.status(200).json({ message: "Friendship removed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing friendship", error: error.message });
+  }
+};

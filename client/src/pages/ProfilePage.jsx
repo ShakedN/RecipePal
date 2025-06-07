@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Edit3, Camera, Save, X } from "lucide-react";
 import "./ProfilePage.css";
 import axios from "axios";
+import FriendButton from "../components/FriendButton";
 
 export default function ProfilePage() {
   const { userId: urlUserId } = useParams();
@@ -239,7 +240,17 @@ export default function ProfilePage() {
           {user.firstName} {user.lastName}
         </h1>
         <p className="profile-username">@{user.username}</p>
-
+        {!isOwnProfile && (
+          <FriendButton 
+            targetUserId={profileUserId} 
+            onStatusChange={(status) => {
+              // Optionally refresh user data when friendship status changes
+              if (status === "friends") {
+                fetchUserProfile();
+              }
+            }}
+          />
+        )}
         {/* Cooking Role Section */}
         <div className="profile-cooking-role-section">
           {isEditing ? (
