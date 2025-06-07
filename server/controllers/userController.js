@@ -140,7 +140,7 @@ export const getUserProfile = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   const { userId } = req.params;
-  const { about, profile_image, background_image } = req.body;
+  const { about, profile_image, background_image,cookingRole } = req.body;
   
   try {
     const updateData = {};
@@ -149,7 +149,7 @@ export const updateUserProfile = async (req, res) => {
     if (about !== undefined) updateData.about = about;
     if (profile_image) updateData.profile_image = profile_image;
     if (background_image) updateData.background_image = background_image;
-    
+    if (cookingRole) updateData.cookingRole = cookingRole;
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       updateData,
@@ -163,5 +163,39 @@ export const updateUserProfile = async (req, res) => {
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(500).json({ message: "Error updating user profile", error: error.message });
+  }
+};
+// Add this function to userController.js
+export const searchUsers = async (req, res) => {
+  const { query } = req.query;
+  
+  try {
+    if (!query || query.trim().length < 2) {
+      return res.status(400).json({ message: "Search query must be at least 2 characters" });
+    }
+
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: 'i' } },
+        { firstName: { $regex: query, $options: 'i' } },
+        { lastName: { $regex: query, $options: 'i' } },
+        { 
+          $expr: {
+            $regexMatch: {
+              input: { $concat: ["$firstName", " ", "$lastName"] },
+              regex: query,
+              options: "i"
+            }
+          }
+        }
+      ],
+      isVerified: true // Only show verified users
+    })
+    .select("username firstName lastName profile_image cookingRole")
+    .limit(10); // Limit results
+
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error searching users", error: error.message });
   }
 };
