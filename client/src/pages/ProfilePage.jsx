@@ -1,38 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Edit3, Camera, Save, X } from "lucide-react";
 import "./ProfilePage.css";
 import axios from "axios";
 
 export default function ProfilePage() {
+  const { userId: urlUserId } = useParams();
+  const navigate = useNavigate();
+  const currentUserId = localStorage.getItem("userId");
+  const isOwnProfile = !urlUserId || urlUserId === currentUserId;
+  const profileUserId = urlUserId || currentUserId;
+
+  // Add all missing state variables
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
     about: "",
+    cookingRole: "",
     profileImageFile: null,
     backgroundImageFile: null,
     profileImagePreview: "",
     backgroundImagePreview: ""
   });
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
-  }, []);
+  }, [profileUserId]);
 
   const fetchUserProfile = async () => {
-    const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
     
-    if (!userId || !token) {
+    if (!profileUserId || !token) {
       navigate("/");
       return;
     }
 
     try {
-      const res = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`, {
+      const res = await axios.get(`http://localhost:5000/api/auth/profile/${profileUserId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -40,6 +46,7 @@ export default function ProfilePage() {
       setUser(res.data);
       setEditData({
         about: res.data.about || "",
+        cookingRole: res.data.cookingRole || "",
         profileImageFile: null,
         backgroundImageFile: null,
         profileImagePreview: res.data.profile_image || "/images/default-profile.png",
@@ -85,6 +92,7 @@ export default function ProfilePage() {
   const handleCancelEdit = () => {
     setEditData({
       about: user.about || "",
+      cookingRole: user.cookingRole || "",
       profileImageFile: null,
       backgroundImageFile: null,
       profileImagePreview: user.profile_image || "/images/default-profile.png",
@@ -98,7 +106,10 @@ export default function ProfilePage() {
     const token = localStorage.getItem("token");
     
     try {
-      const updateData = { about: editData.about };
+      const updateData = { 
+        about: editData.about,
+        cookingRole: editData.cookingRole
+      };
       
       // Upload profile image if changed
       if (editData.profileImageFile) {
@@ -170,8 +181,8 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
-      {/* Edit Button */}
-      {!isEditing && (
+      {/* Edit Button - Only show for own profile */}
+      {isOwnProfile && !isEditing && (
         <button className="edit-profile-btn" onClick={handleEditClick}>
           <Edit3 size={20} />
           Edit Profile
@@ -228,10 +239,34 @@ export default function ProfilePage() {
           {user.firstName} {user.lastName}
         </h1>
         <p className="profile-username">@{user.username}</p>
-        <p className="profile-cooking-role">👨‍🍳 {user.cookingRole}</p>
+
+        {/* Cooking Role Section */}
+        <div className="profile-cooking-role-section">
+          {isEditing ? (
+            <div className="edit-cooking-role-container">
+              <label htmlFor="cookingRole" className="edit-label">👨‍🍳 Cooking Role:</label>
+              <select
+                id="cookingRole"
+                value={editData.cookingRole}
+                onChange={(e) => setEditData(prev => ({ ...prev, cookingRole: e.target.value }))}
+                className="edit-select"
+                required
+              >
+                <option value="">Select Cooking Role</option>
+                <option value="Professional Chef">👨‍🍳 Professional Chef</option>
+                <option value="Home Cook">🏠 Home Cook</option>
+                <option value="Beginner">🌱 Beginner</option>
+                <option value="Food lover">❤️ Food Lover</option>
+              </select>
+            </div>
+          ) : (
+            <p className="profile-cooking-role">👨‍🍳 {user.cookingRole}</p>
+          )}
+        </div>
+
         <p className="profile-birthday">🎂 Birthday: {formatDate(user.birthDate)}</p>
         
-        {/* About Section with Edit Functionality */}
+        {/* About Section */}
         <div className="profile-about-section">
           {isEditing ? (
             <div className="edit-about-container">
