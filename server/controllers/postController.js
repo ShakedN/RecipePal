@@ -16,7 +16,6 @@ export const getAllPosts = async (req, res) => {
 };
 
 // Create a new post
-// Create a new post
 export const createPost = async (req, res) => {
   const {
     userId,

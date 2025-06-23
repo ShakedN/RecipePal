@@ -269,3 +269,171 @@
 .delete-comment-btn:hover {
   text-decoration: underline;
 }
+/* Simple delete button styles */
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.delete-post-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+}
+
+.delete-post-btn:hover {
+  background: #f8f9fa;
+  color: #dc3545;
+  transform: scale(1.1);
+}
+
+.delete-post-btn:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .delete-post-btn {
+    padding: 6px;
+  }
+}/* Post Menu (Edit and Delete buttons) */
+.post-menu {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.edit-post-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-post-btn:hover {
+  background: #f8f9fa;
+  color: #007bff;
+  transform: scale(1.1);
+}
+
+.delete-post-btn {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-post-btn:hover {
+  background: #f8f9fa;
+  color: #dc3545;
+  transform: scale(1.1);
+}
+
+/* Edit Post Form */
+.edit-post-form {
+  margin-bottom: 15px;
+}
+
+.edit-post-content {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  margin-bottom: 10px;
+  font-family: inherit;
+}
+
+.edit-post-content:focus {
+  outline: none;
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+}
+
+.edit-post-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.save-post-btn,
+.cancel-post-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-post-btn {
+  background: #28a745;
+  color: white;
+}
+
+.save-post-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.cancel-post-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.cancel-post-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .post-menu {
+    gap: 3px;
+  }
+  
+  .edit-post-btn,
+  .delete-post-btn {
+    padding: 6px;
+  }
+  
+  .edit-post-actions {
+    flex-direction: column;
+  }
+  
+  .save-post-btn,
+  .cancel-post-btn {
+    width: 100%;
+  }
+}

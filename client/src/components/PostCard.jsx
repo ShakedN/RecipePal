@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Heart, MessageCircle, Edit } from "lucide-react";
+import { Heart, MessageCircle, Edit, Trash2 } from "lucide-react";
 import "./PostCard.css";
 
 export default function PostCard({
   post,
+  onEditPost,
+  onDeletePost,
   onLike,
   onComment,
   onDeleteComment,
@@ -13,11 +15,8 @@ export default function PostCard({
   const isLiked = post.likes?.some(like => like && like._id === userId);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
-
-  const handleEditClick = (comment) => {
-    setEditingCommentId(comment._id);
-    setEditContent(comment.content);
-  };
+  const [isEditingPost, setIsEditingPost] = useState(false);
+  const [editPostContent, setEditPostContent] = useState("");
 
   const handleEditSubmit = (commentId) => {
     if (editContent.trim()) {
@@ -30,6 +29,32 @@ export default function PostCard({
   const handleEditCancel = () => {
     setEditingCommentId(null);
     setEditContent("");
+  };
+
+  const handleDeleteClick = () => {
+    onDeletePost(post._id);
+  };
+
+  const handleEditPostClick = () => {
+    setIsEditingPost(true);
+    setEditPostContent(post.content);
+  };
+
+  const handleEditPostSubmit = () => {
+    if (editPostContent.trim()) {
+      onEditPost(post._id, editPostContent.trim());
+      setIsEditingPost(false);
+    }
+  };
+
+  const handleEditPostCancel = () => {
+    setIsEditingPost(false);
+    setEditPostContent(post.content);
+  };
+
+  const handleEditClick = (comment) => {
+    setEditingCommentId(comment._id);
+    setEditContent(comment.content);
   };
 
   return (
@@ -55,10 +80,53 @@ export default function PostCard({
             </>
           )}
         </div>
+        
+        {/* Edit and Delete buttons - only show for post owner */}
+        {post.user?._id === userId && (
+          <div className="post-menu">
+            <button
+              className="edit-post-btn"
+              onClick={handleEditPostClick}
+              title="Edit Post"
+            >
+              <Edit size={18} />
+            </button>
+            <button
+              className="delete-post-btn"
+              onClick={handleDeleteClick}
+              title="Delete Post"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
+        )}
       </div>
 
+      {/* Remove duplicate title - keep only one */}
       <h3 className="post-title">{post.title}</h3>
-      <p className="post-content">{post.content}</p>
+
+      {/* Conditional rendering for post content - either edit mode or display mode */}
+      {isEditingPost ? (
+        <div className="edit-post-form">
+          <textarea
+            value={editPostContent}
+            onChange={(e) => setEditPostContent(e.target.value)}
+            className="edit-post-content"
+            placeholder="Edit your post content..."
+          />
+          <div className="edit-post-actions">
+            <button onClick={handleEditPostSubmit} className="save-post-btn">
+              Save
+            </button>
+            <button onClick={handleEditPostCancel} className="cancel-post-btn">
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="post-content">{post.content}</p>
+      )}
+      {/* Remove this duplicate line: <p className="post-content">{post.content}</p> */}
 
       {post.image && (
         <img src={post.image} alt="Post" className="post-image" />
@@ -124,7 +192,7 @@ export default function PostCard({
                   </div>
                 )}
               </div>
-              
+
               {editingCommentId === comment._id ? (
                 <div className="edit-comment-form">
                   <textarea
@@ -159,7 +227,7 @@ export default function PostCard({
       {post.likes?.length > 0 && (
         <div className="likes-info">
           Liked by: {post.likes
-            .filter(like => like && like.username) // Filter out null likes
+            .filter(like => like && like.username)
             .map(like => like.username)
             .join(", ")
           }
