@@ -183,53 +183,6 @@ const handleImageUpload = async (file) => {
   return data.secure_url;
 };
 
-  
-       const handleNewPostSubmit = async (e) => {
-      e.preventDefault();
-      const userName = localStorage.getItem("username");
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        alert("You must be logged in to post.");
-        return;
-      }
-    
-      try {
-        let imageUrl = "";
-        if (newPost.imageFile) {
-          imageUrl = await handleImageUpload(newPost.imageFile);
-        }
-    
-        const postPayload = {
-          userId,
-          userName,
-          kindOfPost: newPost.kindOfPost,
-          title: newPost.title,
-          content: newPost.content,
-          image: imageUrl,
-        };
-    
-        // Only add recipe-specific fields if it's a recipe post
-        if (newPost.kindOfPost === "recipe") {
-          postPayload.typeRecipe = newPost.typeRecipe;
-          postPayload.dietaryPreferences = newPost.dietaryPreferences;
-        }
-    
-        await axios.post("http://localhost:5000/api/posts", postPayload);
-        await fetchPosts(); // Refresh posts after creating
-        setNewPost({
-          title: "",
-          content: "",
-          kindOfPost: "",
-          typeRecipe: "",
-          dietaryPreferences: [],
-          imageFile: null,
-        });
-      } catch (err) {
-        alert("Failed to add post: " + (err.response?.data?.error || err.message));
-      }
-    };
-
-
 // Edit comment handler
 const handleEditComment = async (postId, commentId, newContent) => {
   const userId = localStorage.getItem("userId");
@@ -247,7 +200,91 @@ const handleEditComment = async (postId, commentId, newContent) => {
   } catch (err) {
     alert("Failed to edit comment: " + (err.response?.data?.message || err.message));
   }
+};  
+const handleNewPostSubmit = async (e) => {
+  e.preventDefault();
+  const userName = localStorage.getItem("username");
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    alert("You must be logged in to post.");
+    return;
+  }
+
+  try {
+    let imageUrl = "";
+    if (newPost.imageFile) {
+      imageUrl = await handleImageUpload(newPost.imageFile);
+    }
+
+    // Create the post payload, using createPost function from postController
+    const postPayload = {
+      userId,
+      userName,
+      kindOfPost: newPost.kindOfPost,
+      title: newPost.title,
+      content: newPost.content,
+      image: imageUrl,
+    };
+
+    // Only add recipe-specific fields if it's a recipe post
+    if (newPost.kindOfPost === "recipe") {
+      postPayload.typeRecipe = newPost.typeRecipe;
+      postPayload.dietaryPreferences = newPost.dietaryPreferences;
+    }
+
+    await axios.post("http://localhost:5000/api/posts", postPayload);
+    await fetchPosts(); // Refresh posts after creating
+    setNewPost({
+      title: "",
+      content: "",
+      kindOfPost: "",
+      typeRecipe: "",
+      dietaryPreferences: [],
+      imageFile: null,
+    });
+  } catch (err) {
+    alert("Failed to add post: " + (err.response?.data?.error || err.message));
+  }
 };
+
+//delete post 
+
+const handleDeletePost = async (postId) => {
+  const userId = localStorage.getItem("userId");
+  try {
+    const res = await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+      data: { userId }
+    });
+  // Remove the deleted post from the posts array
+    setPosts((prevPosts) =>
+      prevPosts.filter((post) => post._id !== postId)
+    );
+  } catch (err) {
+    alert("Failed to delete post: " + (err.response?.data?.message || err.message));
+  }
+};
+
+//edit post - content only
+const handleEditPost = async (postId, newContent) => {
+  const userId = localStorage.getItem("userId");
+  try {
+    const res = await axios.put(`http://localhost:5000/api/posts/${postId}`, {
+      userId,
+      content: newContent,
+      // Add the title from the existing post to avoid backend validation issues
+      title: posts.find(post => post._id === postId)?.title || "Updated Post"
+    });
+    
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId ? res.data : post
+      )
+    );
+  } catch (err) {
+    alert("Failed to edit post: " + (err.response?.data?.message || err.message));
+  }
+};
+
 
 
     return (
@@ -393,6 +430,8 @@ const handleEditComment = async (postId, commentId, newContent) => {
             onComment={handleComment}
             onDeleteComment={handleDeleteComment}
             onEditComment={handleEditComment}
+            onDeletePost={handleDeletePost}
+            onEditPost={handleEditPost}
           />
         ))
       )}
