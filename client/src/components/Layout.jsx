@@ -24,19 +24,22 @@ export default function Layout() {
   const friendsListRef = useRef(null); // New ref for friends list
   const navigate = useNavigate();
 
-  // Get the user's profile image from localStorage or use default
+  //Get the user's profile image from localStorage or use default
   const profileImage =
     localStorage.getItem("profile_image") || "/images/default-profile.png";
-  
+
   const currentUserId = localStorage.getItem("userId");
 
-  // Close dropdowns when clicking outside
+  //Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowResults(false);
       }
-      if (friendRequestsRef.current && !friendRequestsRef.current.contains(event.target)) {
+      if (
+        friendRequestsRef.current &&
+        !friendRequestsRef.current.contains(event.target)
+      ) {
         setShowFriendRequests(false);
       }
       if (friendsListRef.current && !friendsListRef.current.contains(event.target)) {
@@ -50,7 +53,7 @@ export default function Layout() {
     };
   }, []);
 
-  // Fetch friend requests and friends on component mount
+  //Fetch friend requests on component mount
   useEffect(() => {
     if (currentUserId) {
       fetchFriendRequests();
@@ -58,7 +61,7 @@ export default function Layout() {
     }
   }, [currentUserId]);
 
-  // Search users with debouncing
+  //Search users with debouncing
   useEffect(() => {
     const delayedSearch = setTimeout(() => {
       if (searchQuery.trim().length >= 2) {
@@ -67,14 +70,16 @@ export default function Layout() {
         setSearchResults([]);
         setShowResults(false);
       }
-    }, 300); // 300ms debounce
+    }, 300); //300ms debounce
 
     return () => clearTimeout(delayedSearch);
   }, [searchQuery]);
 
   const fetchFriendRequests = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/auth/friend-requests/${currentUserId}`);
+      const res = await axios.get(
+        `http://localhost:5000/api/auth/friend-requests/${currentUserId}`
+      );
       setFriendRequests(res.data);
     } catch (err) {
       console.error("Failed to fetch friend requests:", err);
@@ -96,7 +101,11 @@ export default function Layout() {
 
     setIsSearching(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/auth/search?query=${encodeURIComponent(searchQuery)}`);
+      const res = await axios.get(
+        `http://localhost:5000/api/auth/search?query=${encodeURIComponent(
+          searchQuery
+        )}`
+      );
       setSearchResults(res.data);
       setShowResults(true);
     } catch (err) {
@@ -111,7 +120,7 @@ export default function Layout() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchResults.length > 0) {
-      // Navigate to first result if Enter is pressed
+      //Navigate to first result if Enter is pressed
       navigate(`/profile/${searchResults[0]._id}`);
       setShowResults(false);
       setSearchQuery("");
@@ -166,13 +175,16 @@ export default function Layout() {
     try {
       await axios.post("http://localhost:5000/api/auth/accept-friend", {
         userId: currentUserId,
-        requesterId
+        requesterId,
       });
-      // Refresh friend requests and friends after accepting
+      //Refresh friend requests after accepting
       fetchFriendRequests();
       fetchFriends();
     } catch (err) {
-      alert("Failed to accept friend request: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to accept friend request: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -180,12 +192,15 @@ export default function Layout() {
     try {
       await axios.post("http://localhost:5000/api/auth/reject-friend", {
         userId: currentUserId,
-        requesterId
+        requesterId,
       });
-      // Refresh friend requests after rejecting
+      //Refresh friend requests after rejecting
       fetchFriendRequests();
     } catch (err) {
-      alert("Failed to reject friend request: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to reject friend request: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -206,11 +221,15 @@ export default function Layout() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-            <button type="submit" className="search-button" disabled={isSearching}>
+            <button
+              type="submit"
+              className="search-button"
+              disabled={isSearching}
+            >
               {isSearching ? "..." : "Search"}
             </button>
           </form>
-          <SearchResults 
+          <SearchResults
             results={searchResults}
             isVisible={showResults}
             onClose={closeSearch}
@@ -287,17 +306,19 @@ export default function Layout() {
 
           {/* Friend Requests Icon */}
           <li className="friend-requests-container" ref={friendRequestsRef}>
-            <button 
+            <button
               className="friend-requests-btn"
               onClick={handleFriendRequestClick}
               aria-label="Friend Requests"
             >
               <Users size={28} />
               {friendRequests.length > 0 && (
-                <span className="friend-requests-badge">{friendRequests.length}</span>
+                <span className="friend-requests-badge">
+                  {friendRequests.length}
+                </span>
               )}
             </button>
-            
+
             {/* Friend Requests Dropdown */}
             {showFriendRequests && (
               <div className="friend-requests-dropdown">
@@ -309,7 +330,10 @@ export default function Layout() {
                     {friendRequests.map((request) => (
                       <div key={request.from._id} className="request-item">
                         <img
-                          src={request.from.profile_image || "/images/default-profile.png"}
+                          src={
+                            request.from.profile_image ||
+                            "/images/default-profile.png"
+                          }
                           alt={request.from.username}
                           className="request-avatar"
                         />
@@ -317,18 +341,24 @@ export default function Layout() {
                           <div className="request-name">
                             {request.from.firstName} {request.from.lastName}
                           </div>
-                          <div className="request-username">@{request.from.username}</div>
+                          <div className="request-username">
+                            @{request.from.username}
+                          </div>
                         </div>
                         <div className="request-actions">
                           <button
                             className="accept-btn"
-                            onClick={() => handleAcceptRequest(request.from._id)}
+                            onClick={() =>
+                              handleAcceptRequest(request.from._id)
+                            }
                           >
                             Accept
                           </button>
                           <button
                             className="reject-btn"
-                            onClick={() => handleRejectRequest(request.from._id)}
+                            onClick={() =>
+                              handleRejectRequest(request.from._id)
+                            }
                           >
                             Reject
                           </button>
