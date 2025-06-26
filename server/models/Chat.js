@@ -5,7 +5,7 @@ const chatSchema = new mongoose.Schema(
     participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Reference to the User model
+        ref: "User",
         required: true,
       },
     ],
@@ -13,7 +13,7 @@ const chatSchema = new mongoose.Schema(
       {
         sender: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User", // Reference to the User model
+          ref: "User",
           required: true,
         },
         content: {
@@ -24,13 +24,25 @@ const chatSchema = new mongoose.Schema(
           type: Date,
           default: Date.now,
         },
+        isRead: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
+    lastActivity: {
+      type: Date,
+      default: Date.now,
+    },
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
   }
 );
+
+// Index for efficient queries
+chatSchema.index({ participants: 1 });
+chatSchema.index({ "messages.timestamp": -1 });
 
 const Chat = mongoose.model("Chat", chatSchema);
 
