@@ -1,0 +1,425 @@
+.photo-editor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #f5f5f5;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-header {
+  background: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.editor-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.editor-actions button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.editor-actions button:first-child,
+.editor-actions button:nth-child(2) {
+  background: #6c757d;
+  color: white;
+}
+
+.editor-actions button:first-child:hover,
+.editor-actions button:nth-child(2):hover {
+  background: #5a6268;
+}
+
+.editor-actions button:nth-child(3) {
+  background: #ff7a00;
+  color: white;
+}
+
+.editor-actions button:nth-child(3):hover {
+  background: #e96b00;
+}
+
+.editor-actions button:last-child {
+  background: #6c757d;
+  color: white;
+}
+
+.editor-actions button:last-child:hover {
+  background: #5a6268;
+}
+
+.editor-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editor-content {
+  flex: 1;
+  display: flex;
+  min-height: 0; /* Important for flex child to respect parent's height */
+}
+
+.editor-sidebar {
+  width: 320px; /* Slightly wider for better spacing */
+  background: #fff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  /* Remove fixed height and padding, use flex instead */
+}
+
+/* Make sidebar scrollable */
+.editor-sidebar {
+  overflow-y: auto;
+  padding: 0; /* Remove padding from container */
+}
+
+/* Add padding to individual sections instead */
+.tool-section, 
+.filters-section, 
+.layers-section, 
+.text-input-section {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0; /* Prevent sections from shrinking */
+}
+
+.tool-section h4, 
+.filters-section h4, 
+.layers-section h4,
+.text-input-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tool-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tool-btn:hover {
+  background: #f8f9fa;
+  border-color: #ff7a00;
+}
+
+.tool-btn.active {
+  background: #ff7a00;
+  color: white;
+  border-color: #ff7a00;
+}
+
+.text-input-section {
+  background: #f8f9fa;
+  border-radius: 0;
+}
+
+.text-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.2);
+}
+
+.text-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.text-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.text-actions button:first-child {
+  background: #28a745;
+  color: white;
+}
+
+.text-actions button:first-child:hover:not(:disabled) {
+  background: #218838;
+}
+
+.text-actions button:first-child:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.text-actions button:last-child {
+  background: #6c757d;
+  color: white;
+}
+
+.text-actions button:last-child:hover {
+  background: #5a6268;
+}
+
+/* Filters section - the main fix for scrolling */
+.filters-section {
+  /* Remove any max-height restrictions */
+  max-height: none;
+  min-height: auto;
+}
+
+.filter-control {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-control label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-transform: capitalize;
+}
+
+.filter-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #ddd;
+  outline: none;
+  accent-color: #ff7a00;
+  cursor: pointer;
+}
+
+.filter-control span {
+  font-size: 12px;
+  color: #666;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Layers section */
+.layers-section {
+  /* Allow this section to grow if needed */
+  flex: 1;
+  min-height: 200px;
+}
+
+.layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Custom scrollbar for layers list */
+.layers-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.layers-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.layers-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.layers-list::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.layer-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.layer-item:hover {
+  background: #f8f9fa;
+  border-color: #ff7a00;
+}
+
+.layer-item.selected {
+  background: #fff5f0;
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 1px rgba(255, 122, 0, 0.2);
+}
+
+.layer-item span {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.delete-layer-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-layer-btn:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+.editor-canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #f0f0f0;
+  overflow: auto;
+}
+
+.editor-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+/* Custom scrollbar for sidebar */
+.editor-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editor-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.editor-sidebar::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.editor-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .editor-sidebar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .editor-content {
+    flex-direction: column;
+  }
+  
+  .editor-sidebar {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .tool-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .tool-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+  
+  .editor-canvas-container {
+    flex: 1;
+    min-height: 60vh;
+  }
+}
+
+/* Focus styles for accessibility */
+.tool-btn:focus,
+.text-input:focus,
+.filter-slider:focus {
+  outline: 2px solid #ff7a00;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.editor-canvas-container.loading {
+  background: #f8f9fa;
+}
+
+.editor-canvas-container.loading::before {
+  content: 'Loading...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #666;
+  font-size: 16px;
+}

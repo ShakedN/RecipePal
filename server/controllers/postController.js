@@ -26,7 +26,11 @@ export const createPost = async (req, res) => {
     title,
     content,
     image,
+    video,
+    mediaType,
+    canvasData, // Add this
   } = req.body;
+  
   try {
     const postData = {
       user: userId,
@@ -34,12 +38,24 @@ export const createPost = async (req, res) => {
       kindOfPost,
       title,
       content,
-      image,
+      mediaType: mediaType || 'image',
       likes: [],
       comments: [],
     };
 
-    // Only add recipe-specific fields if it's a recipe post and they have values
+    // Add media based on type
+    if (mediaType === 'image' && image) {
+      postData.image = image;
+    } else if (mediaType === 'video' && video) {
+      postData.video = video;
+    }
+
+    // Add canvas data if provided
+    if (canvasData) {
+      postData.canvasData = canvasData;
+    }
+
+    // Only add recipe-specific fields if it's a recipe post
     if (kindOfPost === "recipe") {
       if (typeRecipe && typeRecipe.trim() !== "") {
         postData.typeRecipe = typeRecipe;
@@ -50,10 +66,15 @@ export const createPost = async (req, res) => {
     }
 
     const post = await Post.create(postData);
-
     await User.findByIdAndUpdate(userId, { $push: { posts: post._id } });
 
-    res.status(201).json(post);
+    // Return populated post
+    const populatedPost = await Post.findById(post._id)
+      .populate("user", "username profile_image")
+      .populate("comments.user", "username profile_image")
+      .populate("likes", "username");
+
+    res.status(201).json(populatedPost);
   } catch (error) {
     res.status(500).json({ message: "Error creating post", error: error.message });
   }
