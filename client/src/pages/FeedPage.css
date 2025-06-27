@@ -422,3 +422,190 @@
 .recipe-details {
   animation: slideIn 0.3s ease-out;
 }
+/* Media Type Selection */
+.media-type-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.media-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.media-type-btn:hover {
+  border-color: #ff7a00;
+  background: #fff5f0;
+}
+
+.media-type-btn.active {
+  border-color: #ff7a00;
+  background: #ff7a00;
+  color: white;
+}
+
+/* File Actions */
+.file-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.edit-media-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #ff7a00;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.edit-media-btn:hover {
+  background: #e96b00;
+  transform: translateY(-1px);
+}
+
+/* Media Upload */
+.media-input {
+  display: none;
+}
+
+.media-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px dashed #adb5bd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  transition: all 0.3s ease;
+}
+
+.media-upload-label:hover {
+  background: linear-gradient(135deg, #fff5f0 0%, #fff8f5 100%);
+  border-color: #ff7a00;
+  color: #ff7a00;
+}
+
+/* Video Upload Container */
+.video-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.no-posts-message p {
+  font-size: 18px;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Canvas Modal */
+.canvas-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+/* Canvas Button */
+.canvas-open-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #ff7a00 0%, #ff9933 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.canvas-open-btn:hover {
+  background: linear-gradient(135deg, #e96b00 0%, #ff8c00 100%);
+  transform: translateY(-1px);
+}
+
+/* Video Support in PostCard */
+.post-video {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #f5f5f5;
+}
+
+/* Canvas Post */
+.post-canvas {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.canvas-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 122, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Additional Canvas Upload Container */
+.canvas-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Responsive Media Types */
+@media (max-width: 768px) {
+  .media-type-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .media-type-btn {
+    justify-content: center;
+  }
+  
+  .file-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .edit-media-btn {
+    justify-content: center;
+  }
+}

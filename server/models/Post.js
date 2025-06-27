@@ -19,7 +19,7 @@ const postSchema = new mongoose.Schema(
     typeRecipe: {
       type: String,
       enum: ["desert", "main dish", "appetize", "side dish",""],
-      defualt:"",
+      default:"",
       required: function () {
         if (this.kindOfPost != "recipe") {
           return false; // typeRecipe is not required for non-recipe posts
@@ -44,6 +44,30 @@ const postSchema = new mongoose.Schema(
     },
     image: {
       type: String, 
+    },
+    video:{
+      type: String, // URL or path to the video file
+    },
+    mediaType: {
+      type: String,
+      enum: ["image", "video", "canvas"],
+      default: "image",
+    },
+    canvasData: {
+      originalUrl: String, // Original image/video URL
+      editedUrl: String,   // Final edited result
+      layers: [{
+        type: { type: String, enum: ["text", "rectangle", "circle", "shape", "filter", "sticker"] },
+        data: mongoose.Schema.Types.Mixed // Flexible data for different layer types
+      }],
+      filters: {
+        brightness: { type: Number, default: 100 },
+        contrast: { type: Number, default: 100 },
+        saturation: { type: Number, default: 100 },
+        blur: { type: Number, default: 0 },
+        sepia: { type: Number, default: 0 },
+        grayscale: { type: Number, default: 0 }
+      }
     },
     likes: [
       {

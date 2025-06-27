@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PostCard from "../components/PostCard";
+import PhotoEditor from "../components/PhotoEditor";
+import VideoEditor from "../components/VideoEditor";
+import { Video, Image, Edit3 } from "lucide-react";
 import "./FeedPage.css";
 import axios from "axios";
-
 const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your dessert game? This rich, dreamy chocolate cake is:
 
 Super moist thanks to hot coffee
@@ -50,15 +52,24 @@ Perfect for birthdays, gatherings, or a cozy night in
 #chocolatecake #baking #dessertlover #homemade #cakerecipe #foodie #instabake`;
 export default function FeedPage() {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({
+  const [showPhotoEditor, setShowPhotoEditor] = useState(false);
+  const [showVideoEditor, setShowVideoEditor] = useState(false);
+  const [editingMedia, setEditingMedia] = useState(null);
+  const[isEdited,setIsEdited]=useState(false);
+const [newPost, setNewPost] = useState({
     title: "",
     content: "",
     image: "",
+    video: "",
     kindOfPost: "",
     typeRecipe: "",
     dietaryPreferences: [],
     imageFile: null,
+    videoFile: null,
+    mediaType: "image",
+    canvasData: null,
   });
+  
 
   // Fetch posts from backend instead of using mock data
   useEffect(() => {
@@ -212,18 +223,32 @@ const handleNewPostSubmit = async (e) => {
 
   try {
     let imageUrl = "";
-    if (newPost.imageFile) {
-      imageUrl = await handleImageUpload(newPost.imageFile);
+    let videoUrl = "";
+    
+    // Handle different media types
+    if (newPost.mediaType === 'image' && newPost.imageFile) {
+      // Check if we have edited image data or need to upload original
+      if (isEdited && newPost.canvasData?.editedUrl) {
+        imageUrl = newPost.canvasData.editedUrl;
+      } else {
+        imageUrl = await handleImageUpload(newPost.imageFile);
+      }
+    } else if (newPost.mediaType === 'video' && newPost.videoFile) {
+      // Handle video upload (you'll need to implement handleVideoUpload)
+      videoUrl = await handleVideoUpload(newPost.videoFile);
     }
 
-    // Create the post payload, using createPost function from postController
+    // Create the post payload
     const postPayload = {
       userId,
       userName,
       kindOfPost: newPost.kindOfPost,
       title: newPost.title,
       content: newPost.content,
+      mediaType: newPost.mediaType,
       image: imageUrl,
+      video: videoUrl,
+      canvasData: newPost.canvasData, // Include canvas data if image was edited
     };
 
     // Only add recipe-specific fields if it's a recipe post
@@ -234,14 +259,22 @@ const handleNewPostSubmit = async (e) => {
 
     await axios.post("http://localhost:5000/api/posts", postPayload);
     await fetchPosts(); // Refresh posts after creating
+    
+    // Reset form
     setNewPost({
       title: "",
       content: "",
+      image: "",
+      video: "",
       kindOfPost: "",
       typeRecipe: "",
       dietaryPreferences: [],
       imageFile: null,
+      videoFile: null,
+      mediaType: "image",
+      canvasData: null,
     });
+    setIsEdited(false);
   } catch (err) {
     alert("Failed to add post: " + (err.response?.data?.error || err.message));
   }
@@ -285,156 +318,329 @@ const handleEditPost = async (postId, newContent) => {
   }
 };
 
+ const handleEditMedia = (file, type) => {
+    const url = URL.createObjectURL(file);
+    setEditingMedia({ url, type, file });
+    
+    if (type === 'image') {
+      setShowPhotoEditor(true);
+    } else if (type === 'video') {
+      setShowVideoEditor(true);
+    }
+  };
 
+    const handleSaveEdit = async (editData) => {
+    try {
+      let finalUrl = "";
+      
+      if (editData.blob) {
+        // Upload edited media to Cloudinary
+        const formData = new FormData();
+        formData.append("file", editData.blob);
+        formData.append("upload_preset", "ml_default");
+        
+        const uploadUrl = editingMedia.type === 'video' 
+          ? "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload"
+          : "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload";
+          
+        const res = await fetch(uploadUrl, {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await res.json();
+        if (!data.secure_url) {
+          throw new Error(data.error?.message || "Upload failed");
+        }
+        finalUrl = data.secure_url;
+      }
+      
+      // Update newPost state with edited media and canvas data
+      setNewPost(prev => ({
+        ...prev,
+        canvasData: {
+          originalUrl: editingMedia.url,
+          editedUrl: finalUrl,
+          layers: editData.layers || [],
+          filters: editData.filters || {}
+        }
+      }));
+      
+      // Mark as edited so we know to use the edited version
+      setIsEdited(true);
+      
+      // Close editors
+      setShowPhotoEditor(false);
+      setShowVideoEditor(false);
+      setEditingMedia(null);
+      
+      console.log("Media edited and saved successfully!", finalUrl);
+    } catch (error) {
+      console.error("Failed to save edit:", error);
+      alert("Failed to save edited media: " + error.message);
+    }
+  };
 
-    return (
-    <div className="feed-content">
-      {/* New Post Form */}
-      <div className="new-post-container">
-        <div className="new-post-header">
-          <img
-            src="/images/default-profile.png"
-            alt="Your Profile"
-            className="new-post-avatar"
+  const handleCancelEdit = () => {
+    setShowPhotoEditor(false);
+    setShowVideoEditor(false);
+    setEditingMedia(null);
+  };
+    // Add this function after handleImageUpload
+  const handleVideoUpload = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ml_default");
+  
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    const data = await res.json();
+    if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+    return data.secure_url;
+  };
+
+       return (
+      <div className="feed-content">
+        {/* Photo Editor Modal */}
+        {showPhotoEditor && editingMedia && (
+          <PhotoEditor
+            imageUrl={editingMedia.url}
+            onSave={handleSaveEdit}
+            onCancel={handleCancelEdit}
           />
-          <div className="new-post-greeting">
-            <span>What's cooking, {localStorage.getItem("username")}?</span>
+        )}
+    
+        {/* Video Editor Modal */}
+        {showVideoEditor && editingMedia && (
+          <VideoEditor
+            videoUrl={editingMedia.url}
+            onSave={handleSaveEdit}
+            onCancel={handleCancelEdit}
+          />
+        )}
+    
+        {/* New Post Form */}
+        <div className="new-post-container">
+          <div className="new-post-header">
+            <img
+              src="/images/default-profile.png"
+              alt="Your Profile"
+              className="new-post-avatar"
+            />
+            <div className="new-post-greeting">
+              <span>What's cooking, {localStorage.getItem("username")}?</span>
+            </div>
           </div>
-        </div>
-      
-        <form onSubmit={handleNewPostSubmit} className="new-post-form">
-          {/* Post Type Selection */}
-          <div className="form-section">
-            <label className="form-label">What are you sharing?</label>
-            <select
-              name="kindOfPost"
-              value={newPost.kindOfPost}
-              onChange={handleNewPostChange}
-              required
-              className="styled-select"
-            >
-              <option value="">Choose post type...</option>
-              <option value="recipe">🍳 Recipe</option>
-              <option value="shared thoughts">💭 Shared Thoughts</option>
-            </select>
-          </div>
-      
-          {/* Recipe-specific fields */}
-          {newPost.kindOfPost === "recipe" && (
-            <div className="recipe-details">
-              <div className="form-section">
-                <label className="form-label">Recipe Category</label>
-                <select
-                  name="typeRecipe"
-                  value={newPost.typeRecipe}
-                  onChange={handleNewPostChange}
-                  required
-                  className="styled-select"
-                >
-                  <option value="">Select category...</option>
-                  <option value="desert">🍰 Dessert</option>
-                  <option value="main dish">🍽️ Main Dish</option>
-                  <option value="appetize">🥗 Appetizer</option>
-                  <option value="side dish">🥖 Side Dish</option>
-                </select>
-              </div>
-      
-              <div className="form-section">
-                <label className="form-label">Dietary Preferences</label>
-                <div className="dietary-preferences">
-                  {[
-                    { value: "dairy-free", label: "🥛 Dairy-Free" },
-                    { value: "gluten-free", label: "🌾 Gluten-Free" },
-                    { value: "vegan", label: "🌱 Vegan" },
-                    { value: "vegeterian", label: "🥕 Vegetarian" }
-                  ].map((pref) => (
-                    <label key={pref.value} className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        name="dietaryPreferences"
-                        value={pref.value}
-                        checked={newPost.dietaryPreferences.includes(pref.value)}
-                        onChange={handleNewPostChange}
-                        className="styled-checkbox"
-                      />
-                      <span className="checkbox-text">{pref.label}</span>
-                    </label>
-                  ))}
+        
+          <form onSubmit={handleNewPostSubmit} className="new-post-form">
+            {/* Post Type Selection */}
+            <div className="form-section">
+              <label className="form-label">What are you sharing?</label>
+              <select
+                name="kindOfPost"
+                value={newPost.kindOfPost}
+                onChange={handleNewPostChange}
+                required
+                className="styled-select"
+              >
+                <option value="">Choose post type...</option>
+                <option value="recipe">🍳 Recipe</option>
+                <option value="shared thoughts">💭 Shared Thoughts</option>
+              </select>
+            </div>
+        
+            {/* Recipe-specific fields */}
+            {newPost.kindOfPost === "recipe" && (
+              <div className="recipe-details">
+                <div className="form-section">
+                  <label className="form-label">Recipe Category</label>
+                  <select
+                    name="typeRecipe"
+                    value={newPost.typeRecipe}
+                    onChange={handleNewPostChange}
+                    required
+                    className="styled-select"
+                  >
+                    <option value="">Select category...</option>
+                    <option value="desert">🍰 Dessert</option>
+                    <option value="main dish">🍽️ Main Dish</option>
+                    <option value="appetize">🥗 Appetizer</option>
+                    <option value="side dish">🥖 Side Dish</option>
+                  </select>
+                </div>
+        
+                <div className="form-section">
+                  <label className="form-label">Dietary Preferences</label>
+                  <div className="dietary-preferences">
+                    {[
+                      { value: "dairy-free", label: "🥛 Dairy-Free" },
+                      { value: "gluten-free", label: "🌾 Gluten-Free" },
+                      { value: "vegan", label: "🌱 Vegan" },
+                      { value: "vegeterian", label: "🥕 Vegetarian" }
+                    ].map((pref) => (
+                      <label key={pref.value} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          name="dietaryPreferences"
+                          value={pref.value}
+                          checked={newPost.dietaryPreferences.includes(pref.value)}
+                          onChange={handleNewPostChange}
+                          className="styled-checkbox"
+                        />
+                        <span className="checkbox-text">{pref.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-      
-          {/* Title Input */}
-          <div className="form-section">
-            <input
-              type="text"
-              name="title"
-              placeholder="Give your post a catchy title..."
-              value={newPost.title}
-              onChange={handleNewPostChange}
-              className="styled-input title-input"
-              required
-            />
-          </div>
-      
-          {/* Image Upload */}
-          <div className="form-section">
-            <div className="image-upload-container">
+            )}
+        
+            {/* Title Input */}
+            <div className="form-section">
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setNewPost({ ...newPost, imageFile: e.target.files[0] })}
-                className="image-input"
-                id="imageUpload"
+                type="text"
+                name="title"
+                placeholder="Give your post a catchy title..."
+                value={newPost.title}
+                onChange={handleNewPostChange}
+                className="styled-input title-input"
+                required
               />
-              <label htmlFor="imageUpload" className="image-upload-label">
-                📸 Add a photo
-              </label>
-              {newPost.imageFile && (
-                <span className="file-selected">✓ {newPost.imageFile.name}</span>
+            </div>
+    
+            {/* Media Type Selection */}
+            <div className="form-section">
+              <label className="form-label">Media Type</label>
+              <div className="media-type-buttons">
+                <button
+                  type="button"
+                  className={`media-type-btn ${newPost.mediaType === 'image' ? 'active' : ''}`}
+                  onClick={() => setNewPost(prev => ({ ...prev, mediaType: 'image' }))}
+                >
+                  <Image size={20} />
+                  Photo
+                </button>
+                <button
+                  type="button"
+                  className={`media-type-btn ${newPost.mediaType === 'video' ? 'active' : ''}`}
+                  onClick={() => setNewPost(prev => ({ ...prev, mediaType: 'video' }))}
+                >
+                  <Video size={20} />
+                  Video
+                </button>
+              </div>
+            </div>
+    
+            {/* Media Upload Section */}
+            <div className="form-section">
+              {newPost.mediaType === 'image' && (
+                <div className="image-upload-container">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setNewPost({ ...newPost, imageFile: file });
+                    }}
+                    className="media-input"
+                    id="imageUpload"
+                  />
+                  <label htmlFor="imageUpload" className="media-upload-label">
+                    📸 Add a photo
+                  </label>
+                  {newPost.imageFile && (
+                    <div className="file-actions">
+                      <span className="file-selected">✓ {newPost.imageFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleEditMedia(newPost.imageFile, 'image')}
+                        className="edit-media-btn"
+                      >
+                        <Edit3 size={16} />
+                        Edit Photo
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+    
+              {newPost.mediaType === 'video' && (
+                <div className="video-upload-container">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setNewPost({ ...newPost, videoFile: file });
+                    }}
+                    className="media-input"
+                    id="videoUpload"
+                  />
+                  <label htmlFor="videoUpload" className="media-upload-label">
+                    🎥 Add a video
+                  </label>
+                  {newPost.videoFile && (
+                    <div className="file-actions">
+                      <span className="file-selected">✓ {newPost.videoFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleEditMedia(newPost.videoFile, 'video')}
+                        className="edit-media-btn"
+                      >
+                        <Edit3 size={16} />
+                        Edit Video
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
+        
+            {/* Content Textarea */}
+            <div className="form-section">
+              <textarea
+                name="content"
+                placeholder="Share your story, recipe instructions, or thoughts..."
+                value={newPost.content}
+                onChange={handleNewPostChange}
+                className="styled-textarea"
+                required
+              />
+            </div>
+        
+            {/* Submit Button */}
+            <div className="form-actions">
+              <button type="submit" className="post-submit-btn">
+                <span>🚀 Share Post</span>
+              </button>
+            </div>
+          </form>
+        </div>
+    
+        {/* Posts */}
+        {posts.length === 0 ? (
+          <div className="no-posts-message">
+            <p>No posts yet. Be the first to share something delicious! 🍳</p>
           </div>
-      
-          {/* Content Textarea */}
-          <div className="form-section">
-            <textarea
-              name="content"
-              placeholder="Share your story, recipe instructions, or thoughts..."
-              value={newPost.content}
-              onChange={handleNewPostChange}
-              className="styled-textarea"
-              required
+        ) : (
+          posts.map((post) => (
+            <PostCard
+              key={post._id}
+              post={post}
+              onLike={handleLike}
+              onComment={handleComment}
+              onDeleteComment={handleDeleteComment}
+              onEditComment={handleEditComment}
+              onDeletePost={handleDeletePost}
+              onEditPost={handleEditPost}
             />
-          </div>
-      
-          {/* Submit Button */}
-          <div className="form-actions">
-            <button type="submit" className="post-submit-btn">
-              <span>🚀 Share Post</span>
-            </button>
-          </div>
-        </form>
+          ))
+        )}
       </div>
-  
-      {/* Posts */}
-      {posts.length === 0 ? (
-        <p>No posts yet.</p>
-      ) : (
-        posts.map((post) => (
-          <PostCard
-            key={post._id}
-            post={post}
-            onLike={handleLike}
-            onComment={handleComment}
-            onDeleteComment={handleDeleteComment}
-            onEditComment={handleEditComment}
-            onDeletePost={handleDeletePost}
-            onEditPost={handleEditPost}
-          />
-        ))
-      )}
-    </div>
-  );
+    );
 }
