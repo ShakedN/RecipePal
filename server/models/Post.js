@@ -56,10 +56,7 @@ const postSchema = new mongoose.Schema(
     canvasData: {
       originalUrl: String, // Original image/video URL
       editedUrl: String,   // Final edited result
-      layers: [{
-        type: { type: String, enum: ["text", "rectangle", "circle", "shape", "filter", "sticker"] },
-        data: mongoose.Schema.Types.Mixed // Flexible data for different layer types
-      }],
+      
       filters: {
         brightness: { type: Number, default: 100 },
         contrast: { type: Number, default: 100 },

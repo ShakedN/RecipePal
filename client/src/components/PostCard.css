@@ -437,3 +437,40 @@
     width: 100%;
   }
 }
+.add-comment-section {
+  margin-top: 12px;            /* little space under the Like/Comment row   */
+  display: flex;               /* column layout: textarea ➜ button          */
+  flex-direction: column;
+  gap: 8px;                    /* space between textarea and button         */
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 60px;            /* feel free to change if you want it taller */
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9em;
+  resize: vertical;            /* user can drag to make it taller           */
+}
+
+.comment-submit-btn {
+  align-self: flex-end;        /* button hugs the right edge                 */
+  background: #ff7a00;         /* same orange you used for icons (adjust)    */
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+  opacity: 0.8;                /* subtle hover feedback                      */
+}
+
+.comment-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

@@ -11,12 +11,27 @@ export default function PostCard({
   onDeleteComment,
   onEditComment
 }) {
+  const [showCommentInput, setShowCommentInput] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const userId = localStorage.getItem("userId");
   const isLiked = post.likes?.some(like => like && like._id === userId);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostContent, setEditPostContent] = useState("");
+ 
+  const toggleCommentInput = () => {                    
+    setShowCommentInput(prev => !prev);
+    setCommentText("");
+  };
+
+  const handleCommentSubmit = () => {                  
+    if (commentText.trim()) {
+      onComment(post._id, commentText.trim());
+      setCommentText("");
+      setShowCommentInput(false);
+    }
+  };
 
   const handleEditSubmit = (commentId) => {
     if (editContent.trim()) {
@@ -133,6 +148,7 @@ export default function PostCard({
       )}
 
       <div className="post-actions">
+        
         <button
           className={`action-btn ${isLiked ? 'liked' : ''}`}
           onClick={() => onLike(post._id)}
@@ -149,7 +165,7 @@ export default function PostCard({
 
         <button
           className="action-btn"
-          onClick={() => onComment(post._id)}
+          onClick={toggleCommentInput}
           aria-label="Comment"
         >
           <MessageCircle size={18} className="icon" fill="currentColor" />
@@ -158,6 +174,24 @@ export default function PostCard({
       </div>
 
       {/* Comments Section */}
+      {/*  Inline composer */}
+        {showCommentInput && (
+          <div className="add-comment-section">
+            <textarea
+              className="comment-textarea"
+              placeholder="Write a comment…"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+            />
+            <button
+              className="comment-submit-btn"
+              onClick={handleCommentSubmit}
+              disabled={!commentText.trim()}
+            >
+              Post
+            </button>
+          </div>
+        )}
       {post.comments?.length > 0 && (
         <div className="comments-section">
           <h4>Comments:</h4>
