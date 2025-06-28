@@ -609,3 +609,84 @@
     justify-content: center;
   }
 }
+.add-comment-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  animation: slideDown 0.3s ease-out;
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  background: white;
+  transition: all 0.3s ease;
+  margin-bottom: 12px;
+}
+
+.comment-textarea:focus {
+  outline: none;
+  border-color: #ff7a00;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+}
+
+.comment-textarea::placeholder {
+  color: #999;
+}
+
+.comment-submit-btn {
+  background: #ff7a00;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+  background: #e96b00;
+  transform: translateY(-1px);
+}
+
+.comment-submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Animation for comment input */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .add-comment-section {
+    padding: 12px;
+    margin-top: 12px;
+  }
+  
+  .comment-textarea {
+    min-height: 60px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}

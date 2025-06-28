@@ -56,19 +56,19 @@ export default function FeedPage() {
   const [showVideoEditor, setShowVideoEditor] = useState(false);
   const [editingMedia, setEditingMedia] = useState(null);
   const[isEdited,setIsEdited]=useState(false);
-const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    image: "",
-    video: "",
-    kindOfPost: "",
-    typeRecipe: "",
-    dietaryPreferences: [],
-    imageFile: null,
-    videoFile: null,
-    mediaType: "image",
-    canvasData: null,
-  });
+  const [newPost, setNewPost] = useState({
+      title: "",
+      content: "",
+      image: "",
+      video: "",
+      kindOfPost: "",
+      typeRecipe: "",
+      dietaryPreferences: [],
+      imageFile: null,
+      videoFile: null,
+      mediaType: "image",
+      canvasData: null,
+    });
   
 
   // Fetch posts from backend instead of using mock data
@@ -156,10 +156,16 @@ const handleDeleteComment = async (postId, commentId) => {
 };
 
 // Update your handleComment function
-const handleComment = (postId) => {
-  const content = prompt("Enter your comment:");
-  if (content && content.trim()) {
-    handleAddComment(postId, content.trim());
+const handleComment = (postId, content) => {
+  // If content is provided (from the new inline input), use it directly
+  if (content) {
+    handleAddComment(postId, content);
+  } else {
+    // This shouldn't happen with the new UI, but keeping as fallback
+    const commentContent = prompt("Enter your comment:");
+    if (commentContent && commentContent.trim()) {
+      handleAddComment(postId, commentContent.trim());
+    }
   }
 };
 
@@ -361,7 +367,6 @@ const handleEditPost = async (postId, newContent) => {
         canvasData: {
           originalUrl: editingMedia.url,
           editedUrl: finalUrl,
-          layers: editData.layers || [],
           filters: editData.filters || {}
         }
       }));
