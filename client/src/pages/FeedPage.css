@@ -254,13 +254,11 @@ MODERN NEW POST FORM STYLES
 }
 
 .media-preview-container {
-  position: relative;
   width: 100%;
-  height: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  background-color: #f0f2f5;
+  max-height: 100%; /* Use max-height to respect container bounds */
+  object-fit: contain;  /* This is the key change! */
+  display: block;
+
 }
 
 .media-preview {
