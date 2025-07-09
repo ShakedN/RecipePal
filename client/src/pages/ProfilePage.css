@@ -1,3 +1,7 @@
+.profile-page, body, .page-content {
+  background: #FFF2EB;
+}
+
 .profile-page {
   font-family: 'Segoe UI', sans-serif;
   color: #333;
