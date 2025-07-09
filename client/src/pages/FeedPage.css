@@ -1,4 +1,4 @@
-.navbar {
+.navbar { 
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -61,10 +61,10 @@
 .navbar-links a:hover {
   text-decoration: underline;
 }
-/* Add or update these styles */
 
+/* Feed and Post Card Styles */
 .feed-content {
-  max-width: 600px;
+  max-width: 700px; /* Wider for the new design */
   margin: 40px auto;
   padding: 0 10px;
 }
@@ -115,13 +115,14 @@
 }
 
 .post-content {
+  white-space: pre-line;
   font-size: 1.05em;
   margin-bottom: 10px;
 }
 
-.post-image {
+.post-image, .post-video {
   width: 100%;
-  max-height: 350px;
+  max-height: 400px;
   object-fit: cover;
   border-radius: 8px;
   margin: 10px 0;
@@ -152,41 +153,39 @@
   background: #f0f2f5;
   color: #1877f2;
 }
-.post-content {
-  white-space: pre-line;
-}
-/* Beautiful New Post Styling */
-.new-post-container {
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  margin-bottom: 32px;
-  padding: 24px;
+
+/*
+========================================
+MODERN NEW POST FORM STYLES
+========================================
+*/
+
+/* Main Container */
+.new-post-container-modern {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+  margin-bottom: 40px;
+  padding: 24px 32px;
   border: 1px solid #e9ecef;
-  transition: all 0.3s ease;
 }
 
-.new-post-container:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
-
+/* Header (Avatar & Greeting) */
 .new-post-header {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f1f3f4;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f3f4;
 }
 
 .new-post-avatar {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 16px;
   border: 3px solid #ff7a00;
-  box-shadow: 0 2px 8px rgba(255, 122, 0, 0.2);
 }
 
 .new-post-greeting {
@@ -195,17 +194,144 @@
   color: #2c3e50;
 }
 
-.new-post-greeting span {
-  background: linear-gradient(45deg, #ff7a00, #ff9933);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.new-post-form {
+/* Form Layout */
+.new-post-form-modern {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+}
+
+.new-post-layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr; /* 40% media, 60% form */
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+/* Column 1: Media Upload & Preview */
+.media-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 350px;
+}
+
+.media-input {
+  display: none; /* Hide the actual file input */
+}
+
+.media-upload-zone {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px dashed #d0d5dd;
+  border-radius: 16px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  text-align: center;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.media-upload-zone:hover {
+  border-color: #ff7a00;
+  background-color: #fff8f5;
+  color: #ff7a00;
+}
+
+.media-upload-zone p {
+  margin: 0;
+  font-size: 1em;
+}
+
+.media-upload-zone .upload-hint {
+  font-size: 0.85em;
+  color: #adb5bd;
+}
+
+.media-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background-color: #f0f2f5;
+}
+
+.media-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.media-actions-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.media-preview-container:hover .media-actions-overlay {
+  opacity: 1;
+}
+
+.media-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #343a40;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.media-action-btn:hover {
+  background-color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.media-action-btn.remove:hover {
+  color: #e74c3c;
+}
+
+.edited-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: #ff7a00;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Column 2: Form Fields */
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .form-section {
@@ -214,23 +340,56 @@
   gap: 8px;
 }
 
+.form-section-inline {
+  display: flex;
+  gap: 16px;
+}
+.form-section-inline > .form-section {
+  flex: 1;
+}
+
 .form-label {
   font-weight: 600;
   color: #495057;
   font-size: 0.95em;
-  margin-bottom: 4px;
 }
 
+.textarea-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-button {
+  background: none;
+  border: 1px solid #e9ecef;
+  color: #ff7a00;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-button:hover {
+  background-color: #fff8f5;
+  border-color: #ffbba3;
+}
+
+/* General Input Styles */
 .styled-select,
 .styled-input,
 .styled-textarea {
-  padding: 14px 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #ced4da;
+  border-radius: 10px;
   font-size: 1em;
-  transition: all 0.3s ease;
-  background: #fff;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
   font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .styled-select:focus,
@@ -238,33 +397,34 @@
 .styled-textarea:focus {
   outline: none;
   border-color: #ff7a00;
-  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
-  transform: translateY(-1px);
-}
-
-.styled-select {
-  cursor: pointer;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  appearance: none;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
 }
 
 .title-input {
-  font-size: 1.1em;
+  font-size: 1.2em;
   font-weight: 500;
 }
 
 .styled-textarea {
-  min-height: 120px;
+  min-height: 150px;
   resize: vertical;
   line-height: 1.6;
 }
 
+.styled-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+/* Recipe Specific Section */
 .recipe-details {
-  background: linear-gradient(135deg, #fff5f0 0%, #fff8f5 100%);
-  padding: 20px;
+  background: linear-gradient(135deg, #fffaf7 0%, #fff8f5 100%);
+  padding: 16px;
   border-radius: 12px;
   border: 1px solid #ffe0cc;
   display: flex;
@@ -274,84 +434,74 @@
 
 .dietary-preferences {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 10px;
   background: #fff;
-  border: 2px solid #e9ecef;
+  border: 1px solid #e9ecef;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-size: 0.9em;
 }
 
 .checkbox-label:hover {
-  border-color: #ff7a00;
+  border-color: #ff9d4d;
   background: #fff8f5;
-  transform: translateY(-1px);
+}
+
+.styled-checkbox:checked + .checkbox-text {
+  color: #ff7a00;
+  font-weight: 600;
 }
 
 .styled-checkbox {
+  appearance: none; /* Hide default checkbox */
   width: 18px;
   height: 18px;
-  accent-color: #ff7a00;
+  border: 2px solid #adb5bd;
+  border-radius: 4px;
   cursor: pointer;
+  position: relative;
+  top: 1px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.styled-checkbox:checked {
+  background-color: #ff7a00;
+  border-color: #ff7a00;
+}
+
+.styled-checkbox:checked::after {
+  content: '✓';
+  color: white;
+  position: absolute;
+  font-size: 14px;
+  line-height: 16px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .checkbox-text {
-  font-weight: 500;
-  color: #495057;
   user-select: none;
+  transition: color 0.2s ease;
 }
 
-.image-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.image-input {
-  display: none;
-}
-
-.image-upload-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 2px dashed #adb5bd;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  color: #495057;
-  transition: all 0.3s ease;
-}
-
-.image-upload-label:hover {
-  background: linear-gradient(135deg, #fff5f0 0%, #fff8f5 100%);
-  border-color: #ff7a00;
-  color: #ff7a00;
-  transform: translateY(-1px);
-}
-
-.file-selected {
-  color: #28a745;
-  font-size: 0.9em;
-  font-weight: 500;
-}
-
-.form-actions {
+/* Form Actions Footer */
+.form-actions-footer {
   display: flex;
   justify-content: flex-end;
-  margin-top: 8px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #f1f3f4;
 }
 
 .post-submit-btn {
@@ -360,7 +510,7 @@
   color: white;
   border: none;
   border-radius: 12px;
-  font-size: 1em;
+  font-size: 1.05em;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -371,251 +521,55 @@
 }
 
 .post-submit-btn:hover {
-  background: linear-gradient(135deg, #e96b00 0%, #ff8c00 100%);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
 }
 
-.post-submit-btn:active {
-  transform: translateY(0);
+/* Responsive Design for the form */
+@media (max-width: 900px) {
+  .new-post-layout-grid {
+    grid-template-columns: 1fr; /* Stack columns */
+    gap: 24px;
+  }
+  
+  .media-column {
+    min-height: 300px;
+  }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .new-post-container {
+@media (max-width: 500px) {
+  .new-post-container-modern {
     padding: 16px;
-    margin-bottom: 20px;
   }
   
   .dietary-preferences {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 8px;
+    grid-template-columns: 1fr 1fr; /* Two columns on small screens */
   }
   
-  .checkbox-label {
-    padding: 10px 12px;
-    font-size: 0.85em;
-  }
-  
-  .new-post-avatar {
-    width: 48px;
-    height: 48px;
-  }
-  
-  .new-post-greeting {
-    font-size: 1.1em;
+  .post-submit-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
-/* Animation for form appearance */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.recipe-details {
-  animation: slideIn 0.3s ease-out;
-}
-/* Media Type Selection */
-.media-type-buttons {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.media-type-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.media-type-btn:hover {
-  border-color: #ff7a00;
-  background: #fff5f0;
-}
-
-.media-type-btn.active {
-  border-color: #ff7a00;
-  background: #ff7a00;
-  color: white;
-}
-
-/* File Actions */
-.file-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.edit-media-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #ff7a00;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.edit-media-btn:hover {
-  background: #e96b00;
-  transform: translateY(-1px);
-}
-
-/* Media Upload */
-.media-input {
-  display: none;
-}
-
-.media-upload-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: 2px dashed #adb5bd;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  color: #495057;
-  transition: all 0.3s ease;
-}
-
-.media-upload-label:hover {
-  background: linear-gradient(135deg, #fff5f0 0%, #fff8f5 100%);
-  border-color: #ff7a00;
-  color: #ff7a00;
-}
-
-/* Video Upload Container */
-.video-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
+/* No Posts Message */
 .no-posts-message p {
   font-size: 18px;
   color: #6c757d;
   margin: 0;
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
 }
 
-/* Canvas Modal */
-.canvas-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-/* Canvas Button */
-.canvas-open-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #ff7a00 0%, #ff9933 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.canvas-open-btn:hover {
-  background: linear-gradient(135deg, #e96b00 0%, #ff8c00 100%);
-  transform: translateY(-1px);
-}
-
-/* Video Support in PostCard */
-.post-video {
-  width: 100%;
-  max-height: 400px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  background: #f5f5f5;
-}
-
-/* Canvas Post */
-.post-canvas {
-  position: relative;
-  margin-bottom: 12px;
-}
-
-.canvas-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(255, 122, 0, 0.9);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* Additional Canvas Upload Container */
-.canvas-upload-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Responsive Media Types */
-@media (max-width: 768px) {
-  .media-type-buttons {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .media-type-btn {
-    justify-content: center;
-  }
-  
-  .file-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  
-  .edit-media-btn {
-    justify-content: center;
-  }
-}
+/* Comment Section Styles */
 .add-comment-section {
   margin-top: 16px;
   padding: 16px;
   background: #f8f9fa;
   border-radius: 12px;
   border: 1px solid #e9ecef;
-  animation: slideDown 0.3s ease-out;
 }
 
 .comment-textarea {
@@ -630,6 +584,7 @@
   background: white;
   transition: all 0.3s ease;
   margin-bottom: 12px;
+  box-sizing: border-box;
 }
 
 .comment-textarea:focus {
@@ -664,21 +619,7 @@
   cursor: not-allowed;
 }
 
-/* Animation for comment input */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 200px;
-  }
-}
-
-/* Responsive adjustments */
+/* Responsive adjustments for comments */
 @media (max-width: 768px) {
   .add-comment-section {
     padding: 12px;

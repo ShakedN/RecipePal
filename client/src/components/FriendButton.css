@@ -11,16 +11,17 @@
 .friend-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   min-width: 120px;
   justify-content: center;
+  box-shadow: var(--shadow-xs);
 }
 
 .friend-btn:disabled {
@@ -29,47 +30,49 @@
 }
 
 .friend-btn.add-friend {
-  background: #ff7a00;
-  color: white;
+  background: var(--gradient-primary);
+  color: #fff;
 }
 
 .friend-btn.add-friend:hover:not(:disabled) {
-  background: #e96b00;
+  background: var(--gradient-sunset);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
 .friend-btn.friends {
-  background: #28a745;
-  color: white;
+  background: var(--success-500);
+  color: #fff;
 }
 
 .friend-btn.friends:hover:not(:disabled) {
-  background: #218838;
+  background: var(--success-600);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
 .friend-btn.request-sent {
-  background: #6c757d;
-  color: white;
+  background: var(--neutral-400);
+  color: #fff;
 }
 
 .friend-btn.accept {
-  background: #28a745;
-  color: white;
-  margin-right: 8px;
+  background: var(--success-500);
+  color: #fff;
+  margin-right: var(--space-2);
 }
 
 .friend-btn.accept:hover:not(:disabled) {
-  background: #218838;
+  background: var(--success-600);
 }
 
 .friend-btn.reject {
-  background: #dc3545;
-  color: white;
+  background: var(--error-500);
+  color: #fff;
 }
 
 .friend-btn.reject:hover:not(:disabled) {
-  background: #c82333;
+  background: var(--error-600);
 }
 
 /* Unfriend confirmation styles */
@@ -95,23 +98,23 @@
 }
 
 .friend-btn.unfriend-confirm-btn {
-  background: #dc3545;
-  color: white;
+  background: var(--error-500);
+  color: #fff;
   flex: 1;
 }
 
 .friend-btn.unfriend-confirm-btn:hover:not(:disabled) {
-  background: #c82333;
+  background: var(--error-600);
 }
 
 .friend-btn.cancel-unfriend-btn {
-  background: #6c757d;
-  color: white;
+  background: var(--neutral-400);
+  color: #fff;
   flex: 1;
 }
 
 .friend-btn.cancel-unfriend-btn:hover:not(:disabled) {
-  background: #5a6268;
+  background: var(--neutral-500);
 }
 
 .friend-request-actions {
