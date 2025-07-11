@@ -7,6 +7,7 @@ import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import searchRoutes from "./routes/search.js";
 import Chat from "./models/Chat.js";
 import graphsRoutes from "./routes/graphsRoutes.js";
 
@@ -34,6 +35,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api", uploadRoutes);
 app.use("/api/graphs", graphsRoutes);
+app.use("/api/search", searchRoutes);
 
 // Socket.IO for real-time messaging
 io.on("connection", (socket) => {

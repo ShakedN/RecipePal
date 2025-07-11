@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Users, MessageCircle } from "lucide-react"; // Add MessageCircle icon
+import { Users, MessageCircle,Search } from "lucide-react"; // Add MessageCircle icon
 import axios from "axios";
 import SearchResults from "./SearchResults";
+import AdvancedSearch from "./AdvancedSearch";
 import ChatWindow from "./ChatWindow";
 import FriendsList from "./FriendsList";
 import "./Layout.css";
@@ -12,6 +13,7 @@ export default function Layout() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [friendRequests, setFriendRequests] = useState([]);
   const [showFriendRequests, setShowFriendRequests] = useState(false);
@@ -29,6 +31,45 @@ export default function Layout() {
     localStorage.getItem("profile_image") || "/images/default-profile.png";
 
   const currentUserId = localStorage.getItem("userId");
+const handleQuickSearch = async () => {
+  if (searchQuery.trim().length < 2) return;
+
+  setIsSearching(true);
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/search/quick?query=${encodeURIComponent(
+        searchQuery
+      )}`
+    );
+    setSearchResults(res.data.results);
+    setShowResults(true);
+  } catch (err) {
+    console.error("Search failed:", err);
+    setSearchResults([]);
+    setShowResults(false);
+  } finally {
+    setIsSearching(false);
+  }
+};
+
+  const handleAdvancedSearch = async (searchData) => {
+    setIsSearching(true);
+    try {
+      const res = await axios.post(
+        'http://localhost:5000/api/search/advanced',
+        searchData
+      );
+      setSearchResults(res.data.results);
+      setShowResults(true);
+      setShowAdvancedSearch(false);
+    } catch (err) {
+      console.error("Advanced search failed:", err);
+      setSearchResults([]);
+      setShowResults(false);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   //Close search results when clicking outside
   useEffect(() => {
@@ -102,7 +143,7 @@ export default function Layout() {
     setIsSearching(true);
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/auth/search?query=${encodeURIComponent(
+      `http://localhost:5000/api/posts/search?query=${encodeURIComponent(
           searchQuery
         )}`
       );
@@ -206,34 +247,43 @@ export default function Layout() {
 
   return (
     <>
-      <nav className="navbar">
+       <nav className="navbar">
         <img
           src="/images/RecipePal_logo_white_no logo.png"
           alt="RecipePal Logo"
           className="navbar-logo"
         />
         <div className="navbar-search-container" ref={searchRef}>
-          <form className="navbar-search" onSubmit={handleSearchSubmit}>
+          <div className="navbar-search">
             <input
               type="text"
-              placeholder="Search users..."
+              placeholder="Quick search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleQuickSearch()}
               className="search-input"
             />
             <button
-              type="submit"
+              type="button"
               className="search-button"
+              onClick={handleQuickSearch}
               disabled={isSearching}
             >
-              {isSearching ? "..." : "Search"}
+              <Search size={16} />
             </button>
-          </form>
+            <button
+              type="button"
+              className="advanced-search-button"
+              onClick={() => setShowAdvancedSearch(true)}
+            >
+              Advanced
+            </button>
+          </div>
           <SearchResults
             results={searchResults}
             isVisible={showResults}
-            onClose={closeSearch}
-            onUserSelect={handleUserSelect}
+            onClose={() => setShowResults(false)}
+            onUserSelect={() => setShowResults(false)}
           />
         </div>
         <ul className="navbar-links">
@@ -381,6 +431,13 @@ export default function Layout() {
       <div className="page-content">
         <Outlet />
       </div>
+      {/* Advanced Search Modal */}
+      {showAdvancedSearch && (
+        <AdvancedSearch
+          onSearch={handleAdvancedSearch}
+          onClose={() => setShowAdvancedSearch(false)}
+        />
+      )}
 
       {/* Render open chat windows */}
       {openChats.map((chat) => (

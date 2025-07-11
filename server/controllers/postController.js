@@ -1,6 +1,56 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+export const searchAll = async (req, res) => {
+  const { query } = req.query;
 
+  try {
+    if (!query || query.trim().length < 2) {
+      return res
+        .status(400)
+        .json({ message: "Search query must be at least 2 characters" });
+    }
+
+    // Enhanced post query to search in both title and content
+    const postQuery = {
+      $or: [
+        { title: { $regex: query, $options: "i" } },
+        { content: { $regex: query, $options: "i" } }
+      ]
+    };
+
+    const userQuery = {
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+      ],
+      isVerified: true,
+    };
+
+    const [users, posts] = await Promise.all([
+      User.find(userQuery)
+        .select("username firstName lastName profile_image cookingRole")
+        .limit(5)
+        .lean(),
+      Post.find(postQuery)
+        .populate("user", "username profile_image")
+        .select("title content user createdAt kindOfPost typeRecipe dietaryPreferences") // Added more fields
+        .limit(5)
+        .lean(),
+    ]);
+
+    const formattedUsers = users.map(u => ({ ...u, type: 'user' }));
+    const formattedPosts = posts.map(p => ({ ...p, type: 'post' }));
+
+    const results = [...formattedUsers, ...formattedPosts];
+
+    res.status(200).json(results);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error searching", error: error.message });
+  }
+};
 // Get all posts
 export const getAllPosts = async (req, res) => {
   try {

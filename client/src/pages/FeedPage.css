@@ -628,4 +628,63 @@ MODERN NEW POST FORM STYLES
     min-height: 60px;
     font-size: 16px; /* Prevents zoom on iOS */
   }
+  
+  .media-action-btn.save {
+    background: #28a745;
+    color: white;
+  }
+  
+  .media-action-btn.save:hover {
+    background: #218838;
+    transform: translateY(-2px);
+  }
+  
+  .media-action-btn.edit {
+    background: #007bff;
+    color: white;
+  }
+  
+  .media-action-btn.edit:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .media-action-btn.remove {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .media-action-btn.remove:hover {
+    background: #545b62;
+    transform: translateY(-2px);
+  }
+    .media-action-btn.save {
+    background: #28a745;
+    color: white;
+  }
+  
+  .media-action-btn.save:hover {
+    background: #218838;
+    transform: translateY(-2px);
+  }
+  
+  .media-action-btn.edit {
+    background: #007bff;
+    color: white;
+  }
+  
+  .media-action-btn.edit:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .media-action-btn.remove {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .media-action-btn.remove:hover {
+    background: #545b62;
+    transform: translateY(-2px);
+  }
 }
