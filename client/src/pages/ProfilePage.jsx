@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Edit3, Camera, Save, X } from "lucide-react";
+import { Edit3, BarChart2, Camera, Save, X } from "lucide-react";
 import "./ProfilePage.css";
 import axios from "axios";
 import FriendButton from "../components/FriendButton";
@@ -23,7 +23,7 @@ export default function ProfilePage() {
     profileImageFile: null,
     backgroundImageFile: null,
     profileImagePreview: "",
-    backgroundImagePreview: ""
+    backgroundImagePreview: "",
   });
 
   useEffect(() => {
@@ -32,26 +32,31 @@ export default function ProfilePage() {
 
   const fetchUserProfile = async () => {
     const token = localStorage.getItem("token");
-    
+
     if (!profileUserId || !token) {
       navigate("/");
       return;
     }
 
     try {
-      const res = await axios.get(`http://localhost:5000/api/auth/profile/${profileUserId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const res = await axios.get(
+        `http://localhost:5000/api/auth/profile/${profileUserId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
+      );
       setUser(res.data);
       setEditData({
         about: res.data.about || "",
         cookingRole: res.data.cookingRole || "",
         profileImageFile: null,
         backgroundImageFile: null,
-        profileImagePreview: res.data.profile_image || "/images/default-profile.png",
-        backgroundImagePreview: res.data.background_image || "/images/default-background.jpg"
+        profileImagePreview:
+          res.data.profile_image || "/images/default-profile.png",
+        backgroundImagePreview:
+          res.data.background_image || "/images/default-background.jpg",
       });
       setLoading(false);
     } catch (err) {
@@ -65,7 +70,7 @@ export default function ProfilePage() {
     const formData = new FormData();
     formData.append("file", imageFile);
     formData.append("upload_preset", "ml_default");
-    
+
     try {
       const response = await fetch(
         "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
@@ -74,7 +79,7 @@ export default function ProfilePage() {
           body: formData,
         }
       );
-      
+
       const data = await response.json();
       if (!data.secure_url) {
         throw new Error(data.error?.message || "Upload failed");
@@ -97,7 +102,8 @@ export default function ProfilePage() {
       profileImageFile: null,
       backgroundImageFile: null,
       profileImagePreview: user.profile_image || "/images/default-profile.png",
-      backgroundImagePreview: user.background_image || "/images/default-background.jpg"
+      backgroundImagePreview:
+        user.background_image || "/images/default-background.jpg",
     });
     setIsEditing(false);
   };
@@ -105,29 +111,37 @@ export default function ProfilePage() {
   const handleSaveChanges = async () => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
-    
+
     try {
-      const updateData = { 
+      const updateData = {
         about: editData.about,
-        cookingRole: editData.cookingRole
+        cookingRole: editData.cookingRole,
       };
-      
+
       // Upload profile image if changed
       if (editData.profileImageFile) {
-        updateData.profile_image = await handleImageUpload(editData.profileImageFile);
+        updateData.profile_image = await handleImageUpload(
+          editData.profileImageFile
+        );
       }
-      
+
       // Upload background image if changed
       if (editData.backgroundImageFile) {
-        updateData.background_image = await handleImageUpload(editData.backgroundImageFile);
+        updateData.background_image = await handleImageUpload(
+          editData.backgroundImageFile
+        );
       }
-      
-      const res = await axios.put(`http://localhost:5000/api/auth/profile/${userId}`, updateData, {
-        headers: {
-          Authorization: `Bearer ${token}`
+
+      const res = await axios.put(
+        `http://localhost:5000/api/auth/profile/${userId}`,
+        updateData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      
+      );
+
       setUser(res.data);
       setIsEditing(false);
     } catch (err) {
@@ -139,20 +153,20 @@ export default function ProfilePage() {
   const handleFileChange = (type, file) => {
     if (file) {
       const previewUrl = URL.createObjectURL(file);
-      setEditData(prev => ({
+      setEditData((prev) => ({
         ...prev,
         [`${type}ImageFile`]: file,
-        [`${type}ImagePreview`]: previewUrl
+        [`${type}ImagePreview`]: previewUrl,
       }));
     }
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -182,19 +196,15 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
-      {/* Edit Button - Only show for own profile */}
-      {isOwnProfile && !isEditing && (
-        <button className="edit-profile-btn" onClick={handleEditClick}>
-          <Edit3 size={20} />
-          Edit Profile
-        </button>
-      )}
-
-      {/* Background Photo */}
+      {/*Background Photo*/}
       <div className="background-photo">
-        <img 
-          src={isEditing ? editData.backgroundImagePreview : (user.background_image || "/images/default-background.jpg")} 
-          alt="Background" 
+        <img
+          src={
+            isEditing
+              ? editData.backgroundImagePreview
+              : user.background_image || "/images/default-background.jpg"
+          }
+          alt="Background"
         />
         {isEditing && (
           <div className="image-overlay">
@@ -206,19 +216,39 @@ export default function ProfilePage() {
               id="background-upload"
               type="file"
               accept="image/*"
-              onChange={(e) => handleFileChange('background', e.target.files[0])}
-              style={{ display: 'none' }}
+              onChange={(e) =>
+                handleFileChange("background", e.target.files[0])
+              }
+              style={{ display: "none" }}
             />
           </div>
         )}
       </div>
 
+      {isOwnProfile && !isEditing && (
+        <div className="profile-buttons">
+          <button className="edit-profile-btn" onClick={handleEditClick}>
+            <Edit3 size={18} style={{ marginRight: "6px" }} />
+            Edit Profile
+          </button>
+
+          <button className="graphs-button" onClick={() => navigate("/graphs")}>
+            <BarChart2 size={18} style={{ marginRight: "6px" }} />
+            My Statistics
+          </button>
+        </div>
+      )}
+
       {/* Profile Photo and Info */}
       <div className="profile-info">
         <div className="profile-photo">
-          <img 
-            src={isEditing ? editData.profileImagePreview : (user.profile_image || "/images/default-profile.png")} 
-            alt="Profile" 
+          <img
+            src={
+              isEditing
+                ? editData.profileImagePreview
+                : user.profile_image || "/images/default-profile.png"
+            }
+            alt="Profile"
           />
           {isEditing && (
             <div className="profile-image-overlay">
@@ -229,20 +259,20 @@ export default function ProfilePage() {
                 id="profile-upload"
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleFileChange('profile', e.target.files[0])}
-                style={{ display: 'none' }}
+                onChange={(e) => handleFileChange("profile", e.target.files[0])}
+                style={{ display: "none" }}
               />
             </div>
           )}
         </div>
-        
+
         <h1 className="profile-name">
           {user.firstName} {user.lastName}
         </h1>
         <p className="profile-username">@{user.username}</p>
         {!isOwnProfile && (
-          <FriendButton 
-            targetUserId={profileUserId} 
+          <FriendButton
+            targetUserId={profileUserId}
             onStatusChange={(status) => {
               // Optionally refresh user data when friendship status changes
               if (status === "friends") {
@@ -255,11 +285,18 @@ export default function ProfilePage() {
         <div className="profile-cooking-role-section">
           {isEditing ? (
             <div className="edit-cooking-role-container">
-              <label htmlFor="cookingRole" className="edit-label">👨‍🍳 Cooking Role:</label>
+              <label htmlFor="cookingRole" className="edit-label">
+                👨‍🍳 Cooking Role:
+              </label>
               <select
                 id="cookingRole"
                 value={editData.cookingRole}
-                onChange={(e) => setEditData(prev => ({ ...prev, cookingRole: e.target.value }))}
+                onChange={(e) =>
+                  setEditData((prev) => ({
+                    ...prev,
+                    cookingRole: e.target.value,
+                  }))
+                }
                 className="edit-select"
                 required
               >
@@ -275,15 +312,19 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <p className="profile-birthday">🎂 Birthday: {formatDate(user.birthDate)}</p>
-        
+        <p className="profile-birthday">
+          🎂 Birthday: {formatDate(user.birthDate)}
+        </p>
+
         {/* About Section */}
         <div className="profile-about-section">
           {isEditing ? (
             <div className="edit-about-container">
               <textarea
                 value={editData.about}
-                onChange={(e) => setEditData(prev => ({ ...prev, about: e.target.value }))}
+                onChange={(e) =>
+                  setEditData((prev) => ({ ...prev, about: e.target.value }))
+                }
                 className="edit-about-textarea"
                 placeholder="Tell us about yourself..."
                 maxLength={500}
@@ -338,8 +379,8 @@ export default function ProfilePage() {
             <div className="friends-grid">
               {user.friends.slice(0, 6).map((friend) => (
                 <div key={friend._id} className="friend-card">
-                  <img 
-                    src={friend.profile_image || "/images/default-profile.png"} 
+                  <img
+                    src={friend.profile_image || "/images/default-profile.png"}
                     alt={friend.username}
                     className="friend-avatar"
                   />
@@ -356,7 +397,7 @@ export default function ProfilePage() {
             <p>No friends yet</p>
           )}
         </div>
-        
+
         <div className="posts-section">
           <h2>Recent Posts ({user.posts?.length || 0})</h2>
           {user.posts && user.posts.length > 0 ? (

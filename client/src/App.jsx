@@ -7,6 +7,7 @@ import ProfilePage from "./pages/ProfilePage";
 import Layout from "./components/Layout"; // Import the Layout component
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import FriendRequestsPage from "./pages/FriendRequestsPage";
+import GraphsPage from "./pages/GraphsPage";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/friend-requests" element={<FriendRequestsPage />} />
+          <Route path="/graphs" element={<GraphsPage />} />
         </Route>
       </Routes>
     </Router>

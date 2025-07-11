@@ -1,9 +1,11 @@
-.profile-page, body, .page-content {
-  background: #FFF2EB;
+.profile-page,
+body,
+.page-content {
+  background: #fff2eb;
 }
 
 .profile-page {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
   color: #333;
 }
 
@@ -58,7 +60,8 @@
   font-size: 20px;
   margin-bottom: 10px;
 }
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: 40px;
   font-size: 18px;
@@ -128,7 +131,7 @@
 
 .friend-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .friend-avatar {
@@ -188,7 +191,7 @@
   .profile-stats {
     gap: 20px;
   }
-  
+
   .friends-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
@@ -213,7 +216,6 @@
   padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
-  
 }
 
 .no-about {
@@ -307,16 +309,16 @@
     max-width: 100%;
     padding: 0 10px;
   }
-  
+
   .edit-about-buttons {
     flex-direction: column;
   }
-  
+
   .save-about-btn,
   .cancel-about-btn {
     width: 100%;
   }
-    /* Edit Profile Button */
+  /* Edit Profile Button */
   .edit-profile-btn {
     position: fixed;
     top: 20px;
@@ -336,19 +338,19 @@
     transition: all 0.3s ease;
     z-index: 1000;
   }
-  
+
   .edit-profile-btn:hover {
     background: #e96b00;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
   }
-  
+
   /* Background Image Overlay */
   .background-photo {
     position: relative;
     overflow: hidden;
   }
-  
+
   .image-overlay {
     position: absolute;
     top: 0;
@@ -362,11 +364,11 @@
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  
+
   .background-photo:hover .image-overlay {
     opacity: 1;
   }
-  
+
   .image-upload-btn {
     background: #fff;
     color: #333;
@@ -379,18 +381,18 @@
     font-weight: 500;
     transition: all 0.3s ease;
   }
-  
+
   .image-upload-btn:hover {
     background: #f0f0f0;
     transform: translateY(-2px);
   }
-  
+
   /* Profile Image Overlay */
   .profile-photo {
     position: relative;
     display: inline-block;
   }
-  
+
   .profile-image-overlay {
     position: absolute;
     bottom: 0;
@@ -406,7 +408,7 @@
     transition: all 0.3s ease;
     border: 3px solid white;
   }
-  
+
   .profile-upload-btn {
     color: white;
     cursor: pointer;
@@ -414,12 +416,12 @@
     align-items: center;
     justify-content: center;
   }
-  
+
   .profile-image-overlay:hover {
     background: #e96b00;
     transform: scale(1.1);
   }
-  
+
   /* Edit Action Buttons */
   .edit-action-buttons {
     display: flex;
@@ -427,7 +429,7 @@
     justify-content: center;
     margin: 20px 0;
   }
-  
+
   .save-profile-btn {
     background: #28a745;
     color: white;
@@ -442,12 +444,12 @@
     gap: 8px;
     transition: all 0.3s ease;
   }
-  
+
   .save-profile-btn:hover {
     background: #218838;
     transform: translateY(-1px);
   }
-  
+
   .cancel-profile-btn {
     background: #6c757d;
     color: white;
@@ -462,12 +464,12 @@
     gap: 8px;
     transition: all 0.3s ease;
   }
-  
+
   .cancel-profile-btn:hover {
     background: #5a6268;
     transform: translateY(-1px);
   }
-  
+
   /* Enhanced edit about textarea */
   .edit-about-textarea {
     width: 100%;
@@ -481,13 +483,13 @@
     margin-bottom: 0;
     transition: all 0.3s ease;
   }
-  
+
   .edit-about-textarea:focus {
     outline: none;
     border-color: #ff7a00;
     box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
   }
-  
+
   /* Responsive adjustments */
   @media (max-width: 768px) {
     .edit-profile-btn {
@@ -496,31 +498,31 @@
       padding: 10px 16px;
       font-size: 12px;
     }
-    
+
     .edit-action-buttons {
       flex-direction: column;
     }
-    
+
     .save-profile-btn,
     .cancel-profile-btn {
       width: 100%;
       justify-content: center;
     }
-    
+
     .image-upload-btn {
       padding: 10px 16px;
       font-size: 14px;
     }
   }
-  
+
   /* Loading animation for image uploads */
   .uploading {
     opacity: 0.7;
     pointer-events: none;
   }
-  
+
   .uploading::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -528,33 +530,33 @@
     height: 20px;
     margin: -10px 0 0 -10px;
     border: 2px solid #ccc;
-    border-top-color:#e96b00;
+    border-top-color: #e96b00;
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
-  
+
   @keyframes spin {
     to {
       transform: rotate(360deg);
     }
   }
-    /* Cooking Role Section */
+  /* Cooking Role Section */
   .profile-cooking-role-section {
     margin: 15px 0;
   }
-  
+
   .edit-cooking-role-container {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
-  
+
   .edit-label {
     font-size: 14px;
     margin-bottom: 8px;
     color: #333;
   }
-  
+
   .edit-select {
     padding: 10px;
     border: 1px solid #ddd;
@@ -565,10 +567,47 @@
     background: #f8f9fa;
     color: #333;
   }
-  
+
   .edit-select:focus {
     outline: none;
     border-color: #ff7a00;
     box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.2);
   }
+}
+
+.profile-buttons {
+  display: flex;
+  justify-content: left;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.profile-buttons button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-profile-btn {
+  background-color: #ff9800;
+  color: white;
+}
+
+.edit-profile-btn:hover {
+  background-color: #e68900;
+  transform: scale(1.03);
+}
+
+.graphs-button {
+  background-color: #f17e0b;
+  color: white;
+}
+
+.graphs-button:hover {
+  background-color: #d26f19;
+  transform: scale(1.03);
 }
