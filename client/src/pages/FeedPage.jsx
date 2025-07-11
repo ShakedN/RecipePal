@@ -47,6 +47,7 @@ export default function FeedPage() {
   const [editingMedia, setEditingMedia] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
   const [showMediaActions, setShowMediaActions] = useState(false); // NEW STATE
+  const [showTemplateRecipe, setShowTemplateRecipe]=useState(false);
   const [newPost, setNewPost] = useState({
     title: "",
     content: "",
@@ -121,20 +122,25 @@ export default function FeedPage() {
     }
   };
 
-  const handleNewPostChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setNewPost((prev) => ({
-        ...prev,
-        dietaryPreferences: checked
-          ? [...prev.dietaryPreferences, value]
-          : prev.dietaryPreferences.filter((pref) => pref !== value),
-      }));
-    } else {
-      setNewPost((prev) => ({ ...prev, [name]: value }));
+const handleNewPostChange = (e) => {
+  const { name, value, type, checked } = e.target;
+  
+  if (type === "checkbox") {
+    setNewPost((prev) => ({
+      ...prev,
+      dietaryPreferences: checked
+        ? [...prev.dietaryPreferences, value]
+        : prev.dietaryPreferences.filter((pref) => pref !== value),
+    }));
+  } else {
+    setNewPost((prev) => ({ ...prev, [name]: value }));
+    
+    // If user manually changes content, check if it's no longer the template
+    if (name === "content" && value !== recipeExContent && showTemplateRecipe) {
+      setShowTemplateRecipe(false);
     }
-  };
-
+  }
+};
   const handleImageUpload = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -175,63 +181,65 @@ export default function FeedPage() {
   };
 
   const handleNewPostSubmit = async (e) => {
-    e.preventDefault();
-    const userName = localStorage.getItem("username");
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      alert("You must be logged in to post.");
-      return;
+     e.preventDefault();
+  const userName = localStorage.getItem("username");
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    alert("You must be logged in to post.");
+    return;
+  }
+
+  try {
+    let imageUrl = "";
+    let videoUrl = "";
+
+    if (newPost.mediaType === "image" && newPost.imageFile) {
+      if (isEdited && newPost.canvasData?.editedUrl) {
+        imageUrl = newPost.canvasData.editedUrl;
+      } else {
+        imageUrl = await handleImageUpload(newPost.imageFile);
+      }
+    } else if (newPost.mediaType === "video" && newPost.videoFile) {
+      if (isEdited && newPost.canvasData?.editedUrl) {
+        // Use the edited video URL (which is the original uploaded to Cloudinary)
+        videoUrl = newPost.canvasData.editedUrl;
+      } else {
+        videoUrl = await handleVideoUpload(newPost.videoFile);
+      }
     }
 
-    try {
-      let imageUrl = "";
-      let videoUrl = "";
+    const postPayload = {
+      userId,
+      userName,
+      kindOfPost: newPost.kindOfPost,
+      title: newPost.title,
+      content: newPost.content,
+      mediaType: newPost.mediaType,
+      image: imageUrl,
+      video: videoUrl,
+      canvasData: newPost.canvasData, // This includes trim data for videos
+    };
 
-      if (newPost.mediaType === "image" && newPost.imageFile) {
-        if (isEdited && newPost.canvasData?.editedUrl) {
-          imageUrl = newPost.canvasData.editedUrl;
-        } else {
-          imageUrl = await handleImageUpload(newPost.imageFile);
-        }
-      } else if (newPost.mediaType === "video" && newPost.videoFile) {
-        if (isEdited && newPost.canvasData?.editedUrl) {
-          videoUrl = newPost.canvasData.editedUrl;
-        } else {
-            videoUrl = await handleVideoUpload(newPost.videoFile);
-        }
-      }
-
-      const postPayload = {
-        userId,
-        userName,
-        kindOfPost: newPost.kindOfPost,
-        title: newPost.title,
-        content: newPost.content,
-        mediaType: newPost.mediaType,
-        image: imageUrl,
-        video: videoUrl,
-        canvasData: newPost.canvasData,
-      };
-
-      if (newPost.kindOfPost === "recipe") {
-        postPayload.typeRecipe = newPost.typeRecipe;
-        postPayload.dietaryPreferences = newPost.dietaryPreferences;
-      }
-
-      await axios.post("http://localhost:5000/api/posts", postPayload);
-      await fetchPosts();
-
-      setNewPost({
-        title: "", content: "", image: "", video: "", kindOfPost: "", typeRecipe: "",
-        dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", canvasData: null,
-      });
-      setIsEdited(false);
-      setShowMediaActions(false); // Reset media actions state
-      if (fileInputRef.current) fileInputRef.current.value = "";
-
-    } catch (err) {
-      alert("Failed to add post: " + (err.response?.data?.error || err.message));
+    if (newPost.kindOfPost === "recipe") {
+      postPayload.typeRecipe = newPost.typeRecipe;
+      postPayload.dietaryPreferences = newPost.dietaryPreferences;
     }
+
+    await axios.post("http://localhost:5000/api/posts", postPayload);
+    await fetchPosts();
+
+    setNewPost({
+      title: "", content: "", image: "", video: "", kindOfPost: "", typeRecipe: "",
+      dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", canvasData: null,
+    });
+    setIsEdited(false);
+    setShowMediaActions(false);
+    setShowTemplateRecipe(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
+  } catch (err) {
+    alert("Failed to add post: " + (err.response?.data?.error || err.message));
+  }
   };
 
   const handleDeletePost = async (postId) => {
@@ -265,41 +273,85 @@ export default function FeedPage() {
     else if (type === "video") setShowVideoEditor(true);
   };
 
-  const handleSaveEdit = async (editData) => {
-    try {
-      let finalUrl = "";
+ const handleSaveEdit = async (editData) => {
+  try {
+    let finalUrl = "";
+    
+    if (editingMedia.type === "video") {
+      // For video editing, upload the trimmed video blob
+      if (editData.blob) {
+        const formData = new FormData();
+        formData.append("file", editData.blob, 'trimmed-video.webm');
+        formData.append("upload_preset", "ml_default");
+        
+        const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/video/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        const data = await res.json();
+        if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+        finalUrl = data.secure_url;
+      } else {
+        throw new Error("No trimmed video blob created");
+      }
+      
+      // Store the video data
+      setNewPost((prev) => ({
+        ...prev,
+        canvasData: {
+          originalUrl: editingMedia.url,
+          editedUrl: finalUrl,
+          trimData: {
+            trimStart: editData.trimStart,
+            trimEnd: editData.trimEnd,
+            originalDuration: editData.originalDuration || 0,
+            trimmedDuration: editData.duration
+          },
+          editType: 'video-trim'
+        },
+      }));
+      
+    } else if (editingMedia.type === "image") {
+      // For images, handle as before with blob upload
       if (editData.blob) {
         const formData = new FormData();
         formData.append("file", editData.blob);
         formData.append("upload_preset", "ml_default");
-        const uploadUrl =
-          editingMedia.type === "video"
-            ? "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload"
-            : "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload";
-        const res = await fetch(uploadUrl, { method: "POST", body: formData });
+        
+        const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/image/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
         const data = await res.json();
         if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
         finalUrl = data.secure_url;
       }
+      
       setNewPost((prev) => ({
         ...prev,
         canvasData: {
           originalUrl: editingMedia.url,
           editedUrl: finalUrl,
           filters: editData.filters || {},
+          editType: 'image'
         },
       }));
-      setIsEdited(true);
-      setShowPhotoEditor(false);
-      setShowVideoEditor(false);
-      setEditingMedia(null);
-      setShowMediaActions(false); // Hide actions after editing
-      console.log("Media edited and saved successfully!", finalUrl);
-    } catch (error) {
-      console.error("Failed to save edit:", error);
-      alert("Failed to save edited media: " + error.message);
     }
-  };
+    
+    setIsEdited(true);
+    setShowPhotoEditor(false);
+    setShowVideoEditor(false);
+    setEditingMedia(null);
+    setShowMediaActions(false);
+    
+    console.log("Media edited and saved successfully!", finalUrl);
+  } catch (error) {
+    console.error("Failed to save edit:", error);
+    alert("Failed to save edited media: " + error.message);
+  }
+};
 
   const handleCancelEdit = () => {
     setShowPhotoEditor(false);
@@ -316,8 +368,19 @@ export default function FeedPage() {
   const handleHideMediaActions = () => {
     setShowMediaActions(false);
   };
-
-  return (
+// Handle template content in the textarea
+const handleTemplateRecipe = () => {
+  if (showTemplateRecipe) {
+    // If template is currently showing, remove it (clear content)
+    setNewPost({ ...newPost, content: "" });
+    setShowTemplateRecipe(false);
+  } else {
+    // If template is not showing, add it
+    setNewPost({ ...newPost, content: recipeExContent });
+    setShowTemplateRecipe(true);
+  }
+};
+ return (
     <div className="feed-content">
       {showPhotoEditor && editingMedia && (
         <PhotoEditor imageUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
@@ -481,22 +544,26 @@ export default function FeedPage() {
                 </div>
               )}
 
-              <div className="form-section">
-                <div className="textarea-header">
-                  <label className="form-label">Recipe & Instructions</label>
-                  <button type="button" className="template-button" onClick={() => setNewPost({ ...newPost, content: recipeExContent })}>
-                    Use Template
-                  </button>
-                </div>
-                <textarea
-                  name="content"
-                  placeholder="Share your story, ingredients, and step-by-step instructions..."
-                  value={newPost.content}
-                  onChange={handleNewPostChange}
-                  className="styled-textarea"
-                  required
-                />
+            <div className="form-section">
+              <div className="textarea-header">
+                <label className="form-label">Recipe & Instructions</label>
+                <button 
+                  type="button" 
+                  className={`template-button ${showTemplateRecipe ? 'active' : ''}`}
+                  onClick={handleTemplateRecipe}
+                >
+                  {showTemplateRecipe ? '✕ Remove Template' : '📝 Use Template'}
+                </button>
               </div>
+              <textarea
+                name="content"
+                placeholder="Share your story, ingredients, and step-by-step instructions..."
+                value={newPost.content}
+                onChange={handleNewPostChange}
+                className="styled-textarea"
+                required
+              />
+            </div>
             </div>
           </div>
 

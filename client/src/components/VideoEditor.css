@@ -14,6 +14,75 @@
   border: 1.5px solid var(--glass-border);
 }
 
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--glass-border);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+
+.editor-header h3 {
+  margin: 0;
+  color: white;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.editor-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.editor-actions button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.editor-actions button:first-child {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.editor-actions button:first-child:hover {
+  background: var(--gradient-sunset);
+  transform: scale(1.05);
+}
+
+.editor-actions button:last-child {
+  background: var(--neutral-600);
+  color: white;
+}
+
+.editor-actions button:last-child:hover {
+  background: var(--neutral-700);
+}
+
+.editor-content {
+  flex: 1;
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.editor-sidebar {
+  width: 300px;
+  background: var(--glass-bg);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  border: 1px solid var(--glass-border);
+}
+
 .editor-video-container {
   flex: 1;
   display: flex;
@@ -95,76 +164,94 @@
   text-align: right;
 }
 
-.overlays-section {
-  margin-bottom: 20px;
-}
-
-.overlays-list {
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.overlay-item {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 5px;
-  position: relative;
-}
-
-.overlay-item span {
-  font-weight: 500;
-  margin-bottom: 2px;
-}
-
-.overlay-item small {
-  color: #666;
-  font-size: 11px;
-}
-
-.delete-overlay-btn {
-  background: var(--error-500);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-full);
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  font-size: var(--text-sm);
-  transition: background var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
-}
-
-.delete-overlay-btn:hover {
-  background: var(--error-600);
-  box-shadow: var(--shadow-sm);
-  transform: scale(1.1);
-}
-
 .trim-section {
   margin-bottom: 20px;
+}
+
+.trim-section h4 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: white;
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-bottom: var(--space-4);
 }
 
 .trim-controls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-4);
+}
+
+.trim-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .trim-controls label {
-  font-size: 12px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: #666;
+  color: white;
 }
 
 .trim-controls input[type="range"] {
   width: 100%;
+  height: 6px;
+  background: var(--neutral-300);
+  border-radius: var(--radius-full);
+  outline: none;
   accent-color: #ff7a00;
+}
+
+.set-current-btn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.set-current-btn:hover {
+  background: var(--gradient-sunset);
+  transform: scale(1.05);
+}
+
+.trim-info {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+}
+
+.trim-info p {
+  margin: 0;
+  color: white;
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.trim-info p:first-child {
+  margin-bottom: var(--space-2);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+  .editor-content {
+    flex-direction: column;
+  }
+  
+  .editor-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  
   .video-controls {
     min-width: auto;
     width: 100%;
