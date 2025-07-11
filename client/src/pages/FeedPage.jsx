@@ -2,53 +2,42 @@ import React, { useEffect, useState, useRef } from "react";
 import PostCard from "../components/PostCard";
 import PhotoEditor from "../components/PhotoEditor";
 import VideoEditor from "../components/VideoEditor";
-import { Video, Image, Edit3 } from "lucide-react";
+import { Video, Image, Edit3, X } from "lucide-react";
 import "./FeedPage.css";
 import axios from "axios";
 
-const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your dessert game? This rich, dreamy chocolate cake is:
+const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? This {adjective1}, {adjective2} {dish type} is:
 
-Super moist thanks to hot coffee
-Incredibly easy with pantry staples
-Perfect for birthdays, gatherings, or a cozy night in
+{• Feature 1}  
+{• Feature 2}  
+{• Feature 3}  
 
-📋 What You Need
-• 1¾ cups flour
-• ¾ cup cocoa powder
-• 2 cups sugar
-• 1½ tsp baking powder & soda
-• 1 tsp salt
-• 2 eggs
-• 1 cup milk
-• ½ cup oil
-• 2 tsp vanilla
-• 1 cup hot coffee (or hot water)
+📋 **What You Need**  
+<!-- ✏️  Start listing ingredients here, one per line.  -->
+•   
+•   
+•   
+•   
 
-🍰 Frosting
-• ¾ cup butter
-• 1⅓ cups cocoa
-• 5 cups powdered sugar
-• ⅓ cup milk (plus more if needed)
-• 2 tsp vanilla
-• Pinch of salt
+🍰 **{Optional Sub-section (e.g., Frosting / Filling / Glaze)}**  
+<!-- ✏️  List sub-ingredients if your recipe has a second component. Delete this block if not needed. -->
+•   
+•   
+•   
 
-👩‍🍳 Steps in a Snap
-1️⃣ Preheat to 350°F (175°C), prep two 8″ pans
-2️⃣ Whisk dry ingredients
-3️⃣ Beat in eggs, milk, oil & vanilla
-4️⃣ Pour in hot coffee—batter will thin!
-5️⃣ Bake 30–35 min, cool completely
-6️⃣ Whip butter, cocoa, sugar & milk into fluffy frosting
-7️⃣ Layer, frost & decorate
+👩‍🍳 **Steps in a Snap**  
+1️⃣ {Step 1 (verb + short instruction)}  
+2️⃣ {Step 2}  
+3️⃣ {Step 3}  
+4️⃣ {Step 4}  
+5️⃣ {Step 5}  
 
-💡 Pro Tips
-• Swap half water for espresso for extra depth
-• Use cake flour for a lighter crumb
-• Gluten-free? Your favorite 1:1 blend works great!
+💡 **Pro Tips**  
+• {Tip 1}  
+• {Tip 2}  
+• {Tip 3}  
 
-📸 Don’t forget to snap that ooey-gooey cross-section and tag me so I can drool over your masterpiece! 😍👩‍🍳
-
-#chocolatecake #baking #dessertlover #homemade #cakerecipe #foodie #instabake`;
+📸 Don’t forget to snap a pic and tag me so I can drool over your masterpiece! 😍👩‍🍳`;
 
 export default function FeedPage() {
   const fileInputRef = useRef(null);
@@ -57,6 +46,7 @@ export default function FeedPage() {
   const [showVideoEditor, setShowVideoEditor] = useState(false);
   const [editingMedia, setEditingMedia] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
+  const [showMediaActions, setShowMediaActions] = useState(false); // NEW STATE
   const [newPost, setNewPost] = useState({
     title: "",
     content: "",
@@ -236,6 +226,7 @@ export default function FeedPage() {
         dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", canvasData: null,
       });
       setIsEdited(false);
+      setShowMediaActions(false); // Reset media actions state
       if (fileInputRef.current) fileInputRef.current.value = "";
 
     } catch (err) {
@@ -302,6 +293,7 @@ export default function FeedPage() {
       setShowPhotoEditor(false);
       setShowVideoEditor(false);
       setEditingMedia(null);
+      setShowMediaActions(false); // Hide actions after editing
       console.log("Media edited and saved successfully!", finalUrl);
     } catch (error) {
       console.error("Failed to save edit:", error);
@@ -313,6 +305,16 @@ export default function FeedPage() {
     setShowPhotoEditor(false);
     setShowVideoEditor(false);
     setEditingMedia(null);
+  };
+
+  // Handle showing media actions
+  const handleShowMediaActions = () => {
+    setShowMediaActions(true);
+  };
+
+  // Handle hiding media actions (exit preview mode)
+  const handleHideMediaActions = () => {
+    setShowMediaActions(false);
   };
 
   return (
@@ -352,6 +354,7 @@ export default function FeedPage() {
                     });
                     setIsEdited(false);
                     setEditingMedia(null);
+                    setShowMediaActions(false); // Reset actions when new file is uploaded
                   }
                 }}
                 className="media-input"
@@ -372,25 +375,48 @@ export default function FeedPage() {
                   {newPost.videoFile && (
                     <video src={URL.createObjectURL(newPost.videoFile)} className="media-preview" controls />
                   )}
-                  <div className="media-actions-overlay">
-                    <button
-                      type="button"
-                      onClick={() => handleEditMedia(newPost.imageFile || newPost.videoFile, newPost.mediaType)}
-                      className="media-action-btn"
-                    >
-                      <Edit3 size={16} /> Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNewPost({ ...newPost, imageFile: null, videoFile: null });
-                        fileInputRef.current.value = "";
-                      }}
-                      className="media-action-btn remove"
-                    >
-                      Change
-                    </button>
-                  </div>
+                  
+                  {/* Show actions button when not in actions mode */}
+                  {!showMediaActions && (
+                    <div className="media-actions-trigger" onClick={handleShowMediaActions}>
+                      <div className="actions-trigger-btn">
+                        <Edit3 size={16} />
+                        <span>Edit Media</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Show actions overlay when in actions mode */}
+                  {showMediaActions && (
+                    <div className="media-actions-overlay active">
+                      <button
+                        type="button"
+                        onClick={() => handleEditMedia(newPost.imageFile || newPost.videoFile, newPost.mediaType)}
+                        className="media-action-btn"
+                      >
+                        <Edit3 size={16} /> Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewPost({ ...newPost, imageFile: null, videoFile: null });
+                          fileInputRef.current.value = "";
+                          setShowMediaActions(false);
+                        }}
+                        className="media-action-btn remove"
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleHideMediaActions}
+                        className="media-action-btn exit"
+                      >
+                        <X size={16} /> Done
+                      </button>
+                    </div>
+                  )}
+                  
                   {isEdited && <div className="edited-badge">✨ Edited</div>}
                 </div>
               )}
@@ -398,6 +424,16 @@ export default function FeedPage() {
 
             {/* Column 2: Form Details */}
             <div className="form-column">
+
+
+              <div className="form-section">
+                <label className="form-label">What are you sharing?</label>
+                <select name="kindOfPost" value={newPost.kindOfPost} onChange={handleNewPostChange} required className="styled-select">
+                  <option value="">Choose post type...</option>
+                  <option value="recipe">🍳 Recipe</option>
+                  <option value="shared thoughts">💭 Shared Thoughts</option>
+                </select>
+              </div>
               <div className="form-section">
                 <input
                   type="text"
@@ -409,16 +445,6 @@ export default function FeedPage() {
                   required
                 />
               </div>
-
-              <div className="form-section">
-                <label className="form-label">What are you sharing?</label>
-                <select name="kindOfPost" value={newPost.kindOfPost} onChange={handleNewPostChange} required className="styled-select">
-                  <option value="">Choose post type...</option>
-                  <option value="recipe">🍳 Recipe</option>
-                  <option value="shared thoughts">💭 Shared Thoughts</option>
-                </select>
-              </div>
-
               {newPost.kindOfPost === "recipe" && (
                 <div className="recipe-details">
                   <div className="form-section-inline">
@@ -464,9 +490,7 @@ export default function FeedPage() {
                 </div>
                 <textarea
                   name="content"
-                  placeholder="Share your story, ingredients, and step-by-step instructions...
-
-💡 Tip: Use hashtags like #chocolatecake to help others find your recipe!"
+                  placeholder="Share your story, ingredients, and step-by-step instructions..."
                   value={newPost.content}
                   onChange={handleNewPostChange}
                   className="styled-textarea"

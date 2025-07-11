@@ -14,6 +14,7 @@ import {
 } from "../controllers/postController.js";
 
 const router = express.Router();
+//router.get("/search", searchAll);
 
 // GET /api/posts - Get all posts
 router.get("/", getAllPosts);

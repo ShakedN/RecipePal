@@ -143,8 +143,12 @@ export default function PostCard({
       )}
       {/* Remove this duplicate line: <p className="post-content">{post.content}</p> */}
 
-      {post.image && (
+          {post.image && (
         <img src={post.image} alt="Post" className="post-image" />
+      )}
+
+      {post.video && (
+        <video src={post.video} className="post-video" controls />
       )}
 
       <div className="post-actions">
