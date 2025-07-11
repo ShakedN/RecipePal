@@ -1,7 +1,7 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { User, FileText, Tag, Clock, Heart } from "lucide-react";
-import "./SearchResults.css";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { User, FileText, Clock, Heart } from 'lucide-react';
+import './SearchResults.css';
 
 export default function SearchResults({ results, isVisible, onClose, onUserSelect, searchType }) {
   const navigate = useNavigate();
@@ -10,8 +10,8 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
     if (item.type === 'user') {
       navigate(`/profile/${item._id}`);
     } else if (item.type === 'post') {
-      // Navigate to post detail or user profile
-      navigate(`/profile/${item.user._id}`);
+      // Navigate to a post detail page or show post modal
+      navigate(`/post/${item._id}`);
     }
     onUserSelect(item);
     onClose();
@@ -44,6 +44,7 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
         <span className="search-results-count">
           {results.length} {searchType || 'result'}(s) found
         </span>
+        <button onClick={onClose} className="close-results-btn">×</button>
       </div>
       
       {results.map((item) => (
