@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Edit3, BarChart2, Camera, Save, X } from "lucide-react";
+import { Edit3, BarChart2, Camera, Save, X, Cake } from "lucide-react";
 import "./ProfilePage.css";
 import axios from "axios";
 import FriendButton from "../components/FriendButton";
@@ -18,6 +18,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
+    username: "",
     about: "",
     cookingRole: "",
     profileImageFile: null,
@@ -49,6 +50,7 @@ export default function ProfilePage() {
       );
       setUser(res.data);
       setEditData({
+        username: res.data.username || "",
         about: res.data.about || "",
         cookingRole: res.data.cookingRole || "",
         profileImageFile: null,
@@ -97,6 +99,7 @@ export default function ProfilePage() {
 
   const handleCancelEdit = () => {
     setEditData({
+      username: user.username || "",
       about: user.about || "",
       cookingRole: user.cookingRole || "",
       profileImageFile: null,
@@ -114,6 +117,7 @@ export default function ProfilePage() {
 
     try {
       const updateData = {
+        username: editData.username,
         about: editData.about,
         cookingRole: editData.cookingRole,
       };
@@ -269,7 +273,19 @@ export default function ProfilePage() {
         <h1 className="profile-name">
           {user.firstName} {user.lastName}
         </h1>
-        <p className="profile-username">@{user.username}</p>
+        {isEditing ? (
+          <input
+            type="text"
+            className="edit-username-input"
+            value={editData.username}
+            onChange={(e) =>
+              setEditData((prev) => ({ ...prev, username: e.target.value }))
+            }
+            placeholder="Username"
+          />
+        ) : (
+          <p className="profile-username">@{user.username}</p>
+        )}
         {!isOwnProfile && (
           <FriendButton
             targetUserId={profileUserId}
@@ -313,7 +329,8 @@ export default function ProfilePage() {
         </div>
 
         <p className="profile-birthday">
-          🎂 Birthday: {formatDate(user.birthDate)}
+          <Cake size={18} style={{ marginRight: 8 }} />
+          Birthday: {formatDate(user.birthDate)}
         </p>
 
         {/* About Section */}
@@ -405,7 +422,11 @@ export default function ProfilePage() {
               {user.posts.slice(0, 3).map((post) => (
                 <div key={post._id} className="post-preview">
                   <h4>{post.title}</h4>
-                  <p>{post.content.substring(0, 100)}...</p>
+                  <p>
+                    {post.content
+                      ? post.content.substring(0, 100) + "..."
+                      : "No content available"}
+                  </p>
                   <span className="post-date">
                     {new Date(post.createdAt).toLocaleDateString()}
                   </span>
