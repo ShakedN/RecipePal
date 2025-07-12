@@ -164,21 +164,33 @@ export const getUserProfile = async (req, res) => {
 
 export const updateUserProfile = async (req, res) => {
   const { userId } = req.params;
-  const { about, profile_image, background_image, cookingRole } = req.body;
+  const { username, about, profile_image, background_image, cookingRole } =
+    req.body;
 
   try {
     const updateData = {};
 
-    //Only update fields that are provided
+    //Check if the username is being updated
+    if (username) {
+      const existingUser = await User.findOne({ username });
+      //Ensure the new username is not already taken by another user
+      if (existingUser && existingUser._id.toString() !== userId) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
+      updateData.username = username;
+    }
+
+    //Only update fields that are provided in the request body
     if (about !== undefined) updateData.about = about;
     if (profile_image) updateData.profile_image = profile_image;
     if (background_image) updateData.background_image = background_image;
     if (cookingRole) updateData.cookingRole = cookingRole;
+
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       updateData,
       { new: true } //Return the updated document
-    ).select("-password -verificationToken"); //Exclude sensitive data
+    ).select("-password -verificationToken"); //Exclude sensitive fields
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -186,9 +198,10 @@ export const updateUserProfile = async (req, res) => {
 
     res.status(200).json(updatedUser);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating user profile", error: error.message });
+    res.status(500).json({
+      message: "Error updating user profile",
+      error: error.message,
+    });
   }
 };
 
