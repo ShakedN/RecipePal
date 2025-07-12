@@ -12,7 +12,8 @@ export default function GroupsPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-
+  
+  
   const userId = localStorage.getItem('userId');
 
   useEffect(() => {
@@ -63,17 +64,23 @@ export default function GroupsPage() {
     }
   };
 
-  const handleGroupSelect = (group) => {
-    setSelectedGroup(group);
-    fetchGroupPosts(group._id);
-  };
-
+ 
   const filteredPosts = groupPosts.filter(post => {
     if (activeFilter === 'all') return true;
     if (activeFilter === 'myGroups') return groups.some(g => g._id === post.group?._id);
     return true;
   });
-
+const handleGroupSelect = (group) => {
+  // If the same group is already selected, deselect it
+  if (selectedGroup && selectedGroup._id === group._id) {
+    setSelectedGroup(null);
+    fetchGroupPosts(); // Fetch all posts again (without specific group filter)
+  } else {
+    // Select the new group
+    setSelectedGroup(group);
+    fetchGroupPosts(group._id);
+  }
+};
   return (
     <div className="groups-page">
       {/* Sidebar - My Groups */}
@@ -137,35 +144,18 @@ export default function GroupsPage() {
       {/* Main Content */}
       <div className="groups-main-content">
         {/* Feed Filters */}
-        <div className="feed-filters">
-          <div className="filter-tabs">
-            <button 
-              className={`filter-tab ${activeFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveFilter('all')}
-            >
-              All Feed
-            </button>
-            <button 
-              className={`filter-tab ${activeFilter === 'myGroups' ? 'active' : ''}`}
-              onClick={() => setActiveFilter('myGroups')}
-            >
-              My Groups
-            </button>
-            <button 
-              className={`filter-tab ${activeFilter === 'following' ? 'active' : ''}`}
-              onClick={() => setActiveFilter('following')}
-            >
-              Following
-            </button>
+      <div className="feed-filters">
+          {selectedGroup && (
+        <div className="selected-group-info">
+          <div className="selected-group-name">
+            {selectedGroup.name}
           </div>
-          <div className="filter-divider"></div>
-          <div className="group-filters">
-            <div className="group-filter">🥗 Vegan</div>
-            <div className="group-filter">🍰 Desserts</div>
-            <div className="group-filter">⚡ Quick</div>
-            <div className="group-filter">🌶️ Spicy</div>
+          <div className="selected-group-description">
+            {selectedGroup.description}
           </div>
         </div>
+      )}
+      </div>
 
         {/* Group Posts Feed */}
         <div className="groups-feed">
@@ -288,25 +278,47 @@ export default function GroupsPage() {
   );
 }
 
-// Create Group Modal Component
 function CreateGroupModal({ onClose, onGroupCreated }) {
   const [groupData, setGroupData] = useState({
     name: '',
     description: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!groupData.name.trim()) {
+      alert('Group name is required');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
     try {
       const userId = localStorage.getItem('userId');
-      await axios.post('http://localhost:5000/api/groups', {
-        ...groupData,
+      const response = await axios.post('http://localhost:5000/api/groups', {
+        name: groupData.name.trim(),
+        description: groupData.description.trim(),
         admin: userId
       });
+      
+      console.log('Group created successfully:', response.data);
+      
+      // Call the parent function to refresh groups
       onGroupCreated();
+      
+      // Close the modal
       onClose();
+      
+      // Optional: Show success message
+      alert('Group created successfully!');
+      
     } catch (error) {
       console.error('Error creating group:', error);
+      alert(error.response?.data?.message || 'Failed to create group. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -316,12 +328,14 @@ function CreateGroupModal({ onClose, onGroupCreated }) {
         <h2>Create New Group</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Group Name</label>
+            <label>Group Name *</label>
             <input
               type="text"
               value={groupData.name}
               onChange={(e) => setGroupData({...groupData, name: e.target.value})}
+              placeholder="Enter group name"
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="form-group">
@@ -329,12 +343,27 @@ function CreateGroupModal({ onClose, onGroupCreated }) {
             <textarea
               value={groupData.description}
               onChange={(e) => setGroupData({...groupData, description: e.target.value})}
+              placeholder="Enter group description (optional)"
               rows={4}
+              disabled={isSubmitting}
             />
           </div>
           <div className="modal-actions">
-            <button type="button" onClick={onClose}>Cancel</button>
-            <button type="submit">Create Group</button>
+            <button 
+              type="button" 
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="cancel-btn"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit"
+              disabled={isSubmitting}
+              className="create-btn"
+            >
+              {isSubmitting ? 'Creating...' : 'Create Group'}
+            </button>
           </div>
         </form>
       </div>

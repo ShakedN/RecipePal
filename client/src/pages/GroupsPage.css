@@ -439,4 +439,26 @@
   .groups-sidebar {
     order: -1;
   }
+  .selected-group-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+  }
+    .selected-group-info {
+    text-align: center;
+  }
+  
+  .selected-group-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  .selected-group-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+  }
 }
