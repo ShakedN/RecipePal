@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import FeedPage from "./pages/FeedPage";
-import GroupPage from "./pages/GroupPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProfilePage from "./pages/ProfilePage";
 import PostDetail from "./pages/PostDetail";
@@ -9,6 +8,7 @@ import Layout from "./components/Layout"; // Import the Layout component
 import VerifyEmailPage from "./pages/VerifyEmailPage";
 import FriendRequestsPage from "./pages/FriendRequestsPage";
 import GraphsPage from "./pages/GraphsPage";
+import GroupsPage from "./pages/GroupsPage";
 
 function App() {
   return (
@@ -19,8 +19,8 @@ function App() {
         <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
         <Route element={<Layout />}>
           <Route path="/feed" element={<FeedPage />} />
-           <Route path="/post/:postId" element={<PostDetail />} />
-          <Route path="/groups/:id" element={<GroupPage />} />
+          <Route path="/groups" element={<GroupsPage />} />
+          <Route path="/post/:postId" element={<PostDetail />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/friend-requests" element={<FriendRequestsPage />} />

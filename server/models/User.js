@@ -98,6 +98,7 @@ const userSchema = new mongoose.Schema(
         ref: "Group",
       },
     ],
+    
     verificationToken: {
       type: String,
     },
