@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Users, MessageCircle,Search } from "lucide-react"; // Add MessageCircle icon
+import { Users, MessageCircle,Search,LogOutIcon,Bell,HomeIcon } from "lucide-react"; // Add MessageCircle icon
 import axios from "axios";
 import SearchResults from "./SearchResults";
 import AdvancedSearch from "./AdvancedSearch";
@@ -328,7 +328,7 @@ const fetchFriendRequests = async () => {
           </li>
           <li>
             <a href="/feed">
-              <i className="lni lni-home" style={{ fontSize: "2em" }}></i>
+              <HomeIcon size={28} />
             </a>
           </li>
           
@@ -382,18 +382,14 @@ const fetchFriendRequests = async () => {
               onClick={handleFriendRequestClick}
               aria-label="Friend Requests"
             >
-              <Users size={28} />
+              <Bell size={28} />
               {(friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)) > 0 && (
                 <span className="friend-requests-badge">
                   {friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)}
                 </span>
               )}
             </button>
-            <li>
-            <a href="/groups">
-              <i className="lni lni-users" style={{ fontSize: "2em" }}></i>
-            </a>
-          </li>
+     
             {/* Friend Requests Dropdown */}
          {showFriendRequests && (
   <div className="friend-requests-dropdown">
@@ -509,7 +505,7 @@ const fetchFriendRequests = async () => {
           </li>
           <li>
             <a href="/">
-              <i className="lni lni-exit" style={{ fontSize: "2em" }}></i>
+              <LogOutIcon  size={28} />
             </a>
           </li>
         </ul>

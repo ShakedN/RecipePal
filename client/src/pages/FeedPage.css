@@ -1,3 +1,15 @@
+body.feed-page-background {
+  background-image: url('/public/images/BACKGROUND-Feed.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  background-color: #f0f0f0; /* Fallback color if the image doesn't load */
+  margin: 0;
+  padding: 0;
+}
+
 .navbar { 
   display: flex;
   align-items: center;
@@ -150,7 +162,7 @@
 }
 
 .post-actions button:hover {
-  background: #f0f2f5;
+  background-color: #f0f2f5;
   color: #1877f2;
 }
 
