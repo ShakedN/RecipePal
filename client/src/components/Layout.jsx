@@ -20,12 +20,12 @@ export default function Layout() {
   const [showFriendsList, setShowFriendsList] = useState(false); // New state for friends list
   const [friends, setFriends] = useState([]); // State for friends
   const [openChats, setOpenChats] = useState([]); // State for open chat windows
-  
+  const [groupRequests, setGroupRequests] = useState([]);
   const searchRef = useRef(null);
   const friendRequestsRef = useRef(null);
   const friendsListRef = useRef(null); // New ref for friends list
   const navigate = useNavigate();
-
+  const [activeTab, setActiveTab] = useState("direct");
   //Get the user's profile image from localStorage or use default
   const profileImage =
     localStorage.getItem("profile_image") || "/images/default-profile.png";
@@ -228,7 +228,6 @@ const handleQuickSearch = async () => {
       );
     }
   };
-
   const handleRejectRequest = async (requesterId) => {
     try {
       await axios.post("http://localhost:5000/api/auth/reject-friend", {
@@ -242,6 +241,27 @@ const handleQuickSearch = async () => {
         "Failed to reject friend request: " +
           (err.response?.data?.message || err.message)
       );
+    }
+  };
+    const handleAcceptGroupRequest = async (groupId, userId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/accept-request`, {
+        userId,
+      });
+      fetchFriendRequests(); // Refresh requests
+    } catch (err) {
+      alert("Failed to accept group join request: " + (err.response?.data?.message || err.message));
+    }
+  };
+  
+  const handleRejectGroupRequest = async (groupId, userId) => {
+    try {
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/reject-request`, {
+        userId,
+      });
+      fetchFriendRequests(); // Refresh requests
+    } catch (err) {
+      alert("Failed to reject group join request: " + (err.response?.data?.message || err.message));
     }
   };
 
@@ -374,55 +394,116 @@ const handleQuickSearch = async () => {
             </a>
           </li>
             {/* Friend Requests Dropdown */}
-            {showFriendRequests && (
-              <div className="friend-requests-dropdown">
-                <h4>Friend Requests</h4>
-                {friendRequests.length === 0 ? (
-                  <p className="no-requests">No pending requests</p>
-                ) : (
-                  <div className="requests-list">
-                    {friendRequests.map((request) => (
-                      <div key={request.from._id} className="request-item">
-                        <img
-                          src={
-                            request.from.profile_image ||
-                            "/images/default-profile.png"
-                          }
-                          alt={request.from.username}
-                          className="request-avatar"
-                        />
-                        <div className="request-info">
-                          <div className="request-name">
-                            {request.from.firstName} {request.from.lastName}
-                          </div>
-                          <div className="request-username">
-                            @{request.from.username}
-                          </div>
-                        </div>
-                        <div className="request-actions">
-                          <button
-                            className="accept-btn"
-                            onClick={() =>
-                              handleAcceptRequest(request.from._id)
-                            }
-                          >
-                            Accept
-                          </button>
-                          <button
-                            className="reject-btn"
-                            onClick={() =>
-                              handleRejectRequest(request.from._id)
-                            }
-                          >
-                            Reject
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+         {showFriendRequests && (
+  <div className="friend-requests-dropdown">
+    <h4 data-count={friendRequests.length}>Friend Requests</h4>
+    
+    {/* Add tabs */}
+    <div className="friend-requests-tabs">  <button
+    className={`friend-requests-tab ${activeTab === "direct" ? "active" : ""}`}
+    onClick={() => setActiveTab("direct")}
+  >
+    Direct
+  </button>
+  <button
+    className={`friend-requests-tab ${activeTab === "groups" ? "active" : ""}`}
+    onClick={() => setActiveTab("groups")}
+  >
+    From Groups
+  </button>
+</div>
+    
+   {activeTab === "direct" && (
+  friendRequests.length === 0 ? (
+    <p className="no-requests">No pending requests</p>
+  ) : (
+    <div className="requests-list">
+      {friendRequests.map((request) => (
+        <div key={request.from._id} className="request-item">
+          <img
+            src={
+              request.from.profile_image || "/images/default-profile.png"
+            }
+            alt={request.from.username}
+            className="request-avatar"
+          />
+          <div className="request-info">
+            <div className="request-name">
+              {request.from.firstName} {request.from.lastName}
+            </div>
+            <div className="request-username">@{request.from.username}</div>
+            <div className="request-message">Wants to be your friend</div>
+          </div>
+          <div className="request-actions">
+            <button
+              className="accept-btn"
+              onClick={() => handleAcceptRequest(request.from._id)}
+            >
+              Accept
+            </button>
+            <button
+              className="reject-btn"
+              onClick={() => handleRejectRequest(request.from._id)}
+            >
+              Decline
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+)}
+
+{activeTab === "groups" && (
+  groupRequests.length === 0 ? (
+    <p className="no-requests">No group join requests</p>
+  ) : (
+    <div className="requests-list">
+      {groupRequests.map((group) => (
+        <div key={group._id} className="request-item">
+          <div className="request-info">
+            <div className="request-name">
+              {group.name}
+            </div>
+            {group.pendingRequests.map((user) => (
+              <div key={user._id} className="group-request">
+                <img
+                  src={user.profile_image || "/images/default-profile.png"}
+                  alt={user.username}
+                  className="request-avatar"
+                />
+                <div className="request-info">
+                  <div className="request-name">
+                    {user.firstName} {user.lastName}
                   </div>
-                )}
+                  <div className="request-username">@{user.username}</div>
+                  <div className="request-message">Wants to join your group</div>
+                </div>
+                <div className="request-actions">
+                  <button
+                    className="accept-btn"
+                    onClick={() => handleAcceptGroupRequest(group._id, user._id)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="reject-btn"
+                    onClick={() => handleRejectGroupRequest(group._id, user._id)}
+                  >
+                    Decline
+                  </button>
+                </div>
               </div>
-            )}
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+)}
+  </div>
+)}
+            
           </li>
           <li>
             <a href="/">

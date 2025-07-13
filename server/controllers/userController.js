@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import express from "express";
+import Group from "../models/Group.js";
 
 export const registerUser = async (req, res) => {
   const {
@@ -85,7 +86,34 @@ export const registerUser = async (req, res) => {
       .json({ message: "Error registering user", error: error.message });
   }
 };
+export const getFriendAndGroupRequests = async (req, res) => {
+  const { userId } = req.params;
 
+  try {
+    const user = await User.findById(userId)
+      .populate("friendRequests.from", "username firstName lastName profile_image")
+      .select("friendRequests");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Fetch group join requests where the user is the admin
+    const groupRequests = await Group.find({ admin: userId })
+      .populate("pendingRequests", "username firstName lastName profile_image")
+      .select("name pendingRequests");
+
+    res.status(200).json({
+      friendRequests: user.friendRequests,
+      groupRequests,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching requests",
+      error: error.message,
+    });
+  }
+};
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
 
