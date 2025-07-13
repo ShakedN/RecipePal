@@ -82,11 +82,18 @@ export default function FeedPage() {
       return;
     }
     try {
-      const res = await axios.put(`http://localhost:5000/api/posts/${postId}/like`, { userId });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${postId}/like`,
+        { userId }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
       console.error("Failed to like post:", err);
-      alert("Failed to like post: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to like post: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -97,21 +104,36 @@ export default function FeedPage() {
       return;
     }
     try {
-      const res = await axios.post(`http://localhost:5000/api/posts/${postId}/comment`, { userId, content });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.post(
+        `http://localhost:5000/api/posts/${postId}/comment`,
+        { userId, content }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
       console.error("Failed to add comment:", err);
-      alert("Failed to add comment: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to add comment: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
   const handleDeleteComment = async (postId, commentId) => {
     const userId = localStorage.getItem("userId");
     try {
-      const res = await axios.delete(`http://localhost:5000/api/posts/${postId}/comment/${commentId}`, { data: { userId } });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}/comment/${commentId}`,
+        { data: { userId } }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
-      alert("Failed to delete comment: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to delete comment: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -139,12 +161,16 @@ export default function FeedPage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "ml_default");
-    const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/image/upload", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     const data = await res.json();
-    if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+    if (!data.secure_url)
+      throw new Error(data.error?.message || "Upload failed");
     return data.secure_url;
   };
 
@@ -152,25 +178,37 @@ export default function FeedPage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "ml_default");
-    const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/video/upload", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     const data = await res.json();
-    if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+    if (!data.secure_url)
+      throw new Error(data.error?.message || "Upload failed");
     return data.secure_url;
   };
 
   const handleEditComment = async (postId, commentId, newContent) => {
     const userId = localStorage.getItem("userId");
     try {
-      const res = await axios.put(`http://localhost:5000/api/posts/${postId}/comment/${commentId}`, {
-        userId,
-        content: newContent,
-      });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${postId}/comment/${commentId}`,
+        {
+          userId,
+          content: newContent,
+        }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
-      alert("Failed to edit comment: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to edit comment: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -197,7 +235,7 @@ export default function FeedPage() {
         if (isEdited && newPost.canvasData?.editedUrl) {
           videoUrl = newPost.canvasData.editedUrl;
         } else {
-            videoUrl = await handleVideoUpload(newPost.videoFile);
+          videoUrl = await handleVideoUpload(newPost.videoFile);
         }
       }
 
@@ -222,25 +260,39 @@ export default function FeedPage() {
       await fetchPosts();
 
       setNewPost({
-        title: "", content: "", image: "", video: "", kindOfPost: "", typeRecipe: "",
-        dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", canvasData: null,
+        title: "",
+        content: "",
+        image: "",
+        video: "",
+        kindOfPost: "",
+        typeRecipe: "",
+        dietaryPreferences: [],
+        imageFile: null,
+        videoFile: null,
+        mediaType: "image",
+        canvasData: null,
       });
       setIsEdited(false);
       setShowMediaActions(false); // Reset media actions state
       if (fileInputRef.current) fileInputRef.current.value = "";
-
     } catch (err) {
-      alert("Failed to add post: " + (err.response?.data?.error || err.message));
+      alert(
+        "Failed to add post: " + (err.response?.data?.error || err.message)
+      );
     }
   };
 
   const handleDeletePost = async (postId) => {
     const userId = localStorage.getItem("userId");
     try {
-      await axios.delete(`http://localhost:5000/api/posts/${postId}`, { data: { userId } });
+      await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        data: { userId },
+      });
       setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     } catch (err) {
-      alert("Failed to delete post: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to delete post: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -250,11 +302,16 @@ export default function FeedPage() {
       const res = await axios.put(`http://localhost:5000/api/posts/${postId}`, {
         userId,
         content: newContent,
-        title: posts.find((post) => post._id === postId)?.title || "Updated Post",
+        title:
+          posts.find((post) => post._id === postId)?.title || "Updated Post",
       });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
-      alert("Failed to edit post: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to edit post: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -278,7 +335,8 @@ export default function FeedPage() {
             : "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload";
         const res = await fetch(uploadUrl, { method: "POST", body: formData });
         const data = await res.json();
-        if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+        if (!data.secure_url)
+          throw new Error(data.error?.message || "Upload failed");
         finalUrl = data.secure_url;
       }
       setNewPost((prev) => ({
@@ -320,16 +378,28 @@ export default function FeedPage() {
   return (
     <div className="feed-content">
       {showPhotoEditor && editingMedia && (
-        <PhotoEditor imageUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+        <PhotoEditor
+          imageUrl={editingMedia.url}
+          onSave={handleSaveEdit}
+          onCancel={handleCancelEdit}
+        />
       )}
       {showVideoEditor && editingMedia && (
-        <VideoEditor videoUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+        <VideoEditor
+          videoUrl={editingMedia.url}
+          onSave={handleSaveEdit}
+          onCancel={handleCancelEdit}
+        />
       )}
 
       {/* MODERN NEW POST FORM */}
       <div className="new-post-container-modern">
         <div className="new-post-header">
-          <img src="/images/default-profile.png" alt="Your Profile" className="new-post-avatar" />
+          <img
+            src="/images/default-profile.png"
+            alt="Your Profile"
+            className="new-post-avatar"
+          />
           <div className="new-post-greeting">
             <span>What's cooking, {localStorage.getItem("username")}?</span>
           </div>
@@ -345,7 +415,9 @@ export default function FeedPage() {
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {
-                    const fileType = file.type.startsWith("video") ? "video" : "image";
+                    const fileType = file.type.startsWith("video")
+                      ? "video"
+                      : "image";
                     setNewPost({
                       ...newPost,
                       mediaType: fileType,
@@ -361,24 +433,43 @@ export default function FeedPage() {
                 ref={fileInputRef}
               />
               {!newPost.imageFile && !newPost.videoFile ? (
-                <div className="media-upload-zone" onClick={() => fileInputRef.current.click()}>
+                <div
+                  className="media-upload-zone"
+                  onClick={() => fileInputRef.current.click()}
+                >
                   <Image size={48} strokeWidth={1.5} />
                   <Video size={48} strokeWidth={1.5} />
-                  <p><strong>Click to upload</strong> or drag and drop a photo or video.</p>
-                  <span className="upload-hint">High-quality visuals get more likes!</span>
+                  <p>
+                    <strong>Click to upload</strong> or drag and drop a photo or
+                    video.
+                  </p>
+                  <span className="upload-hint">
+                    High-quality visuals get more likes!
+                  </span>
                 </div>
               ) : (
                 <div className="media-preview-container">
                   {newPost.imageFile && (
-                    <img src={URL.createObjectURL(newPost.imageFile)} alt="Preview" className="media-preview" />
+                    <img
+                      src={URL.createObjectURL(newPost.imageFile)}
+                      alt="Preview"
+                      className="media-preview"
+                    />
                   )}
                   {newPost.videoFile && (
-                    <video src={URL.createObjectURL(newPost.videoFile)} className="media-preview" controls />
+                    <video
+                      src={URL.createObjectURL(newPost.videoFile)}
+                      className="media-preview"
+                      controls
+                    />
                   )}
-                  
+
                   {/* Show actions button when not in actions mode */}
                   {!showMediaActions && (
-                    <div className="media-actions-trigger" onClick={handleShowMediaActions}>
+                    <div
+                      className="media-actions-trigger"
+                      onClick={handleShowMediaActions}
+                    >
                       <div className="actions-trigger-btn">
                         <Edit3 size={16} />
                         <span>Edit Media</span>
@@ -391,7 +482,12 @@ export default function FeedPage() {
                     <div className="media-actions-overlay active">
                       <button
                         type="button"
-                        onClick={() => handleEditMedia(newPost.imageFile || newPost.videoFile, newPost.mediaType)}
+                        onClick={() =>
+                          handleEditMedia(
+                            newPost.imageFile || newPost.videoFile,
+                            newPost.mediaType
+                          )
+                        }
                         className="media-action-btn"
                       >
                         <Edit3 size={16} /> Edit
@@ -399,7 +495,11 @@ export default function FeedPage() {
                       <button
                         type="button"
                         onClick={() => {
-                          setNewPost({ ...newPost, imageFile: null, videoFile: null });
+                          setNewPost({
+                            ...newPost,
+                            imageFile: null,
+                            videoFile: null,
+                          });
                           fileInputRef.current.value = "";
                           setShowMediaActions(false);
                         }}
@@ -416,22 +516,26 @@ export default function FeedPage() {
                       </button>
                     </div>
                   )}
-                  
-                  {isEdited && <div className="edited-badge">✨ Edited</div>}
+
+                  {isEdited && <div className="edited-badge">Edited</div>}
                 </div>
               )}
             </div>
 
             {/* Column 2: Form Details */}
             <div className="form-column">
-
-
               <div className="form-section">
                 <label className="form-label">What are you sharing?</label>
-                <select name="kindOfPost" value={newPost.kindOfPost} onChange={handleNewPostChange} required className="styled-select">
+                <select
+                  name="kindOfPost"
+                  value={newPost.kindOfPost}
+                  onChange={handleNewPostChange}
+                  required
+                  className="styled-select"
+                >
                   <option value="">Choose post type...</option>
-                  <option value="recipe">🍳 Recipe</option>
-                  <option value="shared thoughts">💭 Shared Thoughts</option>
+                  <option value="recipe">Recipe</option>
+                  <option value="shared thoughts">Shared Thoughts</option>
                 </select>
               </div>
               <div className="form-section">
@@ -450,12 +554,18 @@ export default function FeedPage() {
                   <div className="form-section-inline">
                     <div className="form-section">
                       <label className="form-label">Category</label>
-                      <select name="typeRecipe" value={newPost.typeRecipe} onChange={handleNewPostChange} required className="styled-select">
+                      <select
+                        name="typeRecipe"
+                        value={newPost.typeRecipe}
+                        onChange={handleNewPostChange}
+                        required
+                        className="styled-select"
+                      >
                         <option value="">Select...</option>
-                        <option value="desert">🍰 Dessert</option>
-                        <option value="main dish">🍽️ Main Dish</option>
-                        <option value="appetize">🥗 Appetizer</option>
-                        <option value="side dish">🥖 Side Dish</option>
+                        <option value="desert">Dessert</option>
+                        <option value="main dish">Main Dish</option>
+                        <option value="appetize">Appetizer</option>
+                        <option value="side dish">Side Dish</option>
                       </select>
                     </div>
                   </div>
@@ -463,15 +573,21 @@ export default function FeedPage() {
                     <label className="form-label">Dietary Tags</label>
                     <div className="dietary-preferences">
                       {[
-                        { value: "dairy-free", label: "🥛 Dairy-Free" },
-                        { value: "gluten-free", label: "🌾 Gluten-Free" },
-                        { value: "vegan", label: "🌱 Vegan" },
-                        { value: "vegeterian", label: "🥕 Vegetarian" },
+                        { value: "dairy-free", label: "Dairy-Free" },
+                        { value: "gluten-free", label: "Gluten-Free" },
+                        { value: "vegan", label: "Vegan" },
+                        { value: "vegeterian", label: "Vegetarian" },
                       ].map((pref) => (
                         <label key={pref.value} className="checkbox-label">
-                          <input type="checkbox" name="dietaryPreferences" value={pref.value}
-                            checked={newPost.dietaryPreferences.includes(pref.value)}
-                            onChange={handleNewPostChange} className="styled-checkbox"
+                          <input
+                            type="checkbox"
+                            name="dietaryPreferences"
+                            value={pref.value}
+                            checked={newPost.dietaryPreferences.includes(
+                              pref.value
+                            )}
+                            onChange={handleNewPostChange}
+                            className="styled-checkbox"
                           />
                           <span className="checkbox-text">{pref.label}</span>
                         </label>
@@ -484,7 +600,13 @@ export default function FeedPage() {
               <div className="form-section">
                 <div className="textarea-header">
                   <label className="form-label">Recipe & Instructions</label>
-                  <button type="button" className="template-button" onClick={() => setNewPost({ ...newPost, content: recipeExContent })}>
+                  <button
+                    type="button"
+                    className="template-button"
+                    onClick={() =>
+                      setNewPost({ ...newPost, content: recipeExContent })
+                    }
+                  >
                     Use Template
                   </button>
                 </div>
