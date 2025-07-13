@@ -391,7 +391,7 @@ const fetchFriendRequests = async () => {
             </button>
      
             {/* Friend Requests Dropdown */}
-         {showFriendRequests && (
+          {showFriendRequests && (
   <div className="friend-requests-dropdown">
 <h4 data-count={friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)}>
   Friend Requests

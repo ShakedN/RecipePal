@@ -1,15 +1,6 @@
-/* .page-content {
+.page-content {
   padding: 20px;
   background-image: url('/public/images/BACKGROUND-Feed.png');
-} */
- .page-content {
-  padding: 20px;
-  background-image: url('/public/images/BACKGROUND-Feed.png');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  min-height: 100vh;
 }
 
 .navbar {
@@ -25,6 +16,11 @@
   height: 55px;
   width: auto;
 }
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
 
 .navbar-links {
   display: flex;
@@ -38,22 +34,42 @@
   display: flex;
   align-items: center;
 }
-.navbar-links a,
-.navbar-links button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;        /* אין טקסט => אין baseline מיותר */
-  padding: 0;            /* שלא יתווספו ריווחים פנימיים */
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-}
+
 
 .navbar-links a:hover {
   text-decoration: underline;
 }
+.navbar-search {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .search-input {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+  }
+  
+  .search-button {
+    padding: 5px 10px;
+    background-color: #FFA500;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .search-button:hover {
+    background-color: #FFA500;
+  }
+    .navbar-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  
 .navbar-search {
     display: flex;
     align-items: center;
