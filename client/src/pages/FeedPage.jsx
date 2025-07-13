@@ -6,7 +6,8 @@ import VideoEditor from "../components/VideoEditor";
 import { Video, Image, Edit3, X, Users, Plus } from "lucide-react";
 import "./FeedPage.css";
 import axios from "axios";
-
+import JoinGroupPopup from "../components/JoinGroupPopup";
+import CreateGroupModal from "../components/CreateGroupModal";
 const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? This {adjective1}, {adjective2} {dish type} is:
 
 {• Feature 1}  
@@ -53,6 +54,8 @@ export default function FeedPage() {
   const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showJoinGroupPopup, setShowJoinGroupPopup] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState(null);
   
   const [newPost, setNewPost] = useState({
     title: "",
@@ -107,6 +110,46 @@ export default function FeedPage() {
 
   const handleGroupSelect = (group) => {
     navigate(`/groups/${group._id}`);
+  };
+
+  const handleTrendingGroupClick = (group) => {
+    setSelectedGroup(group);
+    setShowJoinGroupPopup(true);
+  };
+
+const handleJoinGroupRequest = async () => {
+  if (!selectedGroup) return;
+
+  try {
+    const userId = localStorage.getItem("userId");
+    await axios.post(`http://localhost:5000/api/groups/${selectedGroup._id}/request-join`, {
+      userId,
+    });
+
+    alert("Join request sent to group admin successfully!");
+    setShowJoinGroupPopup(false);
+    setSelectedGroup(null);
+  } catch (error) {
+    console.error("Error sending join request:", error);
+    alert(error.response?.data?.message || "Failed to send join request. Please try again.");
+  }
+};
+
+// Pass the handleJoinGroupRequest function to JoinGroupPopup
+{showJoinGroupPopup && selectedGroup && (
+  <JoinGroupPopup
+    group={selectedGroup}
+    onJoin={handleJoinGroupRequest}
+    onCancel={() => {
+      setShowJoinGroupPopup(false);
+      setSelectedGroup(null);
+    }}
+  />
+)}
+
+  const handleCancelJoinRequest = () => {
+    setShowJoinGroupPopup(false);
+    setSelectedGroup(null);
   };
 
   const fetchPosts = async () => {
@@ -465,388 +508,310 @@ export default function FeedPage() {
       setShowTemplateRecipe(true);
     }
   };
-
-  return (
-    <div className="feed-page-container">
-      {/* Groups Sidebar */}
-      <div className="groups-sidebar">
-        <div className="sidebar-section">
-          <div className="sidebar-title">
-            <Users size={20} />
-            My Groups
-          </div>
-          {groups.map(group => (
-            <div 
-              key={group._id} 
-              className="group-item"
-              onClick={() => handleGroupSelect(group)}
-            >
-              <div className="group-avatar">
-                {group.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="group-info">
-                <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
-              </div>
-            </div>
-          ))}
+  
+return (
+  <div className="feed-page-container">
+    {/* Groups Sidebar */}
+    <div className="groups-sidebar">
+      <div className="sidebar-section">
+        <div className="sidebar-title">
+          <Users size={20} />
+          My Groups
         </div>
-
-        <div className="sidebar-section">
-          <div className="sidebar-title">
-            🔥 Trending Groups
-          </div>
-          {suggestedGroups.slice(0, 3).map(group => (
-            <div 
-              key={group._id} 
-              className="group-item"
-              onClick={() => navigate(`/groups/${group._id}`)}
-            >
-              <div className="group-avatar trending">
-                {group.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="group-info">
-                <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="sidebar-section">
-          <div className="sidebar-title">
-            ⚡ Quick Actions
-          </div>
-          <div className="group-item" onClick={() => setShowCreateGroup(true)}>
-            <div className="group-avatar create">
-              <Plus size={16} />
-            </div>
-            <div className="group-info">
-              <div className="group-name">Create Group</div>
-              <div className="group-members">Start cooking together</div>
-            </div>
-          </div>
-          <div className="group-item" onClick={() => navigate('/groups')}>
+        {groups.map(group => (
+          <div 
+            key={group._id} 
+            className="group-item"
+            onClick={() => handleGroupSelect(group)}
+          >
             <div className="group-avatar">
-              <Users size={16} />
+              {group.name.charAt(0).toUpperCase()}
             </div>
             <div className="group-info">
-              <div className="group-name">Browse All Groups</div>
-              <div className="group-members">Discover new communities</div>
+              <div className="group-name">{group.name}</div>
+              <div className="group-members">{group.members?.length || 0} members</div>
             </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="sidebar-section">
+        <div className="sidebar-title">
+          🔥 Trending Groups
+        </div>
+        {suggestedGroups.slice(0, 3).map(group => (
+          <div 
+            key={group._id} 
+            className="group-item"
+            onClick={() => handleTrendingGroupClick(group)}
+          >
+            <div className="group-avatar trending">
+              {group.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="group-info">
+              <div className="group-name">{group.name}</div>
+              <div className="group-members">{group.members?.length || 0} members</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="sidebar-section">
+        <div className="sidebar-title">
+          ⚡ Quick Actions
+        </div>
+        <div className="group-item" onClick={() => setShowCreateGroup(true)}>
+          <div className="group-avatar create">
+            <Plus size={16} />
+          </div>
+          <div className="group-info">
+            <div className="group-name">Create Group</div>
+            <div className="group-members">Start cooking together</div>
+          </div>
+        </div>
+        <div className="group-item" onClick={() => navigate('/groups')}>
+          <div className="group-avatar">
+            <Users size={16} />
+          </div>
+          <div className="group-info">
+            <div className="group-name">Browse All Groups</div>
+            <div className="group-members">Discover new communities</div>
           </div>
         </div>
       </div>
-
-      {/* Main Feed Content */}
-      <div className="feed-content">
-        {showPhotoEditor && editingMedia && (
-          <PhotoEditor imageUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
-        )}
-        {showVideoEditor && editingMedia && (
-          <VideoEditor videoUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
-        )}
-
-        {/* MODERN NEW POST FORM */}
-        <div className="new-post-container-modern">
-          <div className="new-post-header">
-            <img src="/images/default-profile.png" alt="Your Profile" className="new-post-avatar" />
-            <div className="new-post-greeting">
-              <span>What's cooking, {localStorage.getItem("username")}?</span>
-            </div>
-          </div>
-
-          <form onSubmit={handleNewPostSubmit} className="new-post-form-modern">
-            <div className="new-post-layout-grid">
-              {/* Column 1: Media Upload and Preview */}
-              <div className="media-column">
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const fileType = file.type.startsWith("video") ? "video" : "image";
-                      setNewPost({
-                        ...newPost,
-                        mediaType: fileType,
-                        imageFile: fileType === "image" ? file : null,
-                        videoFile: fileType === "video" ? file : null,
-                      });
-                      setIsEdited(false);
-                      setEditingMedia(null);
-                      setShowMediaActions(false);
-                    }
-                  }}
-                  className="media-input"
-                  ref={fileInputRef}
-                />
-                {!newPost.imageFile && !newPost.videoFile ? (
-                  <div className="media-upload-zone" onClick={() => fileInputRef.current.click()}>
-                    <Image size={48} strokeWidth={1.5} />
-                    <Video size={48} strokeWidth={1.5} />
-                    <p><strong>Click to upload</strong> or drag and drop a photo or video.</p>
-                    <span className="upload-hint">High-quality visuals get more likes!</span>
-                  </div>
-                ) : (
-                  <div className="media-preview-container">
-                    {newPost.imageFile && (
-                      <img src={URL.createObjectURL(newPost.imageFile)} alt="Preview" className="media-preview" />
-                    )}
-                    {newPost.videoFile && (
-                      <video src={URL.createObjectURL(newPost.videoFile)} className="media-preview" controls />
-                    )}
-                    
-                    {!showMediaActions && (
-                      <div className="media-actions-trigger" onClick={handleShowMediaActions}>
-                        <div className="actions-trigger-btn">
-                          <Edit3 size={16} />
-                          <span>Edit Media</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {showMediaActions && (
-                      <div className="media-actions-overlay active">
-                        <button
-                          type="button"
-                          onClick={() => handleEditMedia(newPost.imageFile || newPost.videoFile, newPost.mediaType)}
-                          className="media-action-btn"
-                        >
-                          <Edit3 size={16} /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setNewPost({ ...newPost, imageFile: null, videoFile: null });
-                            fileInputRef.current.value = "";
-                            setShowMediaActions(false);
-                          }}
-                          className="media-action-btn remove"
-                        >
-                          Change
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleHideMediaActions}
-                          className="media-action-btn exit"
-                        >
-                          <X size={16} /> Done
-                        </button>
-                      </div>
-                    )}
-                    
-                    {isEdited && <div className="edited-badge">Edited</div>}
-                  </div>
-                )}
-              </div>
-
-              {/* Column 2: Form Details */}
-              <div className="form-column">
-                <div className="form-section">
-                  <label className="form-label">What are you sharing?</label>
-                  <select name="kindOfPost" value={newPost.kindOfPost} onChange={handleNewPostChange} required className="styled-select">
-                    <option value="">Choose post type...</option>
-                    <option value="recipe">🍳 Recipe</option>
-                    <option value="shared thoughts">💭 Shared Thoughts</option>
-                  </select>
-                </div>
-                <div className="form-section">
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder="Give your recipe a catchy title..."
-                    value={newPost.title}
-                    onChange={handleNewPostChange}
-                    className="styled-input title-input"
-                    required
-                  />
-                </div>
-                {newPost.kindOfPost === "recipe" && (
-                  <div className="recipe-details">
-                    <div className="form-section-inline">
-                      <div className="form-section">
-                        <label className="form-label">Category</label>
-                        <select name="typeRecipe" value={newPost.typeRecipe} onChange={handleNewPostChange} required className="styled-select">
-                          <option value="">Select...</option>
-                          <option value="desert">Dessert</option>
-                          <option value="main dish">Main Dish</option>
-                          <option value="appetize">Appetizer</option>
-                          <option value="side dish">Side Dish</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="form-section">
-                      <label className="form-label">Dietary Tags</label>
-                      <div className="dietary-preferences">
-                        {[
-                          { value: "dairy-free", label: "Dairy-Free" },
-                          { value: "gluten-free", label: "Gluten-Free" },
-                          { value: "vegan", label: "Vegan" },
-                          { value: "vegeterian", label: "Vegetarian" },
-                        ].map((pref) => (
-                          <label key={pref.value} className="checkbox-label">
-                            <input type="checkbox" name="dietaryPreferences" value={pref.value}
-                              checked={newPost.dietaryPreferences.includes(pref.value)}
-                              onChange={handleNewPostChange} className="styled-checkbox"
-                            />
-                            <span className="checkbox-text">{pref.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="form-section">
-                  <div className="textarea-header">
-                    <label className="form-label">Recipe & Instructions</label>
-                    <button 
-                      type="button" 
-                      className={`template-button ${showTemplateRecipe ? 'active' : ''}`}
-                      onClick={handleTemplateRecipe}
-                    >
-                      {showTemplateRecipe ? '✕ Remove Template' : '📝 Use Template'}
-                    </button>
-                  </div>
-                  <textarea
-                    name="content"
-                    placeholder="Share your story, ingredients, and step-by-step instructions..."
-                    value={newPost.content}
-                    onChange={handleNewPostChange}
-                    className="styled-textarea"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="form-actions-footer">
-              <button type="submit" className="post-submit-btn">
-                <span>Share Post</span>
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Posts */}
-        {posts.length === 0 ? (
-          <div className="no-posts-message">
-            <p>No posts yet. Be the first to share something delicious! 🍳</p>
-          </div>
-        ) : (
-          posts.map((post) => (
-            <PostCard
-              key={post._id}
-              post={post}
-              onLike={handleLike}
-              onComment={handleComment}
-              onDeleteComment={handleDeleteComment}
-              onEditComment={handleEditComment}
-              onDeletePost={handleDeletePost}
-              onEditPost={handleEditPost}
-            />
-          ))
-        )}
-      </div>
-
-      {/* Create Group Modal */}
-      {showCreateGroup && (
-        <CreateGroupModal 
-          onClose={() => setShowCreateGroup(false)}
-          onGroupCreated={() => {
-            fetchUserGroups();
-            setShowCreateGroup(false);
-          }}
-        />
-      )}
     </div>
-  );
-}
 
-// Create Group Modal Component
-function CreateGroupModal({ onClose, onGroupCreated }) {
-  const [groupData, setGroupData] = useState({
-    name: '',
-    description: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    {/* Main Feed Content */}
+    <div className="feed-content">
+      {showPhotoEditor && editingMedia && (
+        <PhotoEditor imageUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+      )}
+      {showVideoEditor && editingMedia && (
+        <VideoEditor videoUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+      )}
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!groupData.name.trim()) {
-      alert('Group name is required');
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await axios.post('http://localhost:5000/api/groups', {
-        name: groupData.name.trim(),
-        description: groupData.description.trim(),
-        admin: userId
-      });
-      
-      onGroupCreated();
-      onClose();
-      alert('Group created successfully!');
-      
-    } catch (error) {
-      console.error('Error creating group:', error);
-      alert(error.response?.data?.message || 'Failed to create group. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Create New Group</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Group Name *</label>
-            <input
-              type="text"
-              value={groupData.name}
-              onChange={(e) => setGroupData({...groupData, name: e.target.value})}
-              placeholder="Enter group name"
-              required
-              disabled={isSubmitting}
-            />
+      {/* MODERN NEW POST FORM */}
+      <div className="new-post-container-modern">
+        <div className="new-post-header">
+          <img src="/images/default-profile.png" alt="Your Profile" className="new-post-avatar" />
+          <div className="new-post-greeting">
+            <span>What's cooking, {localStorage.getItem("username")}?</span>
           </div>
-          <div className="form-group">
-            <label>Description</label>
-            <textarea
-              value={groupData.description}
-              onChange={(e) => setGroupData({...groupData, description: e.target.value})}
-              placeholder="Enter group description (optional)"
-              rows={4}
-              disabled={isSubmitting}
-            />
+        </div>
+
+        <form onSubmit={handleNewPostSubmit} className="new-post-form-modern">
+          <div className="new-post-layout-grid">
+            {/* Column 1: Media Upload and Preview */}
+            <div className="media-column">
+              <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const fileType = file.type.startsWith("video") ? "video" : "image";
+                    setNewPost({
+                      ...newPost,
+                      mediaType: fileType,
+                      imageFile: fileType === "image" ? file : null,
+                      videoFile: fileType === "video" ? file : null,
+                    });
+                    setIsEdited(false);
+                    setEditingMedia(null);
+                    setShowMediaActions(false);
+                  }
+                }}
+                className="media-input"
+                ref={fileInputRef}
+              />
+              {!newPost.imageFile && !newPost.videoFile ? (
+                <div className="media-upload-zone" onClick={() => fileInputRef.current.click()}>
+                  <Image size={48} strokeWidth={1.5} />
+                  <Video size={48} strokeWidth={1.5} />
+                  <p><strong>Click to upload</strong> or drag and drop a photo or video.</p>
+                  <span className="upload-hint">High-quality visuals get more likes!</span>
+                </div>
+              ) : (
+                <div className="media-preview-container">
+                  {newPost.imageFile && (
+                    <img src={URL.createObjectURL(newPost.imageFile)} alt="Preview" className="media-preview" />
+                  )}
+                  {newPost.videoFile && (
+                    <video src={URL.createObjectURL(newPost.videoFile)} className="media-preview" controls />
+                  )}
+                  
+                  {!showMediaActions && (
+                    <div className="media-actions-trigger" onClick={handleShowMediaActions}>
+                      <div className="actions-trigger-btn">
+                        <Edit3 size={16} />
+                        <span>Edit Media</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {showMediaActions && (
+                    <div className="media-actions-overlay active">
+                      <button
+                        type="button"
+                        onClick={() => handleEditMedia(newPost.imageFile || newPost.videoFile, newPost.mediaType)}
+                        className="media-action-btn"
+                      >
+                        <Edit3 size={16} /> Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewPost({ ...newPost, imageFile: null, videoFile: null });
+                          fileInputRef.current.value = "";
+                          setShowMediaActions(false);
+                        }}
+                        className="media-action-btn remove"
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleHideMediaActions}
+                        className="media-action-btn exit"
+                      >
+                        <X size={16} /> Done
+                      </button>
+                    </div>
+                  )}
+                  
+                  {isEdited && <div className="edited-badge">Edited</div>}
+                </div>
+              )}
+            </div>
+
+            {/* Column 2: Form Details */}
+            <div className="form-column">
+              <div className="form-section">
+                <label className="form-label">What are you sharing?</label>
+                <select name="kindOfPost" value={newPost.kindOfPost} onChange={handleNewPostChange} required className="styled-select">
+                  <option value="">Choose post type...</option>
+                  <option value="recipe">🍳 Recipe</option>
+                  <option value="shared thoughts">💭 Shared Thoughts</option>
+                </select>
+              </div>
+              <div className="form-section">
+                <input
+                  type="text"
+                  name="title"
+                  placeholder="Give your recipe a catchy title..."
+                  value={newPost.title}
+                  onChange={handleNewPostChange}
+                  className="styled-input title-input"
+                  required
+                />
+              </div>
+              {newPost.kindOfPost === "recipe" && (
+                <div className="recipe-details">
+                  <div className="form-section-inline">
+                    <div className="form-section">
+                      <label className="form-label">Category</label>
+                      <select name="typeRecipe" value={newPost.typeRecipe} onChange={handleNewPostChange} required className="styled-select">
+                        <option value="">Select...</option>
+                        <option value="desert">Dessert</option>
+                        <option value="main dish">Main Dish</option>
+                        <option value="appetize">Appetizer</option>
+                        <option value="side dish">Side Dish</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-section">
+                    <label className="form-label">Dietary Tags</label>
+                    <div className="dietary-preferences">
+                      {[
+                        { value: "dairy-free", label: "Dairy-Free" },
+                        { value: "gluten-free", label: "Gluten-Free" },
+                        { value: "vegan", label: "Vegan" },
+                        { value: "vegeterian", label: "Vegetarian" },
+                      ].map((pref) => (
+                        <label key={pref.value} className="checkbox-label">
+                          <input type="checkbox" name="dietaryPreferences" value={pref.value}
+                            checked={newPost.dietaryPreferences.includes(pref.value)}
+                            onChange={handleNewPostChange} className="styled-checkbox"
+                          />
+                          <span className="checkbox-text">{pref.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="form-section">
+                <div className="textarea-header">
+                  <label className="form-label">Recipe & Instructions</label>
+                  <button 
+                    type="button" 
+                    className={`template-button ${showTemplateRecipe ? 'active' : ''}`}
+                    onClick={handleTemplateRecipe}
+                  >
+                    {showTemplateRecipe ? '✕ Remove Template' : '📝 Use Template'}
+                  </button>
+                </div>
+                <textarea
+                  name="content"
+                  placeholder="Share your story, ingredients, and step-by-step instructions..."
+                  value={newPost.content}
+                  onChange={handleNewPostChange}
+                  className="styled-textarea"
+                  required
+                />
+              </div>
+            </div>
           </div>
-          <div className="modal-actions">
-            <button 
-              type="button" 
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit"
-              disabled={isSubmitting}
-              className="create-btn"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Group'}
+
+          <div className="form-actions-footer">
+            <button type="submit" className="post-submit-btn">
+              <span>Share Post</span>
             </button>
           </div>
         </form>
       </div>
+
+      {/* Posts */}
+      {posts.length === 0 ? (
+        <div className="no-posts-message">
+          <p>No posts yet. Be the first to share something delicious! 🍳</p>
+        </div>
+      ) : (
+        posts.map((post) => (
+          <PostCard
+            key={post._id}
+            post={post}
+            onLike={handleLike}
+            onComment={handleComment}
+            onDeleteComment={handleDeleteComment}
+            onEditComment={handleEditComment}
+            onDeletePost={handleDeletePost}
+            onEditPost={handleEditPost}
+          />
+        ))
+      )}
     </div>
-  );
-}
+
+    {/* Create Group Modal */}
+    {showCreateGroup && (
+      <CreateGroupModal 
+        onClose={() => setShowCreateGroup(false)}
+        onGroupCreated={() => {
+          fetchUserGroups();
+          setShowCreateGroup(false);
+        }}
+      />
+    )}
+
+    {/* Join Group Popup */}
+    {showJoinGroupPopup && selectedGroup && (
+      <JoinGroupPopup 
+        group={selectedGroup}
+        onJoin={handleJoinGroupRequest}
+        onCancel={handleCancelJoinRequest}
+      />
+    )}
+  </div>
+);
+}; 

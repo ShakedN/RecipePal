@@ -9,7 +9,10 @@ import {
   getGroupPosts,
   getGroupsFeed,
   updateGroup,
-  deleteGroup
+  deleteGroup,
+  requestJoinGroup,
+   acceptGroupRequest, 
+  rejectGroupRequest,
 } from '../controllers/groupController.js';
 
 const router = express.Router();
@@ -26,6 +29,9 @@ router.get('/suggested/:userId', getSuggestedGroups);
 // POST /api/groups/:groupId/join - Join a group
 router.post('/:groupId/join', joinGroup);
 
+// POST /api/groups/:groupId/request-join - Request to join a group (ADD THIS)
+router.post('/:groupId/request-join', requestJoinGroup);
+
 // POST /api/groups/:groupId/leave - Leave a group
 router.post('/:groupId/leave', leaveGroup);
 
@@ -35,13 +41,14 @@ router.get('/:groupId', getGroupById);
 // GET /api/groups/:groupId/posts - Get posts for a specific group
 router.get('/:groupId/posts', getGroupPosts);
 
-// GET /api/groups/feed/:userId - Get feed for user's groups
+// GET /api/groups/feed/:userId - Get posts from user's groups
 router.get('/feed/:userId', getGroupsFeed);
 
-// PUT /api/groups/:groupId - Update group (admin only)
+// PUT /api/groups/:groupId - Update group
 router.put('/:groupId', updateGroup);
 
-// DELETE /api/groups/:groupId - Delete group (admin only)
+// DELETE /api/groups/:groupId - Delete group
 router.delete('/:groupId', deleteGroup);
-
+router.post("/:groupId/accept-request", acceptGroupRequest);
+router.post("/:groupId/reject-request", rejectGroupRequest);
 export default router;

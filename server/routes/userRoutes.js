@@ -11,7 +11,8 @@ import {
   rejectFriendRequest,
   getFriendRequests,
   getFriendshipStatus,
-  unfriend
+  unfriend,
+  getFriendAndGroupRequests
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -22,7 +23,8 @@ router.get("/verify-email/:token", verifyEmail);
 router.get("/profile/:userId", getUserProfile);
 router.put("/profile/:userId", updateUserProfile);
 router.get("/search", searchUsers);
-
+// Fetch friend and group join requests
+router.get("/requests/:userId", getFriendAndGroupRequests);
 // Friend request routes
 router.post("/friend-request", sendFriendRequest);
 router.post("/accept-friend", acceptFriendRequest);

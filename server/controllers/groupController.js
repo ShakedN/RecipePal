@@ -59,7 +59,42 @@ export const createGroup = async (req, res) => {
     });
   }
 };
+// Update the requestJoinGroup function to use pendingRequests
+export const requestJoinGroup = async (req, res) => {
+  const { groupId } = req.params;
+  const { userId } = req.body;
 
+  try {
+    const user = await User.findById(userId);
+    const group = await Group.findById(groupId)
+      .populate('admin', 'username firstName lastName profile_image');
+
+    if (!user || !group) {
+      return res.status(404).json({ message: "User or group not found" });
+    }
+
+    // Check if user is already a member
+    if (group.members.includes(userId)) {
+      return res.status(400).json({ message: "User is already a member" });
+    }
+
+    // Check if request already exists (using pendingRequests)
+    if (group.pendingRequests.includes(userId)) {
+      return res.status(400).json({ message: "Join request already sent" });
+    }
+
+    // Add user to pendingRequests
+    group.pendingRequests.push(userId);
+    await group.save();
+
+    res.status(200).json({ message: "Join request sent successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error sending join request",
+      error: error.message
+    });
+  }
+};
 //Get user's groups (groups where user is admin or member)
 export const getUserGroups = async (req, res) => {
   const { userId } = req.params;
@@ -98,7 +133,13 @@ export const getSuggestedGroups = async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(10);
 
-    res.status(200).json(groups);
+    // Add info about whether user has already sent a request
+    const groupsWithRequestStatus = groups.map(group => ({
+      ...group.toObject(),
+      requestSent: group.pendingRequests.includes(userId)
+    }));
+
+    res.status(200).json(groupsWithRequestStatus);
   } catch (error) {
     res.status(500).json({
       message: "Error fetching suggested groups",
@@ -363,5 +404,43 @@ export const deleteGroup = async (req, res) => {
       message: "Error deleting group",
       error: error.message
     });
+  }
+};
+export const acceptGroupRequest = async (req, res) => {
+  const { groupId } = req.params;
+  const { userId } = req.body;
+
+  try {
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    group.members.push(userId);
+    group.pendingRequests = group.pendingRequests.filter((id) => id.toString() !== userId);
+    await group.save();
+
+    res.status(200).json({ message: "User added to group" });
+  } catch (error) {
+    res.status(500).json({ message: "Error accepting group request", error: error.message });
+  }
+};
+
+export const rejectGroupRequest = async (req, res) => {
+  const { groupId } = req.params;
+  const { userId } = req.body;
+
+  try {
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    group.pendingRequests = group.pendingRequests.filter((id) => id.toString() !== userId);
+    await group.save();
+
+    res.status(200).json({ message: "Group join request rejected" });
+  } catch (error) {
+    res.status(500).json({ message: "Error rejecting group request", error: error.message });
   }
 };
