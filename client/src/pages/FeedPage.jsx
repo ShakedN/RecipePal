@@ -75,9 +75,15 @@ export default function FeedPage() {
   const userId = localStorage.getItem("userId");
 
   useEffect(() => {
+    document.body.classList.add('feed-page-background');
+    
     fetchPosts();
     fetchUserGroups();
     fetchSuggestedGroups();
+
+    return () => {
+      document.body.classList.remove('feed-page-background');
+    };
   }, []);
 
   const fetchUserGroups = async () => {

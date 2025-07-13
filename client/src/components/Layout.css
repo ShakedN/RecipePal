@@ -1,13 +1,22 @@
-.page-content {
+/* .page-content {
   padding: 20px;
+  background-image: url('/public/images/BACKGROUND-Feed.png');
+} */
+ .page-content {
+  padding: 20px;
+  background-image: url('/public/images/BACKGROUND-Feed.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
-  background: linear-gradient(90deg, #FF8C00, #FFA500);
+  background: linear-gradient(90deg, #FF8C00, #ff854a);
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -18,16 +27,28 @@
 }
 
 .navbar-links {
-  list-style: none;
   display: flex;
-  gap: 15px;
+  align-items: center;   /* מיישר את כל הילדים לגובה אחיד */
+  gap: 24px;             /* ריווח קבוע בין אייקונים */
+  list-style: none;
   margin: 0;
+  padding: 0;
 }
-
-.navbar-links a {
-  color: white;
-  text-decoration: none;
-  font-size: 16px;
+.navbar-links li {
+  display: flex;
+  align-items: center;
+}
+.navbar-links a,
+.navbar-links button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;        /* אין טקסט => אין baseline מיותר */
+  padding: 0;            /* שלא יתווספו ריווחים פנימיים */
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .navbar-links a:hover {
