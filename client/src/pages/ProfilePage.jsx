@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Edit3, BarChart2, Camera, Save, X, Cake } from "lucide-react";
+import { Edit3, BarChart2, Camera, Save, X, Cake, ChefHat } from "lucide-react";
 import "./ProfilePage.css";
 import axios from "axios";
 import FriendButton from "../components/FriendButton";
@@ -302,7 +302,7 @@ export default function ProfilePage() {
           {isEditing ? (
             <div className="edit-cooking-role-container">
               <label htmlFor="cookingRole" className="edit-label">
-                👨‍🍳 Cooking Role:
+                Cooking Role:
               </label>
               <select
                 id="cookingRole"
@@ -313,23 +313,25 @@ export default function ProfilePage() {
                     cookingRole: e.target.value,
                   }))
                 }
-                className="edit-select"
                 required
+                className="edit-select"
               >
-                <option value="">Select Cooking Role</option>
-                <option value="Professional Chef">👨‍🍳 Professional Chef</option>
-                <option value="Home Cook">🏠 Home Cook</option>
-                <option value="Beginner">🌱 Beginner</option>
-                <option value="Food lover">❤️ Food Lover</option>
+                <option value="Professional Chef">Professional Chef</option>
+                <option value="Home Cook">Home Cook</option>
+                <option value="Beginner">Beginner</option>
+                <option value="Food lover">Food Lover</option>
               </select>
             </div>
           ) : (
-            <p className="profile-cooking-role">👨‍🍳 {user.cookingRole}</p>
+            <p className="profile-cooking-role">
+              <ChefHat size={20} style={{ marginRight: 8 }}></ChefHat>
+              {user.cookingRole}
+            </p>
           )}
         </div>
 
         <p className="profile-birthday">
-          <Cake size={18} style={{ marginRight: 8 }} />
+          <Cake size={22} style={{ marginRight: 8, color: "#f17e0b" }} />
           Birthday: {formatDate(user.birthDate)}
         </p>
 

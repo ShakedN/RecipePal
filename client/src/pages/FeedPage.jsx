@@ -126,11 +126,18 @@ export default function FeedPage() {
       return;
     }
     try {
-      const res = await axios.put(`http://localhost:5000/api/posts/${postId}/like`, { userId });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${postId}/like`,
+        { userId }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
       console.error("Failed to like post:", err);
-      alert("Failed to like post: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to like post: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -141,21 +148,36 @@ export default function FeedPage() {
       return;
     }
     try {
-      const res = await axios.post(`http://localhost:5000/api/posts/${postId}/comment`, { userId, content });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.post(
+        `http://localhost:5000/api/posts/${postId}/comment`,
+        { userId, content }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
       console.error("Failed to add comment:", err);
-      alert("Failed to add comment: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to add comment: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
   const handleDeleteComment = async (postId, commentId) => {
     const userId = localStorage.getItem("userId");
     try {
-      const res = await axios.delete(`http://localhost:5000/api/posts/${postId}/comment/${commentId}`, { data: { userId } });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}/comment/${commentId}`,
+        { data: { userId } }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
-      alert("Failed to delete comment: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to delete comment: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -188,12 +210,16 @@ export default function FeedPage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "ml_default");
-    const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/image/upload", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     const data = await res.json();
-    if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+    if (!data.secure_url)
+      throw new Error(data.error?.message || "Upload failed");
     return data.secure_url;
   };
 
@@ -201,25 +227,37 @@ export default function FeedPage() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "ml_default");
-    const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/video/upload", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     const data = await res.json();
-    if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+    if (!data.secure_url)
+      throw new Error(data.error?.message || "Upload failed");
     return data.secure_url;
   };
 
   const handleEditComment = async (postId, commentId, newContent) => {
     const userId = localStorage.getItem("userId");
     try {
-      const res = await axios.put(`http://localhost:5000/api/posts/${postId}/comment/${commentId}`, {
-        userId,
-        content: newContent,
-      });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${postId}/comment/${commentId}`,
+        {
+          userId,
+          content: newContent,
+        }
+      );
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
-      alert("Failed to edit comment: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to edit comment: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -275,24 +313,30 @@ export default function FeedPage() {
         title: "", content: "", image: "", video: "", kindOfPost: "", typeRecipe: "",
         dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", 
         canvasData: null, group: null,
+
       });
       setIsEdited(false);
       setShowMediaActions(false);
       setShowTemplateRecipe(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
-
     } catch (err) {
-      alert("Failed to add post: " + (err.response?.data?.error || err.message));
+      alert(
+        "Failed to add post: " + (err.response?.data?.error || err.message)
+      );
     }
   };
 
   const handleDeletePost = async (postId) => {
     const userId = localStorage.getItem("userId");
     try {
-      await axios.delete(`http://localhost:5000/api/posts/${postId}`, { data: { userId } });
+      await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        data: { userId },
+      });
       setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
     } catch (err) {
-      alert("Failed to delete post: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to delete post: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -302,11 +346,16 @@ export default function FeedPage() {
       const res = await axios.put(`http://localhost:5000/api/posts/${postId}`, {
         userId,
         content: newContent,
-        title: posts.find((post) => post._id === postId)?.title || "Updated Post",
+        title:
+          posts.find((post) => post._id === postId)?.title || "Updated Post",
       });
-      setPosts((prevPosts) => prevPosts.map((post) => (post._id === postId ? res.data : post)));
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
     } catch (err) {
-      alert("Failed to edit post: " + (err.response?.data?.message || err.message));
+      alert(
+        "Failed to edit post: " + (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -587,7 +636,7 @@ export default function FeedPage() {
                       </div>
                     )}
                     
-                    {isEdited && <div className="edited-badge">✨ Edited</div>}
+                    {isEdited && <div className="edited-badge">Edited</div>}
                   </div>
                 )}
               </div>
@@ -620,10 +669,10 @@ export default function FeedPage() {
                         <label className="form-label">Category</label>
                         <select name="typeRecipe" value={newPost.typeRecipe} onChange={handleNewPostChange} required className="styled-select">
                           <option value="">Select...</option>
-                          <option value="desert">🍰 Dessert</option>
-                          <option value="main dish">🍽️ Main Dish</option>
-                          <option value="appetize">🥗 Appetizer</option>
-                          <option value="side dish">🥖 Side Dish</option>
+                          <option value="desert">Dessert</option>
+                          <option value="main dish">Main Dish</option>
+                          <option value="appetize">Appetizer</option>
+                          <option value="side dish">Side Dish</option>
                         </select>
                       </div>
                     </div>
@@ -631,10 +680,10 @@ export default function FeedPage() {
                       <label className="form-label">Dietary Tags</label>
                       <div className="dietary-preferences">
                         {[
-                          { value: "dairy-free", label: "🥛 Dairy-Free" },
-                          { value: "gluten-free", label: "🌾 Gluten-Free" },
-                          { value: "vegan", label: "🌱 Vegan" },
-                          { value: "vegeterian", label: "🥕 Vegetarian" },
+                          { value: "dairy-free", label: "Dairy-Free" },
+                          { value: "gluten-free", label: "Gluten-Free" },
+                          { value: "vegan", label: "Vegan" },
+                          { value: "vegeterian", label: "Vegetarian" },
                         ].map((pref) => (
                           <label key={pref.value} className="checkbox-label">
                             <input type="checkbox" name="dietaryPreferences" value={pref.value}
@@ -674,7 +723,7 @@ export default function FeedPage() {
 
             <div className="form-actions-footer">
               <button type="submit" className="post-submit-btn">
-                <span>🚀 Share Post</span>
+                <span>Share Post</span>
               </button>
             </div>
           </form>
