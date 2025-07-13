@@ -116,16 +116,17 @@ const handleQuickSearch = async () => {
     return () => clearTimeout(delayedSearch);
   }, [searchQuery]);
 
-  const fetchFriendRequests = async () => {
-    try {
-      const res = await axios.get(
-        `http://localhost:5000/api/auth/friend-requests/${currentUserId}`
-      );
-      setFriendRequests(res.data);
-    } catch (err) {
-      console.error("Failed to fetch friend requests:", err);
-    }
-  };
+const fetchFriendRequests = async () => {
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/auth/requests/${currentUserId}`
+    );
+    setFriendRequests(res.data.friendRequests);
+    setGroupRequests(res.data.groupRequests); // Add this line to set group requests
+  } catch (err) {
+    console.error("Failed to fetch friend requests:", err);
+  }
+};
 
   // New function to fetch friends
   const fetchFriends = async () => {
@@ -382,9 +383,9 @@ const handleQuickSearch = async () => {
               aria-label="Friend Requests"
             >
               <Users size={28} />
-              {friendRequests.length > 0 && (
+              {(friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)) > 0 && (
                 <span className="friend-requests-badge">
-                  {friendRequests.length}
+                  {friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)}
                 </span>
               )}
             </button>
@@ -396,8 +397,9 @@ const handleQuickSearch = async () => {
             {/* Friend Requests Dropdown */}
          {showFriendRequests && (
   <div className="friend-requests-dropdown">
-    <h4 data-count={friendRequests.length}>Friend Requests</h4>
-    
+<h4 data-count={friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)}>
+  Friend Requests
+</h4>    
     {/* Add tabs */}
     <div className="friend-requests-tabs">  <button
     className={`friend-requests-tab ${activeTab === "direct" ? "active" : ""}`}
