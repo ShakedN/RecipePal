@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, X, ChevronDown, User, FileText } from 'lucide-react';
+import { Search, Filter, X, ChevronDown, User,Users, FileText } from 'lucide-react';
 import './AdvancedSearch.css';
 
 const AdvancedSearch = ({ onSearch, onClose }) => {
@@ -14,7 +14,10 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
     typeRecipe: '',
     dietaryPreferences: []
   });
-  
+    const [groupFilters, setGroupFilters] = useState({
+    name: '',
+    description: ''
+  });
   // User filters
   const [userFilters, setUserFilters] = useState({
     username: '',
@@ -37,10 +40,25 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
   };
 
   const handleSearch = async () => {
+   let filters;
+    switch (searchType) {
+      case 'posts':
+        filters = postFilters;
+        break;
+      case 'users':
+        filters = userFilters;
+        break;
+      case 'groups':
+        filters = groupFilters;
+        break;
+      default:
+        filters = {};
+    }
+
     const searchData = {
       type: searchType,
       query: searchQuery,
-      filters: searchType === 'posts' ? postFilters : userFilters
+      filters: filters
     };
     await onSearch(searchData);
   };
@@ -59,13 +77,25 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
       group: '',
       name: ''
     });
+    setGroupFilters({
+      name: '',
+      description: ''
+    });
   };
 
   const currentFilters = searchType === 'posts' ? postFilters : userFilters;
-  const hasActiveFilters = searchType === 'posts' 
-    ? postFilters.title || postFilters.kindOfPost || postFilters.typeRecipe || postFilters.dietaryPreferences.length > 0
-    : userFilters.username || userFilters.cookingRole || userFilters.group || userFilters.name;
-
+  const hasActiveFilters = (() => {
+    switch (searchType) {
+      case 'posts':
+        return postFilters.title || postFilters.kindOfPost || postFilters.typeRecipe || postFilters.dietaryPreferences.length > 0;
+      case 'users':
+        return userFilters.username || userFilters.cookingRole || userFilters.group || userFilters.name;
+      case 'groups':
+        return groupFilters.name || groupFilters.description;
+      default:
+        return false;
+    }
+  })();
   return (
     <div className="advanced-search-overlay">
       <div className="advanced-search-modal">
@@ -96,6 +126,13 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
             >
               <User size={18} />
               Users
+            </button>
+          <button
+              onClick={() => setSearchType('groups')}
+              className={`search-type-btn ${searchType === 'groups' ? 'active' : ''}`}
+            >
+              <Users size={18} />
+              Groups
             </button>
           </div>
 
@@ -138,12 +175,12 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
             )}
           </div>
 
-          {/* Filters Content */}
+       {/* Filters Content */}
           {isFilterOpen && (
             <div className="filters-content">
               {searchType === 'posts' ? (
                 <>
-                  {/* Post Title */}
+                  {/* Post Filters */}
                   <div className="filter-group">
                     <label className="filter-label">Title</label>
                     <input
@@ -154,8 +191,6 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       className="filter-input"
                     />
                   </div>
-
-                  {/* Kind of Post */}
                   <div className="filter-group">
                     <label className="filter-label">Kind of Post</label>
                     <select
@@ -169,8 +204,6 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       ))}
                     </select>
                   </div>
-
-                  {/* Type Recipe */}
                   <div className="filter-group">
                     <label className="filter-label">Type Recipe</label>
                     <select
@@ -184,8 +217,6 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       ))}
                     </select>
                   </div>
-
-                  {/* Dietary Preferences */}
                   <div className="filter-group">
                     <label className="filter-label">Dietary Preferences</label>
                     <div className="checkbox-grid">
@@ -203,9 +234,9 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                     </div>
                   </div>
                 </>
-              ) : (
+              ) : searchType === 'users' ? (
                 <>
-                  {/* Username */}
+                  {/* User Filters */}
                   <div className="filter-group">
                     <label className="filter-label">Username</label>
                     <input
@@ -216,8 +247,6 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       className="filter-input"
                     />
                   </div>
-
-                  {/* Cooking Role */}
                   <div className="filter-group">
                     <label className="filter-label">Cooking Role</label>
                     <input
@@ -228,8 +257,6 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       className="filter-input"
                     />
                   </div>
-
-                  {/* Group */}
                   <div className="filter-group">
                     <label className="filter-label">Group</label>
                     <input
@@ -240,8 +267,6 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       className="filter-input"
                     />
                   </div>
-
-                  {/* Name */}
                   <div className="filter-group">
                     <label className="filter-label">Name</label>
                     <input
@@ -249,6 +274,30 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
                       placeholder="Search by name..."
                       value={userFilters.name}
                       onChange={(e) => setUserFilters(prev => ({...prev, name: e.target.value}))}
+                      className="filter-input"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Group Filters */}
+                  <div className="filter-group">
+                    <label className="filter-label">Group Name</label>
+                    <input
+                      type="text"
+                      placeholder="Search by group name..."
+                      value={groupFilters.name}
+                      onChange={(e) => setGroupFilters(prev => ({...prev, name: e.target.value}))}
+                      className="filter-input"
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label className="filter-label">Description</label>
+                    <input
+                      type="text"
+                      placeholder="Search in description..."
+                      value={groupFilters.description}
+                      onChange={(e) => setGroupFilters(prev => ({...prev, description: e.target.value}))}
                       className="filter-input"
                     />
                   </div>

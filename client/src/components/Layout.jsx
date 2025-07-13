@@ -368,7 +368,11 @@ const handleQuickSearch = async () => {
                 </span>
               )}
             </button>
-
+            <li>
+            <a href="/groups">
+              <i className="lni lni-users" style={{ fontSize: "2em" }}></i>
+            </a>
+          </li>
             {/* Friend Requests Dropdown */}
             {showFriendRequests && (
               <div className="friend-requests-dropdown">
