@@ -541,39 +541,29 @@ const handleJoinGroupRequest = async () => {
       setShowTemplateRecipe(true);
     }
   };
-
-  return (
-    <div className="feed-page-container">
-      {/* Groups Sidebar */}
-      <div className="groups-sidebar">
-        <div className="sidebar-section">
-          <div className="sidebar-title">
-            <Users size={20} />
-            My Groups
-          </div>
-          {groups.map((group) => (
-            <div
-              key={group._id}
-              className="group-item"
-              onClick={() => handleGroupSelect(group)}
-            >
-              <div className="group-avatar">
-                {group.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="group-info">
-                <div className="group-name">{group.name}</div>
-                <div className="group-members">
-                  {group.members?.length || 0} members
-                </div>
-              </div>
-            </div>
-          ))}
+return(
+  <div className="feed-page-container">
+    {/* Groups Sidebar */}
+    <div className="groups-sidebar">
+      <div className="sidebar-section">
+        <div className="sidebar-title">
+          <Users size={20} />
+          My Groups
         </div>
-
-       
-          <div className="group-item" onClick={() => navigate("/groups")}>
+        {groups.map(group => (
+          <div 
+            key={group._id} 
+            className="group-item"
+            onClick={() => handleGroupSelect(group)}
+          >
             <div className="group-avatar">
-              <Users size={16} />
+              {group.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="group-info">
+              <div className="group-name">{group.name}</div>
+              <div className="group-members">{group.members?.length || 0} members</div>
+            </div>
+          </div>
         ))}
       </div>
 
@@ -589,7 +579,6 @@ const handleJoinGroupRequest = async () => {
           >
             <div className="group-avatar trending">
               {group.name.charAt(0).toUpperCase()}
-
             </div>
             <div className="group-info">
               <div className="group-name">{group.name}</div>
@@ -598,8 +587,6 @@ const handleJoinGroupRequest = async () => {
           </div>
         ))}
       </div>
-
-
 
       <div className="sidebar-section">
         <div className="sidebar-title">
@@ -621,12 +608,10 @@ const handleJoinGroupRequest = async () => {
           <div className="group-info">
             <div className="group-name">Browse All Groups</div>
             <div className="group-members">Discover new communities</div>
-
           </div>
         </div>
       </div>
     </div>
-
 
     {/* Main Feed Content */}
     <div className="feed-content">
@@ -810,6 +795,7 @@ const handleJoinGroupRequest = async () => {
               </div>
             </div>
           </div>
+
           <div className="form-actions-footer">
             <button type="submit" className="post-submit-btn">
               <span>Share Post</span>
@@ -860,4 +846,4 @@ const handleJoinGroupRequest = async () => {
     )}
   </div>
 );
-}; 
+}

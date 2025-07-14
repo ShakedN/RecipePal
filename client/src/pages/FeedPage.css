@@ -621,10 +621,11 @@ MODERN NEW POST FORM STYLES
   align-items: stretch; /* מיישר לגובה שווה */
   gap: 1.5rem;
   padding: 1rem;
+  padding-left: 2.5rem;
   max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
-  min-height: 100vh; /* גובה מסך מלא */
+  min-height: 100vh; 
 }
 
 /* Groups Sidebar Styles */
