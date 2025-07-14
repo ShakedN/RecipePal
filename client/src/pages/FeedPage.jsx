@@ -94,9 +94,10 @@ export default function FeedPage() {
       const response = await axios.get(
         `http://localhost:5000/api/groups/suggested/${userId}`
       );
-      setSuggestedGroups(response.data);
+       setSuggestedGroups(response.data.groups || []);
     } catch (error) {
       console.error("Error fetching suggested groups:", error);
+      setSuggestedGroups([]);  
     }
   };
 
