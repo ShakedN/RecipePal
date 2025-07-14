@@ -5,9 +5,15 @@ import VideoEditor from "./VideoEditor";
 import axios from "axios";
 import "./NewPostForm.css";
 
-const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? ...`;
+const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? ...`; //Template content for recipe
 
-export default function NewPostForm({ userId, username, onPostCreated }) {
+export default function NewPostForm({
+  userId,
+  username,
+  isGroupPost,
+  groupId,
+  onPostCreated,
+}) {
   const fileInputRef = useRef(null);
 
   const [newPost, setNewPost] = useState({
@@ -21,6 +27,7 @@ export default function NewPostForm({ userId, username, onPostCreated }) {
     mediaType: "image",
     canvasData: null,
     isGroupPost: null,
+    group: null,
   });
 
   const [isEdited, setIsEdited] = useState(false);
@@ -147,7 +154,8 @@ export default function NewPostForm({ userId, username, onPostCreated }) {
         canvasData: newPost.canvasData,
         dietaryPreferences: newPost.dietaryPreferences,
         typeRecipe: newPost.typeRecipe,
-        isGroupPost: newPost.isGroupPost,
+        isGroupPost: isGroupPost === true, //If its true save as true, if didnt sent or false sent save as false
+        group: groupId,
       };
 
       await axios.post("http://localhost:5000/api/posts", postPayload);
@@ -165,6 +173,7 @@ export default function NewPostForm({ userId, username, onPostCreated }) {
         mediaType: "image",
         canvasData: null,
         isGroupPost: null,
+        group: null,
       });
       setIsEdited(false);
       setShowTemplateRecipe(false);
@@ -215,7 +224,7 @@ export default function NewPostForm({ userId, username, onPostCreated }) {
 
         <form onSubmit={handleNewPostSubmit} className="new-post-form-modern">
           <div className="new-post-layout-grid">
-            {/* Column 1: Media Upload and Preview */}
+            {/*Column 1: Media Upload and Preview */}
             <div className="media-column">
               <input
                 type="file"

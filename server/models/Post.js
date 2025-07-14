@@ -4,7 +4,7 @@ const postSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Reference to the User model
+      ref: "User", //Reference to the User model
       required: true,
     },
     userName: {
@@ -22,9 +22,9 @@ const postSchema = new mongoose.Schema(
       default: "",
       required: function () {
         if (this.kindOfPost != "recipe") {
-          return false; // typeRecipe is not required for non-recipe posts
+          return false; //typeRecipe is not required for non-recipe posts
         }
-        return true; // typeRecipe is required for recipe posts
+        return true; //typeRecipe is required for recipe posts
       },
     },
     dietaryPreferences: [
@@ -46,7 +46,7 @@ const postSchema = new mongoose.Schema(
       type: String,
     },
     video: {
-      type: String, // URL or path to the video file
+      type: String, //URL or path to the video file
     },
     mediaType: {
       type: String,
@@ -54,8 +54,8 @@ const postSchema = new mongoose.Schema(
       default: "image",
     },
     canvasData: {
-      originalUrl: String, // Original image/video URL
-      editedUrl: String, // Final edited result
+      originalUrl: String, //Original image/video URL
+      editedUrl: String, //Final edited result
 
       filters: {
         brightness: { type: Number, default: 100 },
@@ -70,17 +70,24 @@ const postSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    group: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group", //Reference to the Group model
+      required: function () {
+        return this.isGroupPost;
+      },
+    },
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Users who liked the post
+        ref: "User", //Users who liked the post
       },
     ],
     comments: [
       {
         user: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User", // Reference to the User model
+          ref: "User", //Reference to the User model
           required: true,
         },
         content: {
@@ -95,7 +102,7 @@ const postSchema = new mongoose.Schema(
     ],
   },
   {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true, //Automatically adds createdAt and updatedAt fields
   }
 );
 
