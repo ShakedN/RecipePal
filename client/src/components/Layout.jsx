@@ -29,6 +29,8 @@ export default function Layout() {
   //Get the user's profile image from localStorage or use default
   const profileImage =
     localStorage.getItem("profile_image") || "/images/default-profile.png";
+    const profileImageNavGraph=
+        localStorage.getItem("profile_image") || "/images/Profile_icon_nnavGraph.png";
 
   const currentUserId = localStorage.getItem("userId");
 const handleQuickSearch = async () => {
@@ -311,7 +313,7 @@ const fetchFriendRequests = async () => {
           <li>
             <a href="/profile">
               <img
-                src={profileImage}
+                src={profileImageNavGraph}
                 alt="Profile"
                 className="avatar"
                 style={{
@@ -391,7 +393,7 @@ const fetchFriendRequests = async () => {
             </button>
      
             {/* Friend Requests Dropdown */}
-          {showFriendRequests && (
+         {showFriendRequests && (
   <div className="friend-requests-dropdown">
 <h4 data-count={friendRequests.length + groupRequests.reduce((total, group) => total + group.pendingRequests.length, 0)}>
   Friend Requests
