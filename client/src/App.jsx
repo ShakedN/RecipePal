@@ -20,6 +20,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/feed" element={<FeedPage />} />
           <Route path="/groups" element={<GroupsPage />} />
+          <Route path="/groups/:groupId" element={<GroupsPage />} />
           <Route path="/post/:postId" element={<PostDetail />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/:userId" element={<ProfilePage />} />

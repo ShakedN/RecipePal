@@ -53,7 +53,7 @@ export default function FeedPage() {
   const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
-  
+
   const [newPost, setNewPost] = useState({
     title: "",
     content: "",
@@ -67,6 +67,7 @@ export default function FeedPage() {
     mediaType: "image",
     canvasData: null,
     group: null,
+    isGroupPost: null,
   });
 
   const userId = localStorage.getItem("userId");
@@ -79,34 +80,52 @@ export default function FeedPage() {
 
   const fetchUserGroups = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/user/${userId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/user/${userId}`
+      );
       setGroups(response.data);
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+      console.error("Error fetching user groups:", error);
     }
   };
 
   const fetchSuggestedGroups = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/suggested/${userId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/suggested/${userId}`
+      );
       setSuggestedGroups(response.data);
     } catch (error) {
-      console.error('Error fetching suggested groups:', error);
+      console.error("Error fetching suggested groups:", error);
     }
   };
 
   const handleJoinGroup = async (groupId) => {
     try {
-      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, { userId });
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
+        userId,
+      });
       fetchUserGroups();
       fetchSuggestedGroups();
     } catch (error) {
-      console.error('Error joining group:', error);
+      console.error("Error joining group:", error);
     }
   };
 
   const handleGroupSelect = (group) => {
     navigate(`/groups/${group._id}`);
+  };
+
+  const handleTrendGroupSelect = (group) => {
+    const isMember = group.members?.some(
+      (member) => member._id === userId || member === userId
+    );
+
+    if (isMember) {
+      navigate(`/groups/${group._id}`);
+    } else {
+      alert("You are not a member of this group.");
+    }
   };
 
   const fetchPosts = async () => {
@@ -189,7 +208,7 @@ export default function FeedPage() {
 
   const handleNewPostChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (type === "checkbox") {
       setNewPost((prev) => ({
         ...prev,
@@ -199,8 +218,12 @@ export default function FeedPage() {
       }));
     } else {
       setNewPost((prev) => ({ ...prev, [name]: value }));
-      
-      if (name === "content" && value !== recipeExContent && showTemplateRecipe) {
+
+      if (
+        name === "content" &&
+        value !== recipeExContent &&
+        showTemplateRecipe
+      ) {
         setShowTemplateRecipe(false);
       }
     }
@@ -299,6 +322,7 @@ export default function FeedPage() {
         video: videoUrl,
         group: newPost.group,
         canvasData: newPost.canvasData,
+        isGroupPost: false,
       };
 
       if (newPost.kindOfPost === "recipe") {
@@ -310,10 +334,18 @@ export default function FeedPage() {
       await fetchPosts();
 
       setNewPost({
-        title: "", content: "", image: "", video: "", kindOfPost: "", typeRecipe: "",
-        dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", 
-        canvasData: null, group: null,
-
+        title: "",
+        content: "",
+        image: "",
+        video: "",
+        kindOfPost: "",
+        typeRecipe: "",
+        dietaryPreferences: [],
+        imageFile: null,
+        videoFile: null,
+        mediaType: "image",
+        canvasData: null,
+        isGroupPost: null,
       });
       setIsEdited(false);
       setShowMediaActions(false);
@@ -369,25 +401,29 @@ export default function FeedPage() {
   const handleSaveEdit = async (editData) => {
     try {
       let finalUrl = "";
-      
+
       if (editingMedia.type === "video") {
         if (editData.blob) {
           const formData = new FormData();
-          formData.append("file", editData.blob, 'trimmed-video.webm');
+          formData.append("file", editData.blob, "trimmed-video.webm");
           formData.append("upload_preset", "ml_default");
-          
-          const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/video/upload", {
-            method: "POST",
-            body: formData,
-          });
-          
+
+          const res = await fetch(
+            "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
           const data = await res.json();
-          if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+          if (!data.secure_url)
+            throw new Error(data.error?.message || "Upload failed");
           finalUrl = data.secure_url;
         } else {
           throw new Error("No trimmed video blob created");
         }
-        
+
         setNewPost((prev) => ({
           ...prev,
           canvasData: {
@@ -397,45 +433,47 @@ export default function FeedPage() {
               trimStart: editData.trimStart,
               trimEnd: editData.trimEnd,
               originalDuration: editData.originalDuration || 0,
-              trimmedDuration: editData.duration
+              trimmedDuration: editData.duration,
             },
-            editType: 'video-trim'
+            editType: "video-trim",
           },
         }));
-        
       } else if (editingMedia.type === "image") {
         if (editData.blob) {
           const formData = new FormData();
           formData.append("file", editData.blob);
           formData.append("upload_preset", "ml_default");
-          
-          const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/image/upload", {
-            method: "POST",
-            body: formData,
-          });
-          
+
+          const res = await fetch(
+            "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
           const data = await res.json();
-          if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+          if (!data.secure_url)
+            throw new Error(data.error?.message || "Upload failed");
           finalUrl = data.secure_url;
         }
-        
+
         setNewPost((prev) => ({
           ...prev,
           canvasData: {
             originalUrl: editingMedia.url,
             editedUrl: finalUrl,
             filters: editData.filters || {},
-            editType: 'image'
+            editType: "image",
           },
         }));
       }
-      
+
       setIsEdited(true);
       setShowPhotoEditor(false);
       setShowVideoEditor(false);
       setEditingMedia(null);
       setShowMediaActions(false);
-      
     } catch (error) {
       console.error("Failed to save edit:", error);
       alert("Failed to save edited media: " + error.message);
@@ -475,9 +513,9 @@ export default function FeedPage() {
             <Users size={20} />
             My Groups
           </div>
-          {groups.map(group => (
-            <div 
-              key={group._id} 
+          {groups.map((group) => (
+            <div
+              key={group._id}
               className="group-item"
               onClick={() => handleGroupSelect(group)}
             >
@@ -486,37 +524,37 @@ export default function FeedPage() {
               </div>
               <div className="group-info">
                 <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
+                <div className="group-members">
+                  {group.members?.length || 0} members
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         <div className="sidebar-section">
-          <div className="sidebar-title">
-            🔥 Trending Groups
-          </div>
-          {suggestedGroups.slice(0, 3).map(group => (
-            <div 
-              key={group._id} 
+          <div className="sidebar-title">🔥 Trending Groups</div>
+          {suggestedGroups.slice(0, 3).map((group) => (
+            <div
+              key={group._id}
               className="group-item"
-              onClick={() => navigate(`/groups/${group._id}`)}
+              onClick={() => handleTrendGroupSelect(group)}
             >
               <div className="group-avatar trending">
                 {group.name.charAt(0).toUpperCase()}
               </div>
               <div className="group-info">
                 <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
+                <div className="group-members">
+                  {group.members?.length || 0} members
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         <div className="sidebar-section">
-          <div className="sidebar-title">
-            ⚡ Quick Actions
-          </div>
+          <div className="sidebar-title">⚡ Quick Actions</div>
           <div className="group-item" onClick={() => setShowCreateGroup(true)}>
             <div className="group-avatar create">
               <Plus size={16} />
@@ -526,7 +564,7 @@ export default function FeedPage() {
               <div className="group-members">Start cooking together</div>
             </div>
           </div>
-          <div className="group-item" onClick={() => navigate('/groups')}>
+          <div className="group-item" onClick={() => navigate("/groups")}>
             <div className="group-avatar">
               <Users size={16} />
             </div>
@@ -541,16 +579,28 @@ export default function FeedPage() {
       {/* Main Feed Content */}
       <div className="feed-content">
         {showPhotoEditor && editingMedia && (
-          <PhotoEditor imageUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+          <PhotoEditor
+            imageUrl={editingMedia.url}
+            onSave={handleSaveEdit}
+            onCancel={handleCancelEdit}
+          />
         )}
         {showVideoEditor && editingMedia && (
-          <VideoEditor videoUrl={editingMedia.url} onSave={handleSaveEdit} onCancel={handleCancelEdit} />
+          <VideoEditor
+            videoUrl={editingMedia.url}
+            onSave={handleSaveEdit}
+            onCancel={handleCancelEdit}
+          />
         )}
 
         {/* MODERN NEW POST FORM */}
         <div className="new-post-container-modern">
           <div className="new-post-header">
-            <img src="/images/default-profile.png" alt="Your Profile" className="new-post-avatar" />
+            <img
+              src="/images/default-profile.png"
+              alt="Your Profile"
+              className="new-post-avatar"
+            />
             <div className="new-post-greeting">
               <span>What's cooking, {localStorage.getItem("username")}?</span>
             </div>
@@ -566,7 +616,9 @@ export default function FeedPage() {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      const fileType = file.type.startsWith("video") ? "video" : "image";
+                      const fileType = file.type.startsWith("video")
+                        ? "video"
+                        : "image";
                       setNewPost({
                         ...newPost,
                         mediaType: fileType,
@@ -582,23 +634,42 @@ export default function FeedPage() {
                   ref={fileInputRef}
                 />
                 {!newPost.imageFile && !newPost.videoFile ? (
-                  <div className="media-upload-zone" onClick={() => fileInputRef.current.click()}>
+                  <div
+                    className="media-upload-zone"
+                    onClick={() => fileInputRef.current.click()}
+                  >
                     <Image size={48} strokeWidth={1.5} />
                     <Video size={48} strokeWidth={1.5} />
-                    <p><strong>Click to upload</strong> or drag and drop a photo or video.</p>
-                    <span className="upload-hint">High-quality visuals get more likes!</span>
+                    <p>
+                      <strong>Click to upload</strong> or drag and drop a photo
+                      or video.
+                    </p>
+                    <span className="upload-hint">
+                      High-quality visuals get more likes!
+                    </span>
                   </div>
                 ) : (
                   <div className="media-preview-container">
                     {newPost.imageFile && (
-                      <img src={URL.createObjectURL(newPost.imageFile)} alt="Preview" className="media-preview" />
+                      <img
+                        src={URL.createObjectURL(newPost.imageFile)}
+                        alt="Preview"
+                        className="media-preview"
+                      />
                     )}
                     {newPost.videoFile && (
-                      <video src={URL.createObjectURL(newPost.videoFile)} className="media-preview" controls />
+                      <video
+                        src={URL.createObjectURL(newPost.videoFile)}
+                        className="media-preview"
+                        controls
+                      />
                     )}
-                    
+
                     {!showMediaActions && (
-                      <div className="media-actions-trigger" onClick={handleShowMediaActions}>
+                      <div
+                        className="media-actions-trigger"
+                        onClick={handleShowMediaActions}
+                      >
                         <div className="actions-trigger-btn">
                           <Edit3 size={16} />
                           <span>Edit Media</span>
@@ -610,7 +681,12 @@ export default function FeedPage() {
                       <div className="media-actions-overlay active">
                         <button
                           type="button"
-                          onClick={() => handleEditMedia(newPost.imageFile || newPost.videoFile, newPost.mediaType)}
+                          onClick={() =>
+                            handleEditMedia(
+                              newPost.imageFile || newPost.videoFile,
+                              newPost.mediaType
+                            )
+                          }
                           className="media-action-btn"
                         >
                           <Edit3 size={16} /> Edit
@@ -618,7 +694,11 @@ export default function FeedPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            setNewPost({ ...newPost, imageFile: null, videoFile: null });
+                            setNewPost({
+                              ...newPost,
+                              imageFile: null,
+                              videoFile: null,
+                            });
                             fileInputRef.current.value = "";
                             setShowMediaActions(false);
                           }}
@@ -635,7 +715,7 @@ export default function FeedPage() {
                         </button>
                       </div>
                     )}
-                    
+
                     {isEdited && <div className="edited-badge">Edited</div>}
                   </div>
                 )}
@@ -645,7 +725,13 @@ export default function FeedPage() {
               <div className="form-column">
                 <div className="form-section">
                   <label className="form-label">What are you sharing?</label>
-                  <select name="kindOfPost" value={newPost.kindOfPost} onChange={handleNewPostChange} required className="styled-select">
+                  <select
+                    name="kindOfPost"
+                    value={newPost.kindOfPost}
+                    onChange={handleNewPostChange}
+                    required
+                    className="styled-select"
+                  >
                     <option value="">Choose post type...</option>
                     <option value="recipe">🍳 Recipe</option>
                     <option value="shared thoughts">💭 Shared Thoughts</option>
@@ -667,7 +753,13 @@ export default function FeedPage() {
                     <div className="form-section-inline">
                       <div className="form-section">
                         <label className="form-label">Category</label>
-                        <select name="typeRecipe" value={newPost.typeRecipe} onChange={handleNewPostChange} required className="styled-select">
+                        <select
+                          name="typeRecipe"
+                          value={newPost.typeRecipe}
+                          onChange={handleNewPostChange}
+                          required
+                          className="styled-select"
+                        >
                           <option value="">Select...</option>
                           <option value="desert">Dessert</option>
                           <option value="main dish">Main Dish</option>
@@ -686,9 +778,15 @@ export default function FeedPage() {
                           { value: "vegeterian", label: "Vegetarian" },
                         ].map((pref) => (
                           <label key={pref.value} className="checkbox-label">
-                            <input type="checkbox" name="dietaryPreferences" value={pref.value}
-                              checked={newPost.dietaryPreferences.includes(pref.value)}
-                              onChange={handleNewPostChange} className="styled-checkbox"
+                            <input
+                              type="checkbox"
+                              name="dietaryPreferences"
+                              value={pref.value}
+                              checked={newPost.dietaryPreferences.includes(
+                                pref.value
+                              )}
+                              onChange={handleNewPostChange}
+                              className="styled-checkbox"
                             />
                             <span className="checkbox-text">{pref.label}</span>
                           </label>
@@ -701,12 +799,16 @@ export default function FeedPage() {
                 <div className="form-section">
                   <div className="textarea-header">
                     <label className="form-label">Recipe & Instructions</label>
-                    <button 
-                      type="button" 
-                      className={`template-button ${showTemplateRecipe ? 'active' : ''}`}
+                    <button
+                      type="button"
+                      className={`template-button ${
+                        showTemplateRecipe ? "active" : ""
+                      }`}
                       onClick={handleTemplateRecipe}
                     >
-                      {showTemplateRecipe ? '✕ Remove Template' : '📝 Use Template'}
+                      {showTemplateRecipe
+                        ? "✕ Remove Template"
+                        : "📝 Use Template"}
                     </button>
                   </div>
                   <textarea
@@ -752,7 +854,7 @@ export default function FeedPage() {
 
       {/* Create Group Modal */}
       {showCreateGroup && (
-        <CreateGroupModal 
+        <CreateGroupModal
           onClose={() => setShowCreateGroup(false)}
           onGroupCreated={() => {
             fetchUserGroups();
@@ -767,36 +869,38 @@ export default function FeedPage() {
 // Create Group Modal Component
 function CreateGroupModal({ onClose, onGroupCreated }) {
   const [groupData, setGroupData] = useState({
-    name: '',
-    description: ''
+    name: "",
+    description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!groupData.name.trim()) {
-      alert('Group name is required');
+      alert("Group name is required");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      const userId = localStorage.getItem('userId');
-      const response = await axios.post('http://localhost:5000/api/groups', {
+      const userId = localStorage.getItem("userId");
+      const response = await axios.post("http://localhost:5000/api/groups", {
         name: groupData.name.trim(),
         description: groupData.description.trim(),
-        admin: userId
+        admin: userId,
       });
-      
+
       onGroupCreated();
       onClose();
-      alert('Group created successfully!');
-      
+      alert("Group created successfully!");
     } catch (error) {
-      console.error('Error creating group:', error);
-      alert(error.response?.data?.message || 'Failed to create group. Please try again.');
+      console.error("Error creating group:", error);
+      alert(
+        error.response?.data?.message ||
+          "Failed to create group. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -812,7 +916,9 @@ function CreateGroupModal({ onClose, onGroupCreated }) {
             <input
               type="text"
               value={groupData.name}
-              onChange={(e) => setGroupData({...groupData, name: e.target.value})}
+              onChange={(e) =>
+                setGroupData({ ...groupData, name: e.target.value })
+              }
               placeholder="Enter group name"
               required
               disabled={isSubmitting}
@@ -822,27 +928,29 @@ function CreateGroupModal({ onClose, onGroupCreated }) {
             <label>Description</label>
             <textarea
               value={groupData.description}
-              onChange={(e) => setGroupData({...groupData, description: e.target.value})}
+              onChange={(e) =>
+                setGroupData({ ...groupData, description: e.target.value })
+              }
               placeholder="Enter group description (optional)"
               rows={4}
               disabled={isSubmitting}
             />
           </div>
           <div className="modal-actions">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={onClose}
               disabled={isSubmitting}
               className="cancel-btn"
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit"
               disabled={isSubmitting}
               className="create-btn"
             >
-              {isSubmitting ? 'Creating...' : 'Create Group'}
+              {isSubmitting ? "Creating..." : "Create Group"}
             </button>
           </div>
         </form>

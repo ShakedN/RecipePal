@@ -1,4 +1,4 @@
-.navbar { 
+.navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -45,7 +45,7 @@
   display: flex;
   gap: 15px;
   margin: 0;
-  padding-right:20px;
+  padding-right: 20px;
 }
 
 .navbar-links li {
@@ -65,21 +65,21 @@
 /* Feed and Post Card Styles */
 .feed-content {
   max-width: 700px; /* Wider for the new design */
-  margin: 40px auto;
+
   padding: 0 10px;
 }
 
 .post-card {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   margin-bottom: 24px;
   padding: 18px 20px 12px 20px;
   transition: box-shadow 0.2s;
 }
 
 .post-card:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.13);
 }
 
 .post-header {
@@ -120,7 +120,8 @@
   margin-bottom: 10px;
 }
 
-.post-image, .post-video {
+.post-image,
+.post-video {
   width: 100%;
   max-height: 400px;
   object-fit: cover;
@@ -162,14 +163,15 @@ MODERN NEW POST FORM STYLES
 
 /* Main Container */
 .new-post-container-modern {
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
-  margin-bottom: 40px;
-  padding: 16px 16px;
-  border: 1px solid #e9ecef;
-  width: 100%; /* Ensure it takes full width of its container */
-  box-sizing: border-box; /* Include padding in width calculation */
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  /* כדי שתהיה בגובה של הצד */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
 
 /* Header (Avatar & Greeting) */
@@ -258,9 +260,8 @@ MODERN NEW POST FORM STYLES
 .media-preview-container {
   width: 100%;
   max-height: 100%; /* Use max-height to respect container bounds */
-  object-fit: contain;  /* This is the key change! */
+  object-fit: contain; /* This is the key change! */
   display: block;
-
 }
 
 .media-preview {
@@ -323,7 +324,7 @@ MODERN NEW POST FORM STYLES
   border-radius: 20px;
   font-size: 0.8em;
   font-weight: 600;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Column 2: Form Fields */
@@ -479,7 +480,7 @@ MODERN NEW POST FORM STYLES
 }
 
 .styled-checkbox:checked::after {
-  content: '✓';
+  content: "✓";
   color: white;
   position: absolute;
   font-size: 14px;
@@ -604,28 +605,25 @@ MODERN NEW POST FORM STYLES
 
 .feed-page-container {
   display: flex;
+  align-items: stretch; /* מיישר לגובה שווה */
+  gap: 1.5rem;
+  padding: 1rem;
   max-width: 1400px;
   margin: 0 auto;
-  gap: 10px;
-  padding: 10px;
-  min-height: calc(100vh - 80px);
-  align-items: flex-start;
+  box-sizing: border-box;
+  min-height: 100vh; /* גובה מסך מלא */
 }
 
 /* Groups Sidebar Styles */
 .groups-sidebar {
-  width: 280px;
-  min-width: 280px;
+  width: 260px;
   background: white;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  height: fit-content;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
-  position: sticky;
-  top: 20px;
-  flex-shrink: 0;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .sidebar-section {
@@ -800,7 +798,7 @@ MODERN NEW POST FORM STYLES
     grid-template-columns: 1fr; /* Stack columns */
     gap: 24px;
   }
-  
+
   .media-column {
     min-height: 300px;
   }
@@ -810,26 +808,33 @@ MODERN NEW POST FORM STYLES
   .feed-page-container {
     flex-direction: column;
   }
-  
+
   .groups-sidebar {
     width: 100%;
     position: static;
     order: -1;
   }
-  
+
   .feed-content {
-    max-width: none;
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* חשוב! כדי שיתאים לגובה הצד */
   }
-  
+
   .modal-content {
     margin: 10px;
     width: calc(100% - 20px);
   }
-  
+
   .modal-actions {
     flex-direction: column;
   }
-  
+
   .modal-actions button {
     width: 100%;
   }
@@ -838,7 +843,7 @@ MODERN NEW POST FORM STYLES
     padding: 12px;
     margin-top: 12px;
   }
-  
+
   .comment-textarea {
     min-height: 60px;
     font-size: 16px; /* Prevents zoom on iOS */
@@ -849,11 +854,11 @@ MODERN NEW POST FORM STYLES
   .new-post-container-modern {
     padding: 16px;
   }
-  
+
   .dietary-preferences {
     grid-template-columns: 1fr 1fr; /* Two columns on small screens */
   }
-  
+
   .post-submit-btn {
     width: 100%;
     justify-content: center;
