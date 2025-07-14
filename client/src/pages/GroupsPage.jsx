@@ -1,54 +1,94 @@
-import React, { useState, useEffect } from 'react';
-import { Users, Plus, Search, Filter, Heart, MessageCircle, Share, Bookmark } from 'lucide-react';
-import axios from 'axios';
-import './GroupsPage.css';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Users,
+  Plus,
+  Activity,
+  UserPlus,
+  Heart,
+  MessageCircle,
+  Share,
+  Bookmark,
+} from "lucide-react";
+import axios from "axios";
+import "./GroupsPage.css";
+import { useParams } from "react-router-dom";
+import NewPostForm from "../components/NewPostForm";
 
 export default function GroupsPage() {
   const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [groupPosts, setGroupPosts] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState("all");
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  
-  const userId = localStorage.getItem('userId');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [group, setGroup] = useState(null);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(true);
 
+  const { groupId } = useParams(); //Get group ID from URL
+  const userId = localStorage.getItem("userId"); //Get user ID from local storage
+  const userName = localStorage.getItem("username");
+
+  //Fetch group details and its posts when groupId changes
   useEffect(() => {
-    fetchUserGroups();
-    fetchSuggestedGroups();
-    fetchGroupPosts();
-  }, []);
+    if (!groupId) return;
 
+    const fetchGroupData = async () => {
+      try {
+        const [groupRes, postsRes] = await Promise.all([
+          axios.get(`http://localhost:5000/api/groups/${groupId}`),
+          axios.get(`http://localhost:5000/api/groups/${groupId}/posts`),
+        ]);
+        setGroup(groupRes.data);
+        setGroupPosts(postsRes.data);
+      } catch (err) {
+        console.error("Error fetching group data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGroupData();
+  }, [groupId]);
+
+  //Not using it --> DELETE?
   const fetchUserGroups = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/user/${userId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/user/${userId}`
+      );
       setGroups(response.data);
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+      console.error("Error fetching user groups:", error);
     }
   };
 
+  //Fetch 3 suggested groups for user
   const fetchSuggestedGroups = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/suggested/${userId}`);
-      setSuggestedGroups(response.data);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/suggested/${userId}`
+      );
+      setSuggestedGroups(response.data.groups); // ✅ שליפה נכונה של המערך
     } catch (error) {
-      console.error('Error fetching suggested groups:', error);
+      console.error("Error fetching suggested groups:", error);
+      setSuggestedGroups([]); // הגנה במקרה של כישלון
     }
   };
 
-  const fetchGroupPosts = async (groupId = null) => {
+  const fetchGroupPosts = async (groupId) => {
+    if (!groupId) {
+      console.error("Group ID is required to fetch group posts");
+      return;
+    }
+
     try {
-      const url = groupId 
-        ? `http://localhost:5000/api/groups/${groupId}/posts`
-        : `http://localhost:5000/api/groups/feed/${userId}`;
+      const url = `http://localhost:5000/api/groups/${groupId}/posts`;
       const response = await axios.get(url);
       setGroupPosts(response.data);
     } catch (error) {
-      console.error('Error fetching group posts:', error);
+      console.error("Error fetching group posts:", error);
     } finally {
       setLoading(false);
     }
@@ -56,106 +96,114 @@ export default function GroupsPage() {
 
   const handleJoinGroup = async (groupId) => {
     try {
-      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, { userId });
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
+        userId,
+      });
       fetchUserGroups();
       fetchSuggestedGroups();
     } catch (error) {
-      console.error('Error joining group:', error);
+      console.error("Error joining group:", error);
     }
   };
 
- 
-  const filteredPosts = groupPosts.filter(post => {
-    if (activeFilter === 'all') return true;
-    if (activeFilter === 'myGroups') return groups.some(g => g._id === post.group?._id);
+  const filteredPosts = groupPosts.filter((post) => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "myGroups")
+      return groups.some((g) => g._id === post.group?._id);
     return true;
   });
-const handleGroupSelect = (group) => {
-  // If the same group is already selected, deselect it
-  if (selectedGroup && selectedGroup._id === group._id) {
-    setSelectedGroup(null);
-    fetchGroupPosts(); // Fetch all posts again (without specific group filter)
-  } else {
-    // Select the new group
-    setSelectedGroup(group);
-    fetchGroupPosts(group._id);
-  }
-};
+
+  // const handleGroupSelect = (group) => {
+  //   // If the same group is already selected, deselect it
+  //   if (selectedGroup && selectedGroup._id === group._id) {
+  //     setSelectedGroup(null);
+  //     fetchGroupPosts(); // Fetch all posts again (without specific group filter)
+  //   } else {
+  //     // Select the new group
+  //     setSelectedGroup(group);
+  //     fetchGroupPosts(group._id);
+  //   }
+  // };
+
   return (
     <div className="groups-page">
-      {/* Sidebar - My Groups */}
-      <div className="groups-sidebar">
-        <div className="sidebar-section">
+      {/* Right Sidebar - Suggested Groups */}
+      <div className="groups-right-sidebar">
+        <div className="widget">
           <div className="sidebar-title">
-            <Users size={20} />
-            My Groups
+            <UserPlus size={20} />
+            Suggested Groups
           </div>
-          {groups.map(group => (
-            <div 
-              key={group._id} 
-              className={`group-item ${selectedGroup?._id === group._id ? 'active' : ''}`}
-              onClick={() => handleGroupSelect(group)}
-            >
-              <div className="group-avatar">
-                {group.name.charAt(0).toUpperCase()}
+          {loadingSuggestions ? (
+            <p>Loading suggestions...</p>
+          ) : suggestedGroups.length === 0 ? (
+            <p>No suggested groups right now.</p>
+          ) : (
+            suggestedGroups.map((group) => (
+              <div key={group._id} className="suggested-group">
+                <div className="group-avatar suggested">
+                  {group.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="group-info">
+                  <div className="group-name">{group.name}</div>
+                  <div className="group-members">
+                    {group.members?.length || 0} members
+                  </div>
+                </div>
+                <button
+                  className="join-btn"
+                  onClick={() => handleJoinGroup(group._id)}
+                >
+                  Join
+                </button>
               </div>
-              <div className="group-info">
-                <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
-              </div>
-              {group.hasNewPosts && <div className="group-notification"></div>}
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
-        <div className="sidebar-section">
+        <div className="widget">
           <div className="sidebar-title">
-            🔥 Trending Groups
+            <Activity size={20} />
+            Group Activity
           </div>
-          {suggestedGroups.slice(0, 3).map(group => (
-            <div key={group._id} className="group-item">
-              <div className="group-avatar trending">
-                {group.name.charAt(0).toUpperCase()}
+          {Array.isArray(groups) &&
+            groups.slice(0, 3).map((group) => (
+              <div key={group._id} className="activity-item">
+                <div className="group-avatar activity">
+                  {group.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="activity-info">
+                  <div className="activity-text">New recipe posted</div>
+                  <div className="activity-group">in {group.name}</div>
+                </div>
               </div>
-              <div className="group-info">
-                <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="sidebar-section">
-          <div className="sidebar-title">
-            ⚡ Quick Actions
-          </div>
-          <div className="group-item" onClick={() => setShowCreateGroup(true)}>
-            <div className="group-avatar create">
-              <Plus size={16} />
-            </div>
-            <div className="group-info">
-              <div className="group-name">Create Group</div>
-              <div className="group-members">Start cooking together</div>
-            </div>
-          </div>
+            ))}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="groups-main-content">
-        {/* Feed Filters */}
-      <div className="feed-filters">
-          {selectedGroup && (
-        <div className="selected-group-info">
-          <div className="selected-group-name">
-            {selectedGroup.name}
+        {/*Group data*/}
+        {group ? (
+          <div className="group-data">
+            <h2>{group.name}</h2>
+            <p>{group.description}</p>
           </div>
-          <div className="selected-group-description">
-            {selectedGroup.description}
+        ) : (
+          <div className="group-data">
+            <p>Loading group...</p>
           </div>
+        )}
+
+        {/*New post container*/}
+        <div className="new-post-container">
+          <NewPostForm
+            userId={userId}
+            username={userName}
+            isGroupPost={true}
+            onPostCreated={() => fetchGroupPosts(groupId)}
+          />
         </div>
-      )}
-      </div>
 
         {/* Group Posts Feed */}
         <div className="groups-feed">
@@ -163,27 +211,31 @@ const handleGroupSelect = (group) => {
             <div className="loading">Loading posts...</div>
           ) : filteredPosts.length === 0 ? (
             <div className="no-posts">
-              <p>No posts in groups yet. Join a group or create your first post!</p>
+              <p>
+                No posts in groups yet. Join a group or create your first post!
+              </p>
             </div>
           ) : (
-            filteredPosts.map(post => (
+            filteredPosts.map((post) => (
               <div key={post._id} className="group-post">
                 <div className="post-header">
                   <img
-                    src={post.user?.profile_image || "/images/default-profile.png"}
+                    src={
+                      post.user?.profile_image || "/images/default-profile.png"
+                    }
                     alt="User"
                     className="post-avatar"
                   />
                   <div className="post-user-info">
-                    <div className="post-username">{post.user?.username || "Unknown User"}</div>
+                    <div className="post-username">
+                      {post.user?.username || "Unknown User"}
+                    </div>
                     <div className="post-time">
                       {new Date(post.createdAt).toLocaleString()}
                     </div>
                   </div>
                   {post.group && (
-                    <div className="group-tag">
-                      {post.group.name}
-                    </div>
+                    <div className="group-tag">{post.group.name}</div>
                   )}
                 </div>
 
@@ -226,146 +278,6 @@ const handleGroupSelect = (group) => {
             ))
           )}
         </div>
-      </div>
-
-      {/* Right Sidebar - Suggested Groups */}
-      <div className="groups-right-sidebar">
-        <div className="widget">
-          <div className="widget-title">Suggested Groups</div>
-          {suggestedGroups.map(group => (
-            <div key={group._id} className="suggested-group">
-              <div className="group-avatar suggested">
-                {group.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="group-info">
-                <div className="group-name">{group.name}</div>
-                <div className="group-members">{group.members?.length || 0} members</div>
-              </div>
-              <button 
-                className="join-btn"
-                onClick={() => handleJoinGroup(group._id)}
-              >
-                Join
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <div className="widget">
-          <div className="widget-title">Group Activity</div>
-          {groups.slice(0, 3).map(group => (
-            <div key={group._id} className="activity-item">
-              <div className="group-avatar activity">
-                {group.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="activity-info">
-                <div className="activity-text">New recipe posted</div>
-                <div className="activity-group">in {group.name}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Create Group Modal */}
-      {showCreateGroup && (
-        <CreateGroupModal 
-          onClose={() => setShowCreateGroup(false)}
-          onGroupCreated={fetchUserGroups}
-        />
-      )}
-    </div>
-  );
-}
-
-function CreateGroupModal({ onClose, onGroupCreated }) {
-  const [groupData, setGroupData] = useState({
-    name: '',
-    description: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!groupData.name.trim()) {
-      alert('Group name is required');
-      return;
-    }
-
-    setIsSubmitting(true);
-    
-    try {
-      const userId = localStorage.getItem('userId');
-      const response = await axios.post('http://localhost:5000/api/groups', {
-        name: groupData.name.trim(),
-        description: groupData.description.trim(),
-        admin: userId
-      });
-      
-      console.log('Group created successfully:', response.data);
-      
-      // Call the parent function to refresh groups
-      onGroupCreated();
-      
-      // Close the modal
-      onClose();
-      
-      // Optional: Show success message
-      alert('Group created successfully!');
-      
-    } catch (error) {
-      console.error('Error creating group:', error);
-      alert(error.response?.data?.message || 'Failed to create group. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Create New Group</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Group Name *</label>
-            <input
-              type="text"
-              value={groupData.name}
-              onChange={(e) => setGroupData({...groupData, name: e.target.value})}
-              placeholder="Enter group name"
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-          <div className="form-group">
-            <label>Description</label>
-            <textarea
-              value={groupData.description}
-              onChange={(e) => setGroupData({...groupData, description: e.target.value})}
-              placeholder="Enter group description (optional)"
-              rows={4}
-              disabled={isSubmitting}
-            />
-          </div>
-          <div className="modal-actions">
-            <button 
-              type="button" 
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="cancel-btn"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit"
-              disabled={isSubmitting}
-              className="create-btn"
-            >
-              {isSubmitting ? 'Creating...' : 'Create Group'}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );

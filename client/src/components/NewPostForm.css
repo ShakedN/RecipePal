@@ -1,0 +1,361 @@
+.new-post-container {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  /* כדי שתהיה בגובה של הצד */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.new-post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.new-post-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 16px;
+  border: 3px solid #ff7a00;
+}
+
+.new-post-greeting {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Form Layout */
+.new-post-form-modern {
+  display: flex;
+  flex-direction: column;
+}
+
+.new-post-layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+/* Column 1: Media Upload & Preview */
+.media-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 350px;
+}
+
+.media-input {
+  display: none; /* Hide the actual file input */
+}
+
+.media-upload-zone {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 2px dashed #d0d5dd;
+  border-radius: 16px;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  text-align: center;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.media-upload-zone:hover {
+  border-color: #ff7a00;
+  background-color: #fff8f5;
+  color: #ff7a00;
+}
+
+.media-upload-zone p {
+  margin: 0;
+  font-size: 1em;
+}
+
+.media-upload-zone .upload-hint {
+  font-size: 0.85em;
+  color: #adb5bd;
+}
+
+.media-preview-container {
+  width: 100%;
+  max-height: 100%; /* Use max-height to respect container bounds */
+  object-fit: contain; /* This is the key change! */
+  display: block;
+}
+
+.media-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.media-actions-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.media-preview-container:hover .media-actions-overlay {
+  opacity: 1;
+}
+
+.media-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #343a40;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.media-action-btn:hover {
+  background: #545b62;
+  transform: translateY(-2px);
+}
+
+.media-action-btn.remove:hover {
+  color: #e74c3c;
+}
+
+.edited-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: #ff7a00;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Column 2: Form Fields */
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-section-inline {
+  display: flex;
+  gap: 16px;
+}
+.form-section-inline > .form-section {
+  flex: 1;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.95em;
+}
+
+.textarea-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.template-button {
+  background: none;
+  border: 1px solid #e9ecef;
+  color: #ff7a00;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-button:hover {
+  background-color: #fff8f5;
+  border-color: #ffbba3;
+}
+
+/* General Input Styles */
+.styled-select,
+.styled-input,
+.styled-textarea {
+  padding: 12px 16px;
+  border: 1px solid #ced4da;
+  border-radius: 10px;
+  font-size: 1em;
+  transition: all 0.2s ease;
+  background: #f8f9fa;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.styled-select:focus,
+.styled-input:focus,
+.styled-textarea:focus {
+  outline: none;
+  border-color: #ff7a00;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+}
+
+.title-input {
+  font-size: 1.2em;
+  font-weight: 500;
+}
+
+.styled-textarea {
+  min-height: 150px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.styled-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+/* Recipe Specific Section */
+.recipe-details {
+  background: linear-gradient(135deg, #fffaf7 0%, #fff8f5 100%);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #ffe0cc;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dietary-preferences {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9em;
+}
+
+.checkbox-label:hover {
+  border-color: #ff9d4d;
+  background: #fff8f5;
+}
+
+.styled-checkbox:checked + .checkbox-text {
+  color: #ff7a00;
+  font-weight: 600;
+}
+
+.styled-checkbox {
+  appearance: none; /* Hide default checkbox */
+  width: 18px;
+  height: 18px;
+  border: 2px solid #adb5bd;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  top: 1px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.styled-checkbox:checked {
+  background-color: #ff7a00;
+  border-color: #ff7a00;
+}
+
+.styled-checkbox:checked::after {
+  content: "✓";
+  color: white;
+  position: absolute;
+  font-size: 14px;
+  line-height: 16px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkbox-text {
+  user-select: none;
+  transition: color 0.2s ease;
+}
+
+/* Form Actions Footer */
+.form-actions-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid #f1f3f4;
+}
+
+.post-submit-btn {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #ff7a00 0%, #ff9933 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-submit-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(255, 122, 0, 0.4);
+}

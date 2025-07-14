@@ -18,8 +18,8 @@ const postSchema = new mongoose.Schema(
     },
     typeRecipe: {
       type: String,
-      enum: ["desert", "main dish", "appetize", "side dish",""],
-      default:"",
+      enum: ["desert", "main dish", "appetize", "side dish", ""],
+      default: "",
       required: function () {
         if (this.kindOfPost != "recipe") {
           return false; // typeRecipe is not required for non-recipe posts
@@ -43,9 +43,9 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     image: {
-      type: String, 
+      type: String,
     },
-    video:{
+    video: {
       type: String, // URL or path to the video file
     },
     mediaType: {
@@ -55,16 +55,20 @@ const postSchema = new mongoose.Schema(
     },
     canvasData: {
       originalUrl: String, // Original image/video URL
-      editedUrl: String,   // Final edited result
-      
+      editedUrl: String, // Final edited result
+
       filters: {
         brightness: { type: Number, default: 100 },
         contrast: { type: Number, default: 100 },
         saturation: { type: Number, default: 100 },
         blur: { type: Number, default: 0 },
         sepia: { type: Number, default: 0 },
-        grayscale: { type: Number, default: 0 }
-      }
+        grayscale: { type: Number, default: 0 },
+      },
+    },
+    isGroupPost: {
+      type: Boolean,
+      default: false,
     },
     likes: [
       {

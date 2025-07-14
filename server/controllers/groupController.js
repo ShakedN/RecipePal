@@ -9,8 +9,8 @@ export const createGroup = async (req, res) => {
   try {
     //Validate required fields
     if (!name || !admin) {
-      return res.status(400).json({ 
-        message: "Group name and admin are required" 
+      return res.status(400).json({
+        message: "Group name and admin are required",
       });
     }
 
@@ -23,8 +23,8 @@ export const createGroup = async (req, res) => {
     //Check if group name already exists (optional uniqueness check)
     const existingGroup = await Group.findOne({ name: name.trim() });
     if (existingGroup) {
-      return res.status(400).json({ 
-        message: "A group with this name already exists" 
+      return res.status(400).json({
+        message: "A group with this name already exists",
       });
     }
 
@@ -40,7 +40,7 @@ export const createGroup = async (req, res) => {
 
     //Add the group to the admin's groups array
     await User.findByIdAndUpdate(admin, {
-      $push: { groups: group._id }
+      $push: { groups: group._id },
     });
 
     //Populate the group with admin and members info before returning
@@ -50,12 +50,12 @@ export const createGroup = async (req, res) => {
 
     res.status(201).json({
       message: "Group created successfully",
-      group: populatedGroup
+      group: populatedGroup,
     });
   } catch (error) {
     res.status(500).json({
       message: "Error creating group",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -101,52 +101,43 @@ export const getUserGroups = async (req, res) => {
 
   try {
     const groups = await Group.find({
-      $or: [
-        { members: userId },
-        { admin: userId }
-      ]
+      $or: [{ members: userId }, { admin: userId }],
     })
-    .populate("admin", "username firstName lastName profile_image")
-    .populate("members", "username firstName lastName profile_image")
-    .sort({ createdAt: -1 });
+      .populate("admin", "username firstName lastName profile_image")
+      .populate("members", "username firstName lastName profile_image")
+      .sort({ createdAt: -1 });
 
     res.status(200).json(groups);
   } catch (error) {
     res.status(500).json({
       message: "Error fetching user groups",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
 //Get suggested groups (groups user is not part of)
-export const getSuggestedGroups = async (req, res) => {
-  const { userId } = req.params;
+// export const getSuggestedGroups = async (req, res) => {
+//   const { userId } = req.params;
 
-  try {
-    const groups = await Group.find({
-      members: { $ne: userId },
-      admin: { $ne: userId }
-    })
-    .populate("admin", "username firstName lastName profile_image")
-    .populate("members", "username firstName lastName profile_image")
-    .sort({ createdAt: -1 })
-    .limit(10);
+//   try {
+//     const groups = await Group.find({
+//       members: { $ne: userId },
+//       admin: { $ne: userId },
+//     })
+//       .populate("admin", "username firstName lastName profile_image")
+//       .populate("members", "username firstName lastName profile_image")
+//       .sort({ createdAt: -1 })
+//       .limit(10);
 
-    // Add info about whether user has already sent a request
-    const groupsWithRequestStatus = groups.map(group => ({
-      ...group.toObject(),
-      requestSent: group.pendingRequests.includes(userId)
-    }));
-
-    res.status(200).json(groupsWithRequestStatus);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error fetching suggested groups",
-      error: error.message
-    });
-  }
-};
+//     res.status(200).json(groups);
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Error fetching suggested groups",
+//       error: error.message,
+//     });
+//   }
+// };
 
 //Join a group
 export const joinGroup = async (req, res) => {
@@ -168,8 +159,8 @@ export const joinGroup = async (req, res) => {
 
     //Check if user is already a member
     if (group.members.includes(userId)) {
-      return res.status(400).json({ 
-        message: "User is already a member of this group" 
+      return res.status(400).json({
+        message: "User is already a member of this group",
       });
     }
 
@@ -179,7 +170,7 @@ export const joinGroup = async (req, res) => {
 
     // Add group to user's groups array
     await User.findByIdAndUpdate(userId, {
-      $push: { groups: groupId }
+      $push: { groups: groupId },
     });
 
     //Return updated group with populated fields
@@ -189,12 +180,12 @@ export const joinGroup = async (req, res) => {
 
     res.status(200).json({
       message: "Successfully joined the group",
-      group: updatedGroup
+      group: updatedGroup,
     });
   } catch (error) {
     res.status(500).json({
       message: "Error joining group",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -212,26 +203,27 @@ export const leaveGroup = async (req, res) => {
 
     //Check if user is a member
     if (!group.members.includes(userId)) {
-      return res.status(400).json({ 
-        message: "User is not a member of this group" 
+      return res.status(400).json({
+        message: "User is not a member of this group",
       });
     }
 
     //Prevent admin from leaving if they're the only admin
     if (group.admin.toString() === userId && group.members.length > 1) {
       return res.status(400).json({
-        message: "Admin cannot leave group with other members. Transfer admin rights first."
+        message:
+          "Admin cannot leave group with other members. Transfer admin rights first.",
       });
     }
 
     //Remove user from group members
-    group.members = group.members.filter(id => id.toString() !== userId);
-    
+    group.members = group.members.filter((id) => id.toString() !== userId);
+
     //If admin leaves and no members left, delete the group
     if (group.admin.toString() === userId && group.members.length === 0) {
       await Group.findByIdAndDelete(groupId);
       await User.findByIdAndUpdate(userId, {
-        $pull: { groups: groupId }
+        $pull: { groups: groupId },
       });
       return res.status(200).json({ message: "Group deleted successfully" });
     }
@@ -240,14 +232,14 @@ export const leaveGroup = async (req, res) => {
 
     //Remove group from user's groups array
     await User.findByIdAndUpdate(userId, {
-      $pull: { groups: groupId }
+      $pull: { groups: groupId },
     });
 
     res.status(200).json({ message: "Successfully left the group" });
   } catch (error) {
     res.status(500).json({
       message: "Error leaving group",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -270,7 +262,7 @@ export const getGroupById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error fetching group",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -291,7 +283,7 @@ export const getGroupPosts = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error fetching group posts",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -303,13 +295,10 @@ export const getGroupsFeed = async (req, res) => {
   try {
     //Find all groups where user is a member or admin
     const userGroups = await Group.find({
-      $or: [
-        { members: userId },
-        { admin: userId }
-      ]
+      $or: [{ members: userId }, { admin: userId }],
     });
 
-    const groupIds = userGroups.map(group => group._id);
+    const groupIds = userGroups.map((group) => group._id);
 
     //Find all posts from these groups
     const posts = await Post.find({ group: { $in: groupIds } })
@@ -323,7 +312,7 @@ export const getGroupsFeed = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error fetching group feed",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -341,8 +330,8 @@ export const updateGroup = async (req, res) => {
 
     //Check if user is the admin
     if (group.admin.toString() !== userId) {
-      return res.status(403).json({ 
-        message: "Only group admin can update group details" 
+      return res.status(403).json({
+        message: "Only group admin can update group details",
       });
     }
 
@@ -358,12 +347,12 @@ export const updateGroup = async (req, res) => {
 
     res.status(200).json({
       message: "Group updated successfully",
-      group: updatedGroup
+      group: updatedGroup,
     });
   } catch (error) {
     res.status(500).json({
       message: "Error updating group",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -381,8 +370,8 @@ export const deleteGroup = async (req, res) => {
 
     //Check if user is the admin
     if (group.admin.toString() !== userId) {
-      return res.status(403).json({ 
-        message: "Only group admin can delete the group" 
+      return res.status(403).json({
+        message: "Only group admin can delete the group",
       });
     }
 
@@ -402,10 +391,37 @@ export const deleteGroup = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error deleting group",
-      error: error.message
+      error: error.message,
     });
   }
 };
+
+//Get 3 suggested group for user based on his friend's groups
+export const getSuggestedGroups = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const user = await User.findById(userId).populate("friends");
+
+    const friendsIds = user.friends.map((friend) => friend._id);
+
+    const groupsWithFriends = await Group.find({
+      members: { $in: friendsIds }, //at least one friend is in the group
+      _id: { $nin: user.groups }, //user is not in the group
+    }).limit(3);
+
+    if (groupsWithFriends.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "No suggested groups at the moment", groups: [] });
+    }
+
+    res.status(200).json({ groups: groupsWithFriends });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const acceptGroupRequest = async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;

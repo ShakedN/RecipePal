@@ -56,7 +56,7 @@ export default function FeedPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroupPopup, setShowJoinGroupPopup] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  
+
   const [newPost, setNewPost] = useState({
     title: "",
     content: "",
@@ -70,6 +70,7 @@ export default function FeedPage() {
     mediaType: "image",
     canvasData: null,
     group: null,
+    isGroupPost: null,
   });
 
   const userId = localStorage.getItem("userId");
@@ -88,29 +89,36 @@ export default function FeedPage() {
 
   const fetchUserGroups = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/user/${userId}`);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/user/${userId}`
+      );
       setGroups(response.data);
     } catch (error) {
-      console.error('Error fetching user groups:', error);
+      console.error("Error fetching user groups:", error);
     }
   };
 
   const fetchSuggestedGroups = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/suggested/${userId}`);
-      setSuggestedGroups(response.data);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/suggested/${userId}`
+      );
+       setSuggestedGroups(response.data.groups || []);
     } catch (error) {
-      console.error('Error fetching suggested groups:', error);
+      console.error("Error fetching suggested groups:", error);
+      setSuggestedGroups([]);  
     }
   };
 
   const handleJoinGroup = async (groupId) => {
     try {
-      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, { userId });
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
+        userId,
+      });
       fetchUserGroups();
       fetchSuggestedGroups();
     } catch (error) {
-      console.error('Error joining group:', error);
+      console.error("Error joining group:", error);
     }
   };
 
@@ -238,7 +246,7 @@ const handleJoinGroupRequest = async () => {
 
   const handleNewPostChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (type === "checkbox") {
       setNewPost((prev) => ({
         ...prev,
@@ -248,8 +256,12 @@ const handleJoinGroupRequest = async () => {
       }));
     } else {
       setNewPost((prev) => ({ ...prev, [name]: value }));
-      
-      if (name === "content" && value !== recipeExContent && showTemplateRecipe) {
+
+      if (
+        name === "content" &&
+        value !== recipeExContent &&
+        showTemplateRecipe
+      ) {
         setShowTemplateRecipe(false);
       }
     }
@@ -348,6 +360,7 @@ const handleJoinGroupRequest = async () => {
         video: videoUrl,
         group: newPost.group,
         canvasData: newPost.canvasData,
+        isGroupPost: false,
       };
 
       if (newPost.kindOfPost === "recipe") {
@@ -359,10 +372,18 @@ const handleJoinGroupRequest = async () => {
       await fetchPosts();
 
       setNewPost({
-        title: "", content: "", image: "", video: "", kindOfPost: "", typeRecipe: "",
-        dietaryPreferences: [], imageFile: null, videoFile: null, mediaType: "image", 
-        canvasData: null, group: null,
-
+        title: "",
+        content: "",
+        image: "",
+        video: "",
+        kindOfPost: "",
+        typeRecipe: "",
+        dietaryPreferences: [],
+        imageFile: null,
+        videoFile: null,
+        mediaType: "image",
+        canvasData: null,
+        isGroupPost: null,
       });
       setIsEdited(false);
       setShowMediaActions(false);
@@ -418,25 +439,29 @@ const handleJoinGroupRequest = async () => {
   const handleSaveEdit = async (editData) => {
     try {
       let finalUrl = "";
-      
+
       if (editingMedia.type === "video") {
         if (editData.blob) {
           const formData = new FormData();
-          formData.append("file", editData.blob, 'trimmed-video.webm');
+          formData.append("file", editData.blob, "trimmed-video.webm");
           formData.append("upload_preset", "ml_default");
-          
-          const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/video/upload", {
-            method: "POST",
-            body: formData,
-          });
-          
+
+          const res = await fetch(
+            "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
           const data = await res.json();
-          if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+          if (!data.secure_url)
+            throw new Error(data.error?.message || "Upload failed");
           finalUrl = data.secure_url;
         } else {
           throw new Error("No trimmed video blob created");
         }
-        
+
         setNewPost((prev) => ({
           ...prev,
           canvasData: {
@@ -446,45 +471,47 @@ const handleJoinGroupRequest = async () => {
               trimStart: editData.trimStart,
               trimEnd: editData.trimEnd,
               originalDuration: editData.originalDuration || 0,
-              trimmedDuration: editData.duration
+              trimmedDuration: editData.duration,
             },
-            editType: 'video-trim'
+            editType: "video-trim",
           },
         }));
-        
       } else if (editingMedia.type === "image") {
         if (editData.blob) {
           const formData = new FormData();
           formData.append("file", editData.blob);
           formData.append("upload_preset", "ml_default");
-          
-          const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/image/upload", {
-            method: "POST",
-            body: formData,
-          });
-          
+
+          const res = await fetch(
+            "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
           const data = await res.json();
-          if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+          if (!data.secure_url)
+            throw new Error(data.error?.message || "Upload failed");
           finalUrl = data.secure_url;
         }
-        
+
         setNewPost((prev) => ({
           ...prev,
           canvasData: {
             originalUrl: editingMedia.url,
             editedUrl: finalUrl,
             filters: editData.filters || {},
-            editType: 'image'
+            editType: "image",
           },
         }));
       }
-      
+
       setIsEdited(true);
       setShowPhotoEditor(false);
       setShowVideoEditor(false);
       setEditingMedia(null);
       setShowMediaActions(false);
-      
     } catch (error) {
       console.error("Failed to save edit:", error);
       alert("Failed to save edited media: " + error.message);
@@ -514,30 +541,39 @@ const handleJoinGroupRequest = async () => {
       setShowTemplateRecipe(true);
     }
   };
-  
-return (
-  <div className="feed-page-container">
-    {/* Groups Sidebar */}
-    <div className="groups-sidebar">
-      <div className="sidebar-section">
-        <div className="sidebar-title">
-          <Users size={20} />
-          My Groups
-        </div>
-        {groups.map(group => (
-          <div 
-            key={group._id} 
-            className="group-item"
-            onClick={() => handleGroupSelect(group)}
-          >
-            <div className="group-avatar">
-              {group.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="group-info">
-              <div className="group-name">{group.name}</div>
-              <div className="group-members">{group.members?.length || 0} members</div>
-            </div>
+
+  return (
+    <div className="feed-page-container">
+      {/* Groups Sidebar */}
+      <div className="groups-sidebar">
+        <div className="sidebar-section">
+          <div className="sidebar-title">
+            <Users size={20} />
+            My Groups
           </div>
+          {groups.map((group) => (
+            <div
+              key={group._id}
+              className="group-item"
+              onClick={() => handleGroupSelect(group)}
+            >
+              <div className="group-avatar">
+                {group.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="group-info">
+                <div className="group-name">{group.name}</div>
+                <div className="group-members">
+                  {group.members?.length || 0} members
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+       
+          <div className="group-item" onClick={() => navigate("/groups")}>
+            <div className="group-avatar">
+              <Users size={16} />
         ))}
       </div>
 
@@ -553,6 +589,7 @@ return (
           >
             <div className="group-avatar trending">
               {group.name.charAt(0).toUpperCase()}
+
             </div>
             <div className="group-info">
               <div className="group-name">{group.name}</div>
@@ -561,6 +598,8 @@ return (
           </div>
         ))}
       </div>
+
+
 
       <div className="sidebar-section">
         <div className="sidebar-title">
@@ -582,10 +621,12 @@ return (
           <div className="group-info">
             <div className="group-name">Browse All Groups</div>
             <div className="group-members">Discover new communities</div>
+
           </div>
         </div>
       </div>
     </div>
+
 
     {/* Main Feed Content */}
     <div className="feed-content">
@@ -769,7 +810,6 @@ return (
               </div>
             </div>
           </div>
-
           <div className="form-actions-footer">
             <button type="submit" className="post-submit-btn">
               <span>Share Post</span>
