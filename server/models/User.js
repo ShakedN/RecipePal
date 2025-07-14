@@ -91,7 +91,7 @@ const userSchema = new mongoose.Schema(
           default: Date.now,
         },
       },
-    ], // Add this missing closing bracket and comma
+    ], 
     groups: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -1,4 +1,17 @@
-.navbar {
+
+body.feed-page-background {
+  background-image: url('/public/images/BACKGROUND-Feed.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  background-color: #f0f0f0; /* Fallback color if the image doesn't load */
+  margin: 0;
+  padding: 0;
+}
+
+.navbar { 
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -151,7 +164,7 @@
 }
 
 .post-actions button:hover {
-  background: #f0f2f5;
+  background-color: #f0f2f5;
   color: #1877f2;
 }
 
@@ -694,52 +707,64 @@ MODERN NEW POST FORM STYLES
 }
 
 /* Modal Styles */
-.modal-overlay {
+modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(31, 41, 55, 0.5); /* Darker, more modern overlay */
+  backdrop-filter: blur(8px); /* Frosted glass effect */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modal-content {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  width: 90%;
-  max-width: 500px;
+  background: #ffffff !important; /* Force white background */
+  border-radius: 24px; /* Softer corners */
+  padding: 32px; /* More spacing */
+  width: 100%;
+  max-width: 480px; /* Slightly adjusted width */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); /* Stronger shadow */
+  border: none; /* Remove any border */
   max-height: 90vh;
   overflow-y: auto;
+  position: relative; /* Ensure proper stacking */
 }
 
 .modal-content h2 {
-  margin-bottom: 20px;
-  color: #333;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937 !important; /* Force dark text */
+  margin-bottom: 24px;
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #333;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #4b5563 !important; /* Force dark gray text */
+  font-size: 14px;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 14px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 16px;
+  background: #f9fafb !important; /* Force light gray background */
+  transition: all 0.2s ease;
+  color: #1f2937 !important; /* Force dark text */
   box-sizing: border-box;
 }
 
@@ -747,42 +772,51 @@ MODERN NEW POST FORM STYLES
 .form-group textarea:focus {
   outline: none;
   border-color: #ff7a00;
-  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+  background: #ffffff !important; /* Force white on focus */
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.15);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #9ca3af !important; /* Force gray placeholder text */
 }
 
 .modal-actions {
-  display: flex;
+  display: grid; /* Use grid for equal width buttons */
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
-  justify-content: flex-end;
-  margin-top: 20px;
+  justify-content: center; /* Center the buttons */
+  margin-top: 24px;
 }
 
 .modal-actions button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
+  border: none;
 }
 
 .cancel-btn {
-  background: #f1f3f4;
-  color: #666;
+  background: #e5e7eb !important; /* Force light gray */
+  color: #4b5563 !important; /* Force dark gray text */
 }
 
 .cancel-btn:hover {
-  background: #e8eaed;
+  background: #d1d5db !important; /* Force darker gray on hover */
 }
 
 .create-btn {
-  background: linear-gradient(135deg, #ff7a00, #ff9933);
-  color: white;
+  background: linear-gradient(135deg, #ff7a00, #ff9933) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);
 }
 
 .create-btn:hover {
-  background: linear-gradient(135deg, #e96b00, #e68900);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 122, 0, 0.35);
 }
 
 .create-btn:disabled,
@@ -790,6 +824,7 @@ MODERN NEW POST FORM STYLES
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 /* Responsive Design */
