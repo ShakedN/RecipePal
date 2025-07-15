@@ -5,27 +5,28 @@ import "./PostCard.css";
 export default function PostCard({
   post,
   onEditPost,
+  isGroupAdmin,
   onDeletePost,
   onLike,
   onComment,
   onDeleteComment,
-  onEditComment
+  onEditComment,
 }) {
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState("");
   const userId = localStorage.getItem("userId");
-  const isLiked = post.likes?.some(like => like && like._id === userId);
+  const isLiked = post.likes?.some((like) => like && like._id === userId);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editContent, setEditContent] = useState("");
   const [isEditingPost, setIsEditingPost] = useState(false);
   const [editPostContent, setEditPostContent] = useState("");
- 
-  const toggleCommentInput = () => {                    
-    setShowCommentInput(prev => !prev);
+
+  const toggleCommentInput = () => {
+    setShowCommentInput((prev) => !prev);
     setCommentText("");
   };
 
-  const handleCommentSubmit = () => {                  
+  const handleCommentSubmit = () => {
     if (commentText.trim()) {
       onComment(post._id, commentText.trim());
       setCommentText("");
@@ -81,7 +82,9 @@ export default function PostCard({
           className="avatar"
         />
         <div className="header-text">
-          <span className="username">{post.user?.username || "Unknown User"}</span>
+          <span className="username">
+            {post.user?.username || "Unknown User"}
+          </span>
           <span className="timestamp">
             {new Date(post.createdAt).toLocaleString()}
           </span>
@@ -95,32 +98,35 @@ export default function PostCard({
             </>
           )}
         </div>
-        
-        {/* Edit and Delete buttons - only show for post owner */}
+
+        {/*Edit and Delete buttons*/}
+        {/*Edit button only for post owner*/}
         {post.user?._id === userId && (
-          <div className="post-menu">
-            <button
-              className="edit-post-btn"
-              onClick={handleEditPostClick}
-              title="Edit Post"
-            >
-              <Edit size={18} />
-            </button>
-            <button
-              className="delete-post-btn"
-              onClick={handleDeleteClick}
-              title="Delete Post"
-            >
-              <Trash2 size={18} />
-            </button>
-          </div>
+          <button
+            className="edit-post-btn"
+            onClick={handleEditPostClick}
+            title="Edit Post"
+          >
+            <Edit size={18} />
+          </button>
+        )}
+
+        {/*Delete button for post owner or group admin*/}
+        {(post.user?._id === userId || isGroupAdmin) && (
+          <button
+            className="delete-post-btn"
+            onClick={handleDeleteClick}
+            title="Delete Post"
+          >
+            <Trash2 size={18} />
+          </button>
         )}
       </div>
 
-      {/* Remove duplicate title - keep only one */}
+      {/*Remove duplicate title - keep only one*/}
       <h3 className="post-title">{post.title}</h3>
 
-      {/* Conditional rendering for post content - either edit mode or display mode */}
+      {/*Conditional rendering for post content - either edit mode or display mode*/}
       {isEditingPost ? (
         <div className="edit-post-form">
           <textarea
@@ -141,24 +147,19 @@ export default function PostCard({
       ) : (
         <p className="post-content">{post.content}</p>
       )}
-      {/* Remove this duplicate line: <p className="post-content">{post.content}</p> */}
+      {/*Remove this duplicate line: <p className="post-content">{post.content}</p>*/}
 
-          {post.image && (
-        <img src={post.image} alt="Post" className="post-image" />
-      )}
+      {post.image && <img src={post.image} alt="Post" className="post-image" />}
 
-      {post.video && (
-        <video src={post.video} className="post-video" controls />
-      )}
+      {post.video && <video src={post.video} className="post-video" controls />}
 
       <div className="post-actions">
-        
         <button
-          className={`action-btn ${isLiked ? 'liked' : ''}`}
+          className={`action-btn ${isLiked ? "liked" : ""}`}
           onClick={() => onLike(post._id)}
           aria-label="Like"
         >
-          <Heart 
+          <Heart
             size={18}
             className="icon"
             fill={isLiked ? "#ff4757" : "currentColor"}
@@ -177,33 +178,35 @@ export default function PostCard({
         </button>
       </div>
 
-      {/* Comments Section */}
-      {/*  Inline composer */}
-        {showCommentInput && (
-          <div className="add-comment-section">
-            <textarea
-              className="comment-textarea"
-              placeholder="Write a comment…"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-            />
-            <button
-              className="comment-submit-btn"
-              onClick={handleCommentSubmit}
-              disabled={!commentText.trim()}
-            >
-              Post
-            </button>
-          </div>
-        )}
+      {/*Comments Section */}
+      {/* Inline composer */}
+      {showCommentInput && (
+        <div className="add-comment-section">
+          <textarea
+            className="comment-textarea"
+            placeholder="Write a comment…"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
+          <button
+            className="comment-submit-btn"
+            onClick={handleCommentSubmit}
+            disabled={!commentText.trim()}
+          >
+            Post
+          </button>
+        </div>
+      )}
       {post.comments?.length > 0 && (
         <div className="comments-section">
           <h4>Comments:</h4>
-          {post.comments.map(comment => (
+          {post.comments.map((comment) => (
             <div key={comment._id} className="comment">
               <div className="comment-header">
                 <img
-                  src={comment.user?.profile_image || "/images/default-profile.png"}
+                  src={
+                    comment.user?.profile_image || "/images/default-profile.png"
+                  }
                   alt="User"
                   className="comment-avatar"
                 />
@@ -261,14 +264,14 @@ export default function PostCard({
         </div>
       )}
 
-      {/* Likes Section */}
+      {/*Likes Section */}
       {post.likes?.length > 0 && (
         <div className="likes-info">
-          Liked by: {post.likes
-            .filter(like => like && like.username)
-            .map(like => like.username)
-            .join(", ")
-          }
+          Liked by:{" "}
+          {post.likes
+            .filter((like) => like && like.username)
+            .map((like) => like.username)
+            .join(", ")}
         </div>
       )}
     </div>

@@ -1,100 +1,55 @@
-import express from 'express';
-import Group from '../models/Group.js';
-import Post from '../models/Post.js';
-import User from '../models/User.js';
+import express from "express";
+import mongoose from "mongoose";
+import Post from "../models/Post.js";
 
 const router = express.Router();
 
-// Get user's groups
-router.get('/user/:userId', async (req, res) => {
-  try {
-    const groups = await Group.find({
-      $or: [
-        { members: req.params.userId },
-        { admin: req.params.userId }
-      ]
-    }).populate('members admin', 'username profile_image');
-    res.json(groups);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching groups' });
-  }
+//Posts per day route- Returns the number of posts created per day for the past 10 days by the user
+router.get("/posts-per-day/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - 10); //10 days back
+
+  const result = await Post.aggregate([
+    {
+      $match: {
+        user: new mongoose.Types.ObjectId(userId),
+        createdAt: { $gte: startDate },
+      },
+    },
+    {
+      //Group by day, month, and year
+      $group: {
+        _id: {
+          day: { $dayOfMonth: "$createdAt" },
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+        count: { $sum: 1 }, //Count posts per day
+      },
+    },
+  ]);
+
+  res.json(result);
 });
 
-// Get suggested groups
-router.get('/suggested/:userId', async (req, res) => {
-  try {
-    const groups = await Group.find({
-      members: { $ne: req.params.userId },
-      admin: { $ne: req.params.userId }
-    }).populate('members admin', 'username profile_image').limit(10);
-    res.json(groups);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching suggested groups' });
-  }
-});
+//Top liked posts route- Returns the top 5 posts (by number of likes) of the user
+router.get("/top-liked-posts/:userId", async (req, res) => {
+  const userId = req.params.userId;
 
-// Create group
-router.post('/', async (req, res) => {
-  try {
-    const group = new Group({
-      ...req.body,
-      members: [req.body.admin]
-    });
-    await group.save();
-    res.status(201).json(group);
-  } catch (error) {
-    res.status(500).json({ message: 'Error creating group' });
-  }
-});
+  //Find all posts by the user
+  const posts = await Post.find({ user: userId }).lean();
 
-// Join group
-router.post('/:groupId/join', async (req, res) => {
-  try {
-    const group = await Group.findById(req.params.groupId);
-    if (!group.members.includes(req.body.userId)) {
-      group.members.push(req.body.userId);
-      await group.save();
-    }
-    res.json(group);
-  } catch (error) {
-    res.status(500).json({ message: 'Error joining group' });
-  }
-});
+  //Map posts to title and like Count then sort by likeCount in descending order and take top 5
+  const sorted = posts
+    .map((post) => ({
+      title: post.title,
+      likeCount: post.likes.length,
+    }))
+    .sort((a, b) => b.likeCount - a.likeCount)
+    .slice(0, 5);
 
-// Get group posts
-router.get('/:groupId/posts', async (req, res) => {
-  try {
-    const posts = await Post.find({ group: req.params.groupId })
-      .populate('user', 'username profile_image')
-      .populate('group', 'name')
-      .sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching group posts' });
-  }
-});
-
-// Get feed for user's groups
-router.get('/feed/:userId', async (req, res) => {
-  try {
-    const userGroups = await Group.find({
-      $or: [
-        { members: req.params.userId },
-        { admin: req.params.userId }
-      ]
-    });
-    
-    const groupIds = userGroups.map(g => g._id);
-    
-    const posts = await Post.find({ group: { $in: groupIds } })
-      .populate('user', 'username profile_image')
-      .populate('group', 'name')
-      .sort({ createdAt: -1 });
-    
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching group feed' });
-  }
+  res.json(sorted);
 });
 
 export default router;

@@ -1,12 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  UserPlus,
-  Activity,
-  Heart,
-  MessageCircle,
-  Share,
-  Bookmark,
-} from "lucide-react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { UserPlus, Activity } from "lucide-react";
 import axios from "axios";
 import "./GroupsPage.css";
 import { useParams } from "react-router-dom";
@@ -21,7 +14,8 @@ export default function GroupsPage() {
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
   const { groupId } = useParams();
   const userId = localStorage.getItem("userId");
-  const userName = localStorage.getItem("username");  const [currentUser, setCurrentUser] = useState(null);
+  const userName = localStorage.getItem("username");
+  const [currentUser, setCurrentUser] = useState(null);
 
   const fetchSuggestedGroups = useCallback(async () => {
     try {
@@ -42,17 +36,20 @@ export default function GroupsPage() {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-
         const token = localStorage.getItem("token");
-        
-        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-        
-        const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`, config);
-     
+
+        const config = token
+          ? { headers: { Authorization: `Bearer ${token}` } }
+          : {};
+
+        const response = await axios.get(
+          `http://localhost:5000/api/auth/profile/${userId}`,
+          config
+        );
+
         setCurrentUser(response.data);
       } catch (error) {
         console.error("Error fetching current user:", error);
-      
       }
     };
 
@@ -60,6 +57,7 @@ export default function GroupsPage() {
       fetchCurrentUser();
     }
   }, [userId]);
+
   //Fetch group details and its posts when groupId changes
   useEffect(() => {
     if (!groupId) return;
@@ -84,6 +82,16 @@ export default function GroupsPage() {
     fetchSuggestedGroups();
   }, [groupId, fetchSuggestedGroups]);
 
+  const isGroupAdmin = useMemo(() => {
+    if (!group || !currentUser) return false;
+    return String(group.admin._id) === String(currentUser._id);
+  }, [group, currentUser]); //Check if the user is the admin of the group, useMemo to ensure it happend only when both group and currentUser loaded
+  console.log("currentUser:", currentUser);
+  console.log("group:", group);
+  console.log(
+    "group.admin === currentUser._id:",
+    group?.admin === currentUser?._id
+  );
 
   const fetchGroupPosts = async (groupId) => {
     if (!groupId) {
@@ -113,12 +121,12 @@ export default function GroupsPage() {
     }
   };
 
-  const filteredPosts = groupPosts.filter((post) => {
-    if (activeFilter === "all") return true;
-    if (activeFilter === "myGroups")
-      return groups.some((g) => g._id === post.group?._id);
-    return true;
-  });
+  // const filteredPosts = groupPosts.filter((post) => {
+  //   if (activeFilter === "all") return true;
+  //   if (activeFilter === "myGroups")
+  //     return suggestedGroups.some((g) => g._id === post.group?._id);
+  //   return true;
+  // });
 
   //Posts functions
 
@@ -301,9 +309,7 @@ export default function GroupsPage() {
             Group Activity
           </div>
           <div className="activity-item">
-            <div className="group-avatar activity">
-              G
-            </div>
+            <div className="group-avatar activity">G</div>
             <div className="activity-info">
               <div className="activity-text">New recipe posted</div>
               <div className="activity-group">in this group</div>
@@ -317,7 +323,12 @@ export default function GroupsPage() {
         {/*Group data*/}
         {group ? (
           <div className="group-data">
-            <h2>{group.name}</h2>
+            <div className="title">
+              <div className="group-avatar">
+                {group.name.charAt(0).toUpperCase()}
+              </div>
+              <h2>{group.name}</h2>
+            </div>
             <p>{group.description}</p>
           </div>
         ) : (
@@ -334,7 +345,6 @@ export default function GroupsPage() {
             isGroupPost={true}
             groupId={groupId}
             userProfileImage={currentUser?.profile_image}
-
             onPostCreated={() => fetchGroupPosts(groupId)}
           />
         </div>
@@ -343,17 +353,18 @@ export default function GroupsPage() {
         <div className="groups-feed">
           {loading ? (
             <div className="loading">Loading posts...</div>
-          ) : filteredPosts.length === 0 ? (
+          ) : groupPosts.length === 0 ? (
             <div className="no-posts">
               <p>
                 No posts in groups yet. Join a group or create your first post!
               </p>
             </div>
           ) : (
-            filteredPosts.map((post) => (
+            groupPosts.map((post) => (
               <PostCard
                 key={post._id}
                 post={post}
+                isGroupAdmin={isGroupAdmin}
                 onEditPost={handleEditPost}
                 onDeletePost={handleDeletePost}
                 onLike={handleLike}

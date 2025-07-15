@@ -59,7 +59,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ff7a00 30%, #ff9933 70%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,6 +125,12 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .filter-tabs {

@@ -247,13 +247,26 @@ export const deleteComment = async (req, res) => {
       return res.status(404).json({ message: "Comment not found" });
     }
 
-    // Check if the user is the owner of the comment or the post
-    if (comment.user.toString() !== userId && post.user.toString() !== userId) {
+    //check if the user is the owner of the post or the owner of the comment
+    const isCommentOwner = comment.user.toString() === userId;
+    const isPostOwner = post.user.toString() === userId;
+
+    //Remove the post from the group's posts array
+    let isGroupAdmin = false;
+    if (post.isGroupPost && post.group) {
+      const group = await Group.findById(post.group);
+      if (group && group.admin.toString() === userId) {
+        isGroupAdmin = true;
+      }
+    }
+
+    if (!isCommentOwner && !isPostOwner && !isGroupAdmin) {
       return res
         .status(403)
         .json({ message: "Not authorized to delete this comment" });
     }
 
+    //save and delete
     post.comments.pull(commentId);
     await post.save();
 
@@ -286,7 +299,7 @@ export const editComment = async (req, res) => {
       return res.status(404).json({ message: "Comment not found" });
     }
 
-    // Check if the user is the owner of the comment
+    //Check if the user is the owner of the comment
     if (comment.user.toString() !== userId) {
       return res
         .status(403)
@@ -321,8 +334,16 @@ export const deletePost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    //Check if the user is the owner of the post
-    if (post.user.toString() !== userId) {
+    const isOwner = post.user.toString() === userId; //check if the user is the owner of the post
+
+    let isGroupAdmin = false;
+
+    if (post.isGroupPost && post.group) {
+      const group = await Group.findById(post.group);
+      isGroupAdmin = group && group.admin.toString() === userId; //check if the user is the admin pf the group
+    }
+
+    if (!isOwner && !isGroupAdmin) {
       return res
         .status(403)
         .json({ message: "Not authorized to delete this post" });
@@ -331,7 +352,12 @@ export const deletePost = async (req, res) => {
     await Post.findByIdAndDelete(postId);
 
     //Remove the post from the user's posts array
-    await User.findByIdAndUpdate(userId, { $pull: { posts: postId } });
+    await User.findByIdAndUpdate(post.user, { $pull: { posts: postId } });
+
+    //Remove the post from the group's posts array
+    if (post.isGroupPost && post.group) {
+      await Group.findByIdAndUpdate(post.group, { $pull: { posts: postId } });
+    }
 
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
