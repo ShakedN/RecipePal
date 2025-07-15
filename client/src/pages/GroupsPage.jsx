@@ -11,6 +11,7 @@ import axios from "axios";
 import "./GroupsPage.css";
 import { useParams } from "react-router-dom";
 import NewPostForm from "../components/NewPostForm";
+import PostCard from "../components/PostCard";
 
 export default function GroupsPage() {
   const [suggestedGroups, setSuggestedGroups] = useState([]);
@@ -79,8 +80,10 @@ export default function GroupsPage() {
     };
 
     fetchGroupData();
+
     fetchSuggestedGroups();
   }, [groupId, fetchSuggestedGroups]);
+
 
   const fetchGroupPosts = async (groupId) => {
     if (!groupId) {
@@ -110,7 +113,151 @@ export default function GroupsPage() {
     }
   };
 
-  const filteredPosts = groupPosts;
+  const filteredPosts = groupPosts.filter((post) => {
+    if (activeFilter === "all") return true;
+    if (activeFilter === "myGroups")
+      return groups.some((g) => g._id === post.group?._id);
+    return true;
+  });
+
+  //Posts functions
+
+  const handleDeletePost = async (postId) => {
+    const userId = localStorage.getItem("userId");
+    try {
+      await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
+        data: { userId },
+      });
+      setGroupPosts((prevPosts) =>
+        prevPosts.filter((post) => post._id !== postId)
+      );
+    } catch (err) {
+      alert(
+        "Failed to delete post: " + (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  const handleEditPost = async (postId, newContent) => {
+    const userId = localStorage.getItem("userId");
+    try {
+      const res = await axios.put(`http://localhost:5000/api/posts/${postId}`, {
+        userId,
+        content: newContent,
+        title:
+          groupPosts.find((post) => post._id === postId)?.title ||
+          "Updated Post",
+      });
+      setGroupPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
+    } catch (err) {
+      alert(
+        "Failed to edit post: " + (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  const handleLike = async (postId) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("You must be logged in to like posts.");
+      return;
+    }
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${postId}/like`,
+        { userId }
+      );
+      setGroupPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
+    } catch (err) {
+      console.error("Failed to like post:", err);
+      alert(
+        "Failed to like post: " + (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  const handleAddComment = async (postId, content) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("You must be logged in to comment.");
+      return;
+    }
+    try {
+      const res = await axios.post(
+        `http://localhost:5000/api/posts/${postId}/comment`,
+        { userId, content }
+      );
+      setGroupPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
+    } catch (err) {
+      console.error("Failed to add comment:", err);
+      alert(
+        "Failed to add comment: " + (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    const userId = localStorage.getItem("userId");
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/posts/${postId}/comment/${commentId}`,
+        { data: { userId } }
+      );
+      setGroupPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
+    } catch (err) {
+      alert(
+        "Failed to delete comment: " +
+          (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  const handleComment = (postId, content) => {
+    if (content) {
+      handleAddComment(postId, content);
+    }
+  };
+
+  const handleEditComment = async (postId, commentId, newContent) => {
+    const userId = localStorage.getItem("userId");
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/posts/${postId}/comment/${commentId}`,
+        {
+          userId,
+          content: newContent,
+        }
+      );
+      setGroupPosts((prevPosts) =>
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
+      );
+    } catch (err) {
+      alert(
+        "Failed to edit comment: " +
+          (err.response?.data?.message || err.message)
+      );
+    }
+  };
+
+  // const handleGroupSelect = (group) => {
+  //   // If the same group is already selected, deselect it
+  //   if (selectedGroup && selectedGroup._id === group._id) {
+  //     setSelectedGroup(null);
+  //     fetchGroupPosts(); // Fetch all posts again (without specific group filter)
+  //   } else {
+  //     // Select the new group
+  //     setSelectedGroup(group);
+  //     fetchGroupPosts(group._id);
+  //   }
+  // };
 
   return (
     <div className="groups-page">
@@ -185,7 +332,9 @@ export default function GroupsPage() {
             userId={userId}
             username={userName}
             isGroupPost={true}
+            groupId={groupId}
             userProfileImage={currentUser?.profile_image}
+
             onPostCreated={() => fetchGroupPosts(groupId)}
           />
         </div>
@@ -202,64 +351,16 @@ export default function GroupsPage() {
             </div>
           ) : (
             filteredPosts.map((post) => (
-              <div key={post._id} className="group-post">
-                <div className="post-header">
-                  <img
-                    src={
-                      post.user?.profile_image || "/images/default-profile.png"
-                    }
-                    alt="User"
-                    className="post-avatar"
-                  />
-                  <div className="post-user-info">
-                    <div className="post-username">
-                      {post.user?.username || "Unknown User"}
-                    </div>
-                    <div className="post-time">
-                      {new Date(post.createdAt).toLocaleString()}
-                    </div>
-                  </div>
-                  {post.group && (
-                    <div className="group-tag">{post.group.name}</div>
-                  )}
-                </div>
-
-                <div className="post-content">
-                  <h3 className="post-title">{post.title}</h3>
-                  <p className="post-description">{post.content}</p>
-                </div>
-
-                {post.image && (
-                  <div className="post-media">
-                    <img src={post.image} alt="Post" className="post-image" />
-                  </div>
-                )}
-
-                {post.video && (
-                  <div className="post-media">
-                    <video src={post.video} className="post-video" controls />
-                  </div>
-                )}
-
-                <div className="post-actions">
-                  <button className="post-action">
-                    <Heart size={18} />
-                    <span>{post.likes?.length || 0} likes</span>
-                  </button>
-                  <button className="post-action">
-                    <MessageCircle size={18} />
-                    <span>{post.comments?.length || 0} comments</span>
-                  </button>
-                  <button className="post-action">
-                    <Bookmark size={18} />
-                    Save
-                  </button>
-                  <button className="post-action">
-                    <Share size={18} />
-                    Share
-                  </button>
-                </div>
-              </div>
+              <PostCard
+                key={post._id}
+                post={post}
+                onEditPost={handleEditPost}
+                onDeletePost={handleDeletePost}
+                onLike={handleLike}
+                onComment={handleComment}
+                onDeleteComment={handleDeleteComment}
+                onEditComment={handleEditComment}
+              />
             ))
           )}
         </div>
