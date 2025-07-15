@@ -25,11 +25,36 @@ export default function GroupsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [group, setGroup] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
-
   const { groupId } = useParams(); //Get group ID from URL
   const userId = localStorage.getItem("userId"); //Get user ID from local storage
   const userName = localStorage.getItem("username");
+  const [currentUser, setCurrentUser] = useState(null); 
+   // Fetch current user data including profile image
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        console.log("Fetching user profile for userId:", userId);
+        console.log("Full URL:", `http://localhost:5000/api/auth/profile/${userId}`);
+        
+        const token = localStorage.getItem("token");
+        console.log("Token exists:", !!token);
+        
+        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+        
+        const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`, config);
+        console.log("User profile response:", response.data);
+        console.log("Profile image URL:", response.data.profile_image);
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      
+      }
+    };
 
+    if (userId) {
+      fetchCurrentUser();
+    }
+  }, [userId]);
   //Fetch group details and its posts when groupId changes
   useEffect(() => {
     if (!groupId) return;
@@ -50,6 +75,7 @@ export default function GroupsPage() {
     };
 
     fetchGroupData();
+    fetchSuggestedGroups(); // Call suggested groups fetch
   }, [groupId]);
 
   //Not using it --> DELETE?
@@ -67,6 +93,7 @@ export default function GroupsPage() {
   //Fetch 3 suggested groups for user
   const fetchSuggestedGroups = async () => {
     try {
+      setLoadingSuggestions(true);
       const response = await axios.get(
         `http://localhost:5000/api/groups/suggested/${userId}`
       );
@@ -74,6 +101,8 @@ export default function GroupsPage() {
     } catch (error) {
       console.error("Error fetching suggested groups:", error);
       setSuggestedGroups([]); // הגנה במקרה של כישלון
+    } finally {
+      setLoadingSuggestions(false);
     }
   };
 
@@ -201,6 +230,7 @@ export default function GroupsPage() {
             userId={userId}
             username={userName}
             isGroupPost={true}
+            userProfileImage={currentUser?.profile_image}
             onPostCreated={() => fetchGroupPosts(groupId)}
           />
         </div>

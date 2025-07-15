@@ -4,7 +4,6 @@ import User from '../models/User.js';
 import Group from '../models/Group.js';
 const router = express.Router();
 
-// Advanced search endpoint
 router.post('/advanced', async (req, res) => {
   try {
     const { type, query, filters } = req.body;
@@ -15,6 +14,9 @@ router.post('/advanced', async (req, res) => {
     } else if (type === 'users') {
       const results = await searchUsers(query, filters);
       res.json({ success: true, results, type: 'users' });
+    } else if (type === 'groups') {
+      const results = await searchGroups(query, filters);
+      res.json({ success: true, results, type: 'groups' });
     } else {
       res.status(400).json({ success: false, message: 'Invalid search type' });
     }
@@ -22,8 +24,41 @@ router.post('/advanced', async (req, res) => {
     console.error('Search error:', error);
     res.status(500).json({ success: false, message: 'Search failed' });
   }
-});
 
+});
+// Search groups function
+async function searchGroups(query, filters) {
+  const searchConditions = {};
+  
+  // Text search in name and description
+  if (query) {
+    searchConditions.$or = [
+      { name: { $regex: query, $options: 'i' } },
+      { description: { $regex: query, $options: 'i' } }
+    ];
+  }
+  
+  // Apply filters
+  if (filters.name) {
+    searchConditions.name = { $regex: filters.name, $options: 'i' };
+  }
+  
+  if (filters.description) {
+    searchConditions.description = { $regex: filters.description, $options: 'i' };
+  }
+  
+  const groups = await Group.find(searchConditions)
+    .populate('admin', 'username firstName lastName profile_image')
+    .populate('members', 'username firstName lastName profile_image')
+    .select('name description admin members createdAt')
+    .sort({ createdAt: -1 })
+    .limit(50);
+  
+  return groups.map(group => ({
+    ...group.toObject(),
+    type: 'group'
+  }));
+}
 // Search posts function
 async function searchPosts(query, filters) {
   const searchConditions = {};

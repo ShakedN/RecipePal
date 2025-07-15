@@ -56,6 +56,7 @@ export default function FeedPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroupPopup, setShowJoinGroupPopup] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [newPost, setNewPost] = useState({
     title: "",
@@ -74,6 +75,22 @@ export default function FeedPage() {
   });
 
   const userId = localStorage.getItem("userId");
+
+  // Fetch current user data including profile image
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    if (userId) {
+      fetchCurrentUser();
+    }
+  }, [userId]);
 
   useEffect(() => {
     document.body.classList.add('feed-page-background');
@@ -625,7 +642,14 @@ return(
       {/* MODERN NEW POST FORM */}
       <div className="new-post-container-modern">
         <div className="new-post-header">
-          <img src="/images/default-profile.png" alt="Your Profile" className="new-post-avatar" />
+          <img 
+            src={currentUser?.profile_image || "/images/default-profile.png"} 
+            alt="Your Profile" 
+            className="new-post-avatar"
+            onError={(e) => {
+              e.target.src = "/images/default-profile.png";
+            }}
+          />
           <div className="new-post-greeting">
             <span>What's cooking, {localStorage.getItem("username")}?</span>
           </div>
