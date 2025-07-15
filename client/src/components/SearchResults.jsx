@@ -1,20 +1,89 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, FileText, Clock, Heart } from 'lucide-react';
+import { User, FileText, Clock, Heart, Users } from 'lucide-react';
+import axios from 'axios';
+import JoinGroupPopup from './JoinGroupPopup';
 import './SearchResults.css';
 
 export default function SearchResults({ results, isVisible, onClose, onUserSelect, searchType }) {
   const navigate = useNavigate();
+  const [userGroups, setUserGroups] = useState([]);
+  const [showJoinGroupPopup, setShowJoinGroupPopup] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  
+  const currentUserId = localStorage.getItem('userId');
 
-  const handleResultClick = (item) => {
-    if (item.type === 'user') {
-      navigate(`/profile/${item._id}`);
-    } else if (item.type === 'post') {
-      // Navigate to a post detail page or show post modal
-      navigate(`/post/${item._id}`);
+  // Fetch user's groups when component mounts
+  useEffect(() => {
+    if (currentUserId) {
+      fetchUserGroups();
     }
-    onUserSelect(item);
-    onClose();
+  }, [currentUserId]);
+
+  const fetchUserGroups = async () => {
+    if (!currentUserId) return;
+    
+    try {
+      const response = await axios.get(`http://localhost:5000/api/groups/user/${currentUserId}`);
+      setUserGroups(response.data);
+    } catch (error) {
+      console.error('Error fetching user groups:', error);
+      setUserGroups([]);
+    }
+  };
+
+  const isUserMemberOfGroup = (groupId) => {
+    if (!currentUserId) return false;
+    return userGroups.some(group => group._id === groupId);
+  };
+
+const handleResultClick = (item) => {
+  if (item.type === 'user') {
+    navigate(`/profile/${item._id}`);
+  } else if (item.type === 'post') {
+    navigate(`/post/${item._id}`);
+  } else if (item.type === 'group') {
+    // Check if user is logged in
+    if (!currentUserId) {
+      alert('Please log in to view groups');
+      return;
+    }
+    
+    // Check if user is a member of the group
+    if (isUserMemberOfGroup(item._id)) {
+      // User is a member, navigate to group page
+      navigate(`/groups/${item._id}`);
+    } else {
+      // User is not a member, show join popup
+      setSelectedGroup(item);
+      setShowJoinGroupPopup(true);
+      return; // Don't close search results yet
+    }
+  }
+  onUserSelect(item);
+  onClose();
+};
+
+  const handleJoinGroup = async () => {
+    if (!selectedGroup) return;
+
+    try {
+      await axios.post(`http://localhost:5000/api/groups/${selectedGroup._id}/request-join`, {
+        userId: currentUserId,
+      });
+      alert('Join request sent successfully!');
+      setShowJoinGroupPopup(false);
+      setSelectedGroup(null);
+      onClose();
+    } catch (error) {
+      console.error('Error sending join request:', error);
+      alert(error.response?.data?.message || 'Failed to send join request. Please try again.');
+    }
+  };
+
+  const handleCancelJoinRequest = () => {
+    setShowJoinGroupPopup(false);
+    setSelectedGroup(null);
   };
 
   const formatDate = (dateString) => {
@@ -48,11 +117,11 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
       </div>
       
       {results.map((item) => (
-        <div
-          key={`${item.type}-${item._id}`}
-          className={`search-result-item ${item.type === 'user' ? 'user-result' : 'post-result'}`}
-          onClick={() => handleResultClick(item)}
-        >
+          <div
+            key={`${item.type}-${item._id}`}
+            className={`search-result-item ${item.type === 'user' ? 'user-result' : item.type === 'post' ? 'post-result' : 'group-result'}`}
+            onClick={() => handleResultClick(item)}
+          >
           {item.type === 'user' ? (
             <>
               <div className="search-result-avatar-container">
@@ -73,6 +142,52 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
                   {item.group && (
                     <span className="search-result-group">
                       Group: {item.group}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : item.type === 'group' ? (
+            <>
+              <div className="search-result-avatar-container">
+                <div className="search-result-avatar group-avatar">
+                  {item.name.charAt(0).toUpperCase()}
+                </div>
+                <Users size={12} className="result-type-icon group-icon" />
+              </div>
+              <div className="search-result-info">
+                <div className="search-result-name group-name">
+                  {item.name}
+                </div>
+                <div className="search-result-description">
+                  {item.description}
+                </div>
+                <div className="search-result-meta">
+                  <span className="search-result-members">
+                    {item.members?.length || 0} members
+                  </span>
+                  <span className="search-result-admin">
+                    Admin: @{item.admin?.username}
+                  </span>
+                  {currentUserId && isUserMemberOfGroup(item._id) && (
+                    <span className="search-result-membership-status member">
+                      Member
+                    </span>
+                  )}
+                  {currentUserId && !isUserMemberOfGroup(item._id) && (
+                    <span className="search-result-membership-status non-member">
+                      Click to join
+                    </span>
+                  )}
+                  {!currentUserId && (
+                    <span className="search-result-membership-status non-member">
+                      Login to join
+                    </span>
+                  )}
+                  {item.createdAt && (
+                    <span className="search-result-date">
+                      <Clock size={12} />
+                      {formatDate(item.createdAt)}
                     </span>
                   )}
                 </div>
@@ -132,6 +247,15 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
           )}
         </div>
       ))}
+      
+      {/* Join Group Popup */}
+      {showJoinGroupPopup && selectedGroup && (
+        <JoinGroupPopup
+          group={selectedGroup}
+          onJoin={handleJoinGroup}
+          onCancel={handleCancelJoinRequest}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Image, Video, Edit3, X } from "lucide-react";
 import PhotoEditor from "./PhotoEditor";
 import VideoEditor from "./VideoEditor";
@@ -7,8 +7,13 @@ import "./NewPostForm.css";
 
 const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? ...`;
 
-export default function NewPostForm({ userId, username, onPostCreated }) {
+export default function NewPostForm({ userId, username, userProfileImage, onPostCreated }) {
   const fileInputRef = useRef(null);
+
+  // Debug effect to track userProfileImage changes
+  useEffect(() => {
+    console.log("NewPostForm - userProfileImage prop changed:", userProfileImage);
+  }, [userProfileImage]);
 
   const [newPost, setNewPost] = useState({
     title: "",
@@ -204,12 +209,15 @@ export default function NewPostForm({ userId, username, onPostCreated }) {
       <div className="new-post-container">
         <div className="new-post-header">
           <img
-            src="/images/default-profile.png"
+            src={userProfileImage || "/images/default-profile.png"}
             alt="Your Profile"
             className="new-post-avatar"
+            onError={(e) => {
+              e.target.src = "/images/default-profile.png";
+            }}
           />
           <div className="new-post-greeting">
-            <span>What's cooking, {localStorage.getItem("username")}?</span>
+            <span>What's cooking, {username}?</span>
           </div>
         </div>
 
