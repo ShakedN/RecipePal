@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  Users,
-  Plus,
-  Activity,
   UserPlus,
+  Activity,
   Heart,
   MessageCircle,
   Share,
@@ -16,21 +14,52 @@ import NewPostForm from "../components/NewPostForm";
 import PostCard from "../components/PostCard";
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [groupPosts, setGroupPosts] = useState([]);
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [selectedGroup, setSelectedGroup] = useState(null);
-  const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [group, setGroup] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
+  const { groupId } = useParams();
+  const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("username");  const [currentUser, setCurrentUser] = useState(null);
 
-  const { groupId } = useParams(); //Get group ID from URL
-  const userId = localStorage.getItem("userId"); //Get user ID from local storage
-  const userName = localStorage.getItem("username");
+  const fetchSuggestedGroups = useCallback(async () => {
+    try {
+      setLoadingSuggestions(true);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/suggested/${userId}`
+      );
+      setSuggestedGroups(response.data.groups);
+    } catch (error) {
+      console.error("Error fetching suggested groups:", error);
+      setSuggestedGroups([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  }, [userId]);
 
+  // Fetch current user data including profile image
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+
+        const token = localStorage.getItem("token");
+        
+        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+        
+        const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`, config);
+     
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      
+      }
+    };
+
+    if (userId) {
+      fetchCurrentUser();
+    }
+  }, [userId]);
   //Fetch group details and its posts when groupId changes
   useEffect(() => {
     if (!groupId) return;
@@ -51,32 +80,10 @@ export default function GroupsPage() {
     };
 
     fetchGroupData();
-  }, [groupId]);
 
-  //Not using it --> DELETE?
-  const fetchUserGroups = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/groups/user/${userId}`
-      );
-      setGroups(response.data);
-    } catch (error) {
-      console.error("Error fetching user groups:", error);
-    }
-  };
+    fetchSuggestedGroups();
+  }, [groupId, fetchSuggestedGroups]);
 
-  //Fetch 3 suggested groups for user
-  const fetchSuggestedGroups = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/groups/suggested/${userId}`
-      );
-      setSuggestedGroups(response.data.groups || []);
-    } catch (error) {
-      console.error("Error fetching suggested groups:", error);
-      setSuggestedGroups([]);
-    }
-  };
 
   const fetchGroupPosts = async (groupId) => {
     if (!groupId) {
@@ -100,7 +107,6 @@ export default function GroupsPage() {
       await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
         userId,
       });
-      fetchUserGroups();
       fetchSuggestedGroups();
     } catch (error) {
       console.error("Error joining group:", error);
@@ -294,18 +300,15 @@ export default function GroupsPage() {
             <Activity size={20} />
             Group Activity
           </div>
-          {Array.isArray(groups) &&
-            groups.slice(0, 3).map((group) => (
-              <div key={group._id} className="activity-item">
-                <div className="group-avatar activity">
-                  {group.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="activity-info">
-                  <div className="activity-text">New recipe posted</div>
-                  <div className="activity-group">in {group.name}</div>
-                </div>
-              </div>
-            ))}
+          <div className="activity-item">
+            <div className="group-avatar activity">
+              G
+            </div>
+            <div className="activity-info">
+              <div className="activity-text">New recipe posted</div>
+              <div className="activity-group">in this group</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -330,6 +333,8 @@ export default function GroupsPage() {
             username={userName}
             isGroupPost={true}
             groupId={groupId}
+            userProfileImage={currentUser?.profile_image}
+
             onPostCreated={() => fetchGroupPosts(groupId)}
           />
         </div>

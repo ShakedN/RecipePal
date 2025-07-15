@@ -405,15 +405,24 @@ export const getSuggestedGroups = async (req, res) => {
     const friendsIds = user.friends.map((friend) => friend._id);
 
     const groupsWithFriends = await Group.find({
-      members: { $in: friendsIds }, //at least one friend is in the group
-      _id: { $nin: user.groups }, //user is not in the group
-    }).limit(3);
+      $and: [
+        { members: { $in: friendsIds } }, //at least one friend is in the group
+        { members: { $ne: userId } }, //user is not in the group members
+        { admin: { $ne: userId } }, //user is not the group admin
+      ]
+    })
+    .populate("admin", "username firstName lastName profile_image")
+    .populate("members", "username firstName lastName profile_image")
+    .limit(3);
 
     if (groupsWithFriends.length === 0) {
       return res
         .status(200)
         .json({ message: "No suggested groups at the moment", groups: [] });
     }
+
+    // Debug logging to verify admin data is populated
+    console.log("Suggested groups with admin data:", JSON.stringify(groupsWithFriends, null, 2));
 
     res.status(200).json({ groups: groupsWithFriends });
   } catch (err) {
@@ -435,6 +444,11 @@ export const acceptGroupRequest = async (req, res) => {
     group.members.push(userId);
     group.pendingRequests = group.pendingRequests.filter((id) => id.toString() !== userId);
     await group.save();
+
+    // Add group to user's groups array
+    await User.findByIdAndUpdate(userId, {
+      $push: { groups: groupId },
+    });
 
     res.status(200).json({ message: "User added to group" });
   } catch (error) {

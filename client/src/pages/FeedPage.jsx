@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import PhotoEditor from "../components/PhotoEditor";
@@ -56,6 +56,7 @@ export default function FeedPage() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroupPopup, setShowJoinGroupPopup] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [newPost, setNewPost] = useState({
     title: "",
@@ -75,19 +76,17 @@ export default function FeedPage() {
 
   const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    document.body.classList.add('feed-page-background');
-    
-    fetchPosts();
-    fetchUserGroups();
-    fetchSuggestedGroups();
-
-    return () => {
-      document.body.classList.remove('feed-page-background');
-    };
+  const fetchPosts = useCallback(async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/posts");
+      setPosts(res.data);
+    } catch (err) {
+      console.error("Failed to fetch posts:", err);
+      setPosts([]);
+    }
   }, []);
 
-  const fetchUserGroups = async () => {
+  const fetchUserGroups = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:5000/api/groups/user/${userId}`
@@ -96,9 +95,9 @@ export default function FeedPage() {
     } catch (error) {
       console.error("Error fetching user groups:", error);
     }
-  };
+  }, [userId]);
 
-  const fetchSuggestedGroups = async () => {
+  const fetchSuggestedGroups = useCallback(async () => {
     try {
       const response = await axios.get(
         `http://localhost:5000/api/groups/suggested/${userId}`
@@ -108,19 +107,39 @@ export default function FeedPage() {
       console.error("Error fetching suggested groups:", error);
       setSuggestedGroups([]);  
     }
-  };
+  }, [userId]);
 
-  const handleJoinGroup = async (groupId) => {
-    try {
-      await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
-        userId,
-      });
-      fetchUserGroups();
-      fetchSuggestedGroups();
-    } catch (error) {
-      console.error("Error joining group:", error);
+  // Fetch current user data including profile image
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`);
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    if (userId) {
+      fetchCurrentUser();
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    document.body.classList.add('feed-page-background');
+    
+    const fetchData = async () => {
+      await fetchPosts();
+      await fetchUserGroups();
+      await fetchSuggestedGroups();
+    };
+
+    fetchData();
+
+    return () => {
+      document.body.classList.remove('feed-page-background');
+    };
+  }, [fetchPosts, fetchUserGroups, fetchSuggestedGroups]);
 
   const handleGroupSelect = (group) => {
     navigate(`/groups/${group._id}`);
@@ -131,49 +150,27 @@ export default function FeedPage() {
     setShowJoinGroupPopup(true);
   };
 
-const handleJoinGroupRequest = async () => {
-  if (!selectedGroup) return;
+  const handleJoinGroupRequest = async () => {
+    if (!selectedGroup) return;
 
-  try {
-    const userId = localStorage.getItem("userId");
-    await axios.post(`http://localhost:5000/api/groups/${selectedGroup._id}/request-join`, {
-      userId,
-    });
+    try {
+      const userId = localStorage.getItem("userId");
+      await axios.post(`http://localhost:5000/api/groups/${selectedGroup._id}/request-join`, {
+        userId,
+      });
 
-    alert("Join request sent to group admin successfully!");
-    setShowJoinGroupPopup(false);
-    setSelectedGroup(null);
-  } catch (error) {
-    console.error("Error sending join request:", error);
-    alert(error.response?.data?.message || "Failed to send join request. Please try again.");
-  }
-};
-
-// Pass the handleJoinGroupRequest function to JoinGroupPopup
-{showJoinGroupPopup && selectedGroup && (
-  <JoinGroupPopup
-    group={selectedGroup}
-    onJoin={handleJoinGroupRequest}
-    onCancel={() => {
+      alert("Join request sent to group admin successfully!");
       setShowJoinGroupPopup(false);
       setSelectedGroup(null);
-    }}
-  />
-)}
+    } catch (error) {
+      console.error("Error sending join request:", error);
+      alert(error.response?.data?.message || "Failed to send join request. Please try again.");
+    }
+  };
 
   const handleCancelJoinRequest = () => {
     setShowJoinGroupPopup(false);
     setSelectedGroup(null);
-  };
-
-  const fetchPosts = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/posts");
-      setPosts(res.data);
-    } catch (err) {
-      console.error("Failed to fetch posts:", err);
-      setPosts([]);
-    }
   };
 
   const handleLike = async (postId) => {
@@ -625,7 +622,14 @@ return(
       {/* MODERN NEW POST FORM */}
       <div className="new-post-container-modern">
         <div className="new-post-header">
-          <img src="/images/default-profile.png" alt="Your Profile" className="new-post-avatar" />
+          <img 
+            src={currentUser?.profile_image || "/images/default-profile.png"} 
+            alt="Your Profile" 
+            className="new-post-avatar"
+            onError={(e) => {
+              e.target.src = "/images/default-profile.png";
+            }}
+          />
           <div className="new-post-greeting">
             <span>What's cooking, {localStorage.getItem("username")}?</span>
           </div>
