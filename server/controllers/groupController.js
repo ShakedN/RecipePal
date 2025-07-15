@@ -421,8 +421,7 @@ export const getSuggestedGroups = async (req, res) => {
         .json({ message: "No suggested groups at the moment", groups: [] });
     }
 
-    // Debug logging to verify admin data is populated
-    console.log("Suggested groups with admin data:", JSON.stringify(groupsWithFriends, null, 2));
+
 
     res.status(200).json({ groups: groupsWithFriends });
   } catch (err) {
