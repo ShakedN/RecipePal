@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  Users,
-  Plus,
-  Activity,
   UserPlus,
+  Activity,
   Heart,
   MessageCircle,
   Share,
@@ -15,35 +13,41 @@ import { useParams } from "react-router-dom";
 import NewPostForm from "../components/NewPostForm";
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [groupPosts, setGroupPosts] = useState([]);
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [selectedGroup, setSelectedGroup] = useState(null);
-  const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [group, setGroup] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
-  const { groupId } = useParams(); //Get group ID from URL
-  const userId = localStorage.getItem("userId"); //Get user ID from local storage
-  const userName = localStorage.getItem("username");
-  const [currentUser, setCurrentUser] = useState(null); 
-   // Fetch current user data including profile image
+  const { groupId } = useParams();
+  const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("username");  const [currentUser, setCurrentUser] = useState(null);
+
+  const fetchSuggestedGroups = useCallback(async () => {
+    try {
+      setLoadingSuggestions(true);
+      const response = await axios.get(
+        `http://localhost:5000/api/groups/suggested/${userId}`
+      );
+      setSuggestedGroups(response.data.groups);
+    } catch (error) {
+      console.error("Error fetching suggested groups:", error);
+      setSuggestedGroups([]);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  }, [userId]);
+
+  // Fetch current user data including profile image
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        console.log("Fetching user profile for userId:", userId);
-        console.log("Full URL:", `http://localhost:5000/api/auth/profile/${userId}`);
-        
+
         const token = localStorage.getItem("token");
-        console.log("Token exists:", !!token);
         
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
         
         const response = await axios.get(`http://localhost:5000/api/auth/profile/${userId}`, config);
-        console.log("User profile response:", response.data);
-        console.log("Profile image URL:", response.data.profile_image);
+     
         setCurrentUser(response.data);
       } catch (error) {
         console.error("Error fetching current user:", error);
@@ -75,36 +79,8 @@ export default function GroupsPage() {
     };
 
     fetchGroupData();
-    fetchSuggestedGroups(); // Call suggested groups fetch
-  }, [groupId]);
-
-  //Not using it --> DELETE?
-  const fetchUserGroups = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:5000/api/groups/user/${userId}`
-      );
-      setGroups(response.data);
-    } catch (error) {
-      console.error("Error fetching user groups:", error);
-    }
-  };
-
-  //Fetch 3 suggested groups for user
-  const fetchSuggestedGroups = async () => {
-    try {
-      setLoadingSuggestions(true);
-      const response = await axios.get(
-        `http://localhost:5000/api/groups/suggested/${userId}`
-      );
-      setSuggestedGroups(response.data.groups); // ✅ שליפה נכונה של המערך
-    } catch (error) {
-      console.error("Error fetching suggested groups:", error);
-      setSuggestedGroups([]); // הגנה במקרה של כישלון
-    } finally {
-      setLoadingSuggestions(false);
-    }
-  };
+    fetchSuggestedGroups();
+  }, [groupId, fetchSuggestedGroups]);
 
   const fetchGroupPosts = async (groupId) => {
     if (!groupId) {
@@ -128,31 +104,13 @@ export default function GroupsPage() {
       await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
         userId,
       });
-      fetchUserGroups();
       fetchSuggestedGroups();
     } catch (error) {
       console.error("Error joining group:", error);
     }
   };
 
-  const filteredPosts = groupPosts.filter((post) => {
-    if (activeFilter === "all") return true;
-    if (activeFilter === "myGroups")
-      return groups.some((g) => g._id === post.group?._id);
-    return true;
-  });
-
-  // const handleGroupSelect = (group) => {
-  //   // If the same group is already selected, deselect it
-  //   if (selectedGroup && selectedGroup._id === group._id) {
-  //     setSelectedGroup(null);
-  //     fetchGroupPosts(); // Fetch all posts again (without specific group filter)
-  //   } else {
-  //     // Select the new group
-  //     setSelectedGroup(group);
-  //     fetchGroupPosts(group._id);
-  //   }
-  // };
+  const filteredPosts = groupPosts;
 
   return (
     <div className="groups-page">
@@ -195,18 +153,15 @@ export default function GroupsPage() {
             <Activity size={20} />
             Group Activity
           </div>
-          {Array.isArray(groups) &&
-            groups.slice(0, 3).map((group) => (
-              <div key={group._id} className="activity-item">
-                <div className="group-avatar activity">
-                  {group.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="activity-info">
-                  <div className="activity-text">New recipe posted</div>
-                  <div className="activity-group">in {group.name}</div>
-                </div>
-              </div>
-            ))}
+          <div className="activity-item">
+            <div className="group-avatar activity">
+              G
+            </div>
+            <div className="activity-info">
+              <div className="activity-text">New recipe posted</div>
+              <div className="activity-group">in this group</div>
+            </div>
+          </div>
         </div>
       </div>
 
