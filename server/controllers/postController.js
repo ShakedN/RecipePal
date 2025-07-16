@@ -529,33 +529,4 @@ export const likePost = async (req, res) => {
   }
 };
 
-//Get tho posts of the user's friends and the posts from the groups he is a group member
-export const getFeedPosts = async (req, res) => {
-  const { userId } = req.params;
 
-  try {
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const friendIds = user.friends; //Friends IDs
-    const groupIds = user.groups; //Groups IDs
-
-    const posts = await Post.find({
-      $or: [
-        { user: { $in: friendIds }, isGroupPost: false },
-        { group: { $in: groupIds }, isGroupPost: true },
-      ],
-    })
-      .populate("user", "username profile_image")
-      .populate("likes", "username")
-      .populate("comments.user", "username profile_image")
-      .sort({ createdAt: -1 });
-
-    res.status(200).json(posts);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch feed posts", error });
-  }
-};
