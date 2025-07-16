@@ -18,7 +18,7 @@ router.get("/posts-per-day/:userId", async (req, res) => {
       },
     },
     {
-      //Group by day, month, and year
+      //Group by day, month and year
       $group: {
         _id: {
           day: { $dayOfMonth: "$createdAt" },

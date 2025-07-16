@@ -3,13 +3,17 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 
 export default function VerifyEmailPage() {
-  const { token } = useParams();
-  const [message, setMessage] = useState("");
+  const { token } = useParams(); //Extract the verification token from URL parameters
+  const [message, setMessage] = useState(""); //State to store success or error message
 
   useEffect(() => {
+    //Function to send verification request to the server
     const verifyEmail = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/auth/verify-email/${token}`);
+        //Send GET request to backend to verify email with token
+        const res = await axios.get(
+          `http://localhost:5000/api/auth/verify-email/${token}`
+        );
         setMessage(res.data.message);
       } catch (err) {
         setMessage(err.response?.data?.message || "Email verification failed.");
@@ -17,7 +21,7 @@ export default function VerifyEmailPage() {
     };
 
     verifyEmail();
-  }, [token]);
+  }, [token]); //Run again if token changes
 
   return (
     <div className="verify-email-page">

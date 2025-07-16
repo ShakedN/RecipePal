@@ -24,12 +24,15 @@ export default function FeedPage() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const userId = localStorage.getItem("userId");
-  const userName = localStorage.getItem("username");
+  const userId = localStorage.getItem("userId"); //Get userId from local storage
+  const userName = localStorage.getItem("username"); //Get username from local storage
 
+  //Fetch posts filtered for the current user (posts of user's friends and groups)
   const fetchPosts = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/posts/filtered/${userId}`);
+      const res = await axios.get(
+        `http://localhost:5000/api/posts/filtered/${userId}`
+      );
       setPosts(res.data);
     } catch (err) {
       console.error("Failed to fetch posts:", err);
@@ -37,6 +40,7 @@ export default function FeedPage() {
     }
   }, [userId]);
 
+  //Fetch user's groups (groups he is member in)
   const fetchUserGroups = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -48,6 +52,7 @@ export default function FeedPage() {
     }
   }, [userId]);
 
+  //Fetch suggested (trending) groups for the user based on his friends
   const fetchSuggestedGroups = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -60,7 +65,7 @@ export default function FeedPage() {
     }
   }, [userId]);
 
-  // Fetch current user data including profile image
+  //Fetch current user data including profile image
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -78,6 +83,7 @@ export default function FeedPage() {
     }
   }, [userId]);
 
+  //Fetch all necessary data and apply page styling
   useEffect(() => {
     document.body.classList.add("feed-page-background");
 
@@ -94,15 +100,18 @@ export default function FeedPage() {
     };
   }, [fetchPosts, fetchUserGroups, fetchSuggestedGroups]);
 
+  //Navigate to specific group pag
   const handleGroupSelect = (group) => {
     navigate(`/groups/${group._id}`);
   };
 
+  //Open join group popup
   const handleTrendingGroupClick = (group) => {
     setSelectedGroup(group);
     setShowJoinGroupPopup(true);
   };
 
+  //Send join group request
   const handleJoinGroupRequest = async () => {
     if (!selectedGroup) return;
 
@@ -127,11 +136,13 @@ export default function FeedPage() {
     }
   };
 
+  //Cancel join group request popup
   const handleCancelJoinRequest = () => {
     setShowJoinGroupPopup(false);
     setSelectedGroup(null);
   };
 
+  //Post actions: like, comment and delete
   const handleLike = async (postId) => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -318,7 +329,7 @@ export default function FeedPage() {
 
   return (
     <div className="feed-page-container">
-      {/* Groups Sidebar */}
+      {/*Groups Sidebar*/}
       <div className="groups-sidebar">
         <div className="sidebar-section">
           <div className="sidebar-title">

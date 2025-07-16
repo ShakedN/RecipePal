@@ -40,7 +40,7 @@ const chatSchema = new mongoose.Schema(
   }
 );
 
-// Index for efficient queries
+//Index for efficient queries
 chatSchema.index({ participants: 1 });
 chatSchema.index({ "messages.timestamp": -1 });
 
