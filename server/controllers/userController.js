@@ -174,7 +174,11 @@ export const getUserProfile = async (req, res) => {
 
   try {
     const user = await User.findById(userId)
-      .populate("posts")
+      .populate({
+        path: "posts",
+        match: { isGroupPost: { $ne: true } }, // Only get non-group posts
+        options: { sort: { createdAt: -1 } }
+      })
       .populate("friends", "username profile_image firstName lastName")
       .select("-password -verificationToken"); //Exclude sensitive data
 
