@@ -2,10 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   UserPlus,
   Activity,
-  Heart,
-  MessageCircle,
-  Share,
-  Bookmark,
 } from "lucide-react";
 import axios from "axios";
 import "./GroupsPage.css";
@@ -113,12 +109,7 @@ export default function GroupsPage() {
     }
   };
 
-  const filteredPosts = groupPosts.filter((post) => {
-    if (activeFilter === "all") return true;
-    if (activeFilter === "myGroups")
-      return groups.some((g) => g._id === post.group?._id);
-    return true;
-  });
+  const filteredPosts = groupPosts;
 
   //Posts functions
 
