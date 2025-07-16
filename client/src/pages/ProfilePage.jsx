@@ -43,7 +43,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const res = await axios.get(
+      const response = await axios.get(
         `http://localhost:5000/api/auth/profile/${profileUserId}`,
         {
           headers: {
@@ -55,15 +55,13 @@ export default function ProfilePage() {
 
       //Set data into editing state
       setEditData({
-        username: res.data.username || "",
-        about: res.data.about || "",
-        cookingRole: res.data.cookingRole || "",
+        username: response.data.username || "",
+        about: response.data.about || "",
+        cookingRole: response.data.cookingRole || "",
         profileImageFile: null,
         backgroundImageFile: null,
-        profileImagePreview:
-          res.data.profile_image || "/images/default-profile.png",
-        backgroundImagePreview:
-          res.data.background_image || "/images/default-background.jpg",
+        profileImagePreview: response.data.profile_image || "",
+        backgroundImagePreview: response.data.background_image || "",
       });
 
       setLoading(false);
@@ -72,7 +70,11 @@ export default function ProfilePage() {
       setError("Failed to load profile data");
       setLoading(false);
     }
-  };
+  }, [profileUserId, navigate]);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [profileUserId, fetchUserProfile]);
 
   //Upload image to Cloudinary
   const handleImageUpload = async (imageFile) => {

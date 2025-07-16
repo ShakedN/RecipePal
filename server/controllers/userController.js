@@ -5,7 +5,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import express from "express";
 import Group from "../models/Group.js";
-
+//Req-User registration data
+//Res- Returns the created user with populated data
+//Register a new user
 export const registerUser = async (req, res) => {
   const {
     username,
@@ -62,9 +64,9 @@ export const registerUser = async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
     });
-
+    //Create verification URL
     const verificationUrl = `http://localhost:5000/api/auth/verify-email/${verificationToken}`;
-
+    //Configure email content
     const mailOptions = {
       from: "RecipePal <your-email@gmail.com>",
       to: email,
@@ -74,7 +76,7 @@ export const registerUser = async (req, res) => {
              <a href="${verificationUrl}">Verify Email</a>
              <p>If you did not register, please ignore this email.</p>`,
     };
-
+    //Send verification email
     await transporter.sendMail(mailOptions);
 
     res
@@ -86,10 +88,14 @@ export const registerUser = async (req, res) => {
       .json({ message: "Error registering user", error: error.message });
   }
 };
+//Req- Contains userId
+//Res- Returns friend and group requests for the user
+//Retrieves all pending friend requests and group join requests for admin
 export const getFriendAndGroupRequests = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    //Get user's friend requests with populated sender info
     const user = await User.findById(userId)
       .populate("friendRequests.from", "username firstName lastName profile_image")
       .select("friendRequests");
@@ -98,11 +104,11 @@ export const getFriendAndGroupRequests = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Fetch group join requests where the user is the admin
+    //Fetch group join requests where the user is the admin
     const groupRequests = await Group.find({ admin: userId })
       .populate("pendingRequests", "username firstName lastName profile_image")
       .select("name pendingRequests");
-
+    //Return both friend requests and group join requests
     res.status(200).json({
       friendRequests: user.friendRequests,
       groupRequests,
@@ -114,15 +120,18 @@ export const getFriendAndGroupRequests = async (req, res) => {
     });
   }
 };
+//Req- contains token
+//Res- Verifies the user's email and activates their account
 export const verifyEmail = async (req, res) => {
   const { token } = req.params;
 
   try {
+    //Find user by verification token
     const user = await User.findOne({ verificationToken: token });
     if (!user) {
       return res.status(400).json({ message: "Invalid or expired token" });
     }
-
+    //Mark user as verified and remove token
     user.isVerified = true;
     user.verificationToken = undefined; //Remove the token after verification
     await user.save();
@@ -134,7 +143,9 @@ export const verifyEmail = async (req, res) => {
       .json({ message: "Error verifying email", error: error.message });
   }
 };
-
+//Req- Contains user credentials- username, password 
+//Res- Returns a JWT token and user information
+//Authenticates user and returns JWT token for session management
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
 
@@ -168,7 +179,9 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
-
+//Req- Contains userId
+//Res- Returns the user's profile information
+//Retrieves complete user profile with posts and friends
 export const getUserProfile = async (req, res) => {
   const { userId } = req.params;
 
@@ -176,8 +189,8 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findById(userId)
       .populate({
         path: "posts",
-        match: { isGroupPost: { $ne: true } }, // Only get non-group posts
-        options: { sort: { createdAt: -1 } }
+        match: { isGroupPost: { $ne: true } }, //Only get non-group posts
+        options: { sort: { createdAt: -1 } }   //Sort by newest first
       })
       .populate("friends", "username profile_image firstName lastName")
       .select("-password -verificationToken"); //Exclude sensitive data
@@ -193,7 +206,8 @@ export const getUserProfile = async (req, res) => {
       .json({ message: "Error fetching user profile", error: error.message });
   }
 };
-
+//Req- Contains userId,Updated profile data
+//Res- Returns the updated user profile
 export const updateUserProfile = async (req, res) => {
   const { userId } = req.params;
   const { username, about, profile_image, background_image, cookingRole } =
@@ -236,17 +250,19 @@ export const updateUserProfile = async (req, res) => {
     });
   }
 };
-
+//Req- Contains search query
+//Res- Returns an array of matching users
 export const searchUsers = async (req, res) => {
   const { query } = req.query;
 
   try {
+    //Validate search query length
     if (!query || query.trim().length < 2) {
       return res
         .status(400)
         .json({ message: "Search query must be at least 2 characters" });
     }
-
+    //Search across multiple fields using MongoDB operators
     const users = await User.find({
       $or: [
         { username: { $regex: query, $options: "i" } },
@@ -255,7 +271,7 @@ export const searchUsers = async (req, res) => {
         {
           $expr: {
             $regexMatch: {
-              input: { $concat: ["$firstName", " ", "$lastName"] },
+              input: { $concat: ["$firstName", " ", "$lastName"] },//search full name
               regex: query,
               options: "i",
             },
@@ -274,17 +290,20 @@ export const searchUsers = async (req, res) => {
       .json({ message: "Error searching users", error: error.message });
   }
 };
-
+//Req- Contains fromUserId and toUserId
+//Res- Success message
+//Send a friend request from one user to another
 export const sendFriendRequest = async (req, res) => {
   const { fromUserId, toUserId } = req.body;
 
   try {
+    //Prevent self-friend requests
     if (fromUserId === toUserId) {
       return res
         .status(400)
         .json({ message: "Cannot send friend request to yourself" });
     }
-
+    //Validate both users exist
     const fromUser = await User.findById(fromUserId);
     const toUser = await User.findById(toUserId);
 
@@ -321,7 +340,9 @@ export const sendFriendRequest = async (req, res) => {
       .json({ message: "Error sending friend request", error: error.message });
   }
 };
-
+//Req- Contains userId and requesterId
+//Res- Success message
+//Accepts a friend request from another user
 export const acceptFriendRequest = async (req, res) => {
   const { userId, requesterId } = req.body;
 
@@ -358,7 +379,9 @@ export const acceptFriendRequest = async (req, res) => {
     });
   }
 };
-
+//Req- Contains userId and requesterId
+//Res- Success message
+//Rejects a friend request from another user
 export const rejectFriendRequest = async (req, res) => {
   const { userId, requesterId } = req.body;
 
@@ -391,7 +414,9 @@ export const rejectFriendRequest = async (req, res) => {
     });
   }
 };
-
+//Req- Contains userId
+//Res- Returns all friend requests for the user
+//Retrieves all pending friend requests for a user
 export const getFriendRequests = async (req, res) => {
   const { userId } = req.params;
 
@@ -415,7 +440,9 @@ export const getFriendRequests = async (req, res) => {
     });
   }
 };
-
+//Req- Contains userId and targetUserId
+//Res- Returns friendship status
+//Checks friendship status between two users
 export const getFriendshipStatus = async (req, res) => {
   const { userId, targetUserId } = req.params;
 
@@ -456,6 +483,9 @@ export const getFriendshipStatus = async (req, res) => {
     });
   }
 };
+//Req- Contains userId and friendId
+//Res- Success message
+//Unfriends a user by removing them from both users' friends lists
 export const unfriend = async (req, res) => {
   const { userId, friendId } = req.body;
 

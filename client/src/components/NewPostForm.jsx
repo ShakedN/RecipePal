@@ -5,18 +5,47 @@ import VideoEditor from "./VideoEditor";
 import axios from "axios";
 import "./NewPostForm.css";
 
-const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? ...`; //Template content for recipe
+const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? This {adjective1}, {adjective2} {dish type} is:
 
+{• Feature 1}  
+{• Feature 2}  
+{• Feature 3}  
 
-export default function NewPostForm({
-  userId,
-  username,
-  isGroupPost,
-  groupId,
-  onPostCreated,
-  userProfileImage,
+📋 **What You Need**  
+<!-- ✏️  Start listing ingredients here, one per line.  -->
+•   
+•   
+•   
+•   
+
+🍰 **{Optional Sub-section (e.g., Frosting / Filling / Glaze)}**  
+<!-- ✏️  List sub-ingredients if your recipe has a second component. Delete this block if not needed. -->
+•   
+•   
+•   
+
+👩‍🍳 **Steps in a Snap**  
+1️⃣ {Step 1 (verb + short instruction)}  
+2️⃣ {Step 2}  
+3️⃣ {Step 3}  
+4️⃣ {Step 4}  
+5️⃣ {Step 5}  
+
+💡 **Pro Tips**  
+• {Tip 1}  
+• {Tip 2}  
+• {Tip 3}  
+
+📸 Don't forget to snap a pic and tag me so I can drool over your masterpiece! 😍👩‍🍳`;
+
+export default function NewPostForm({ 
+  userId, 
+  username, 
+  isGroupPost, 
+  groupId, 
+  onPostCreated, 
+  userProfileImage 
 }) {
-
   const fileInputRef = useRef(null);
 
   // Debug effect to track userProfileImage changes
@@ -34,8 +63,8 @@ export default function NewPostForm({
     dietaryPreferences: [],
     mediaType: "image",
     canvasData: null,
-    isGroupPost: null,
-    group: null,
+    isGroupPost: isGroupPost || false,
+    group: groupId || null,
   });
 
   const [isEdited, setIsEdited] = useState(false);
@@ -96,10 +125,39 @@ export default function NewPostForm({
       let finalUrl = "";
 
       if (editingMedia.type === "video") {
-        const blob = editData.blob;
-        finalUrl = await handleMediaUpload(blob, "video");
-      } else {
-        finalUrl = await handleMediaUpload(editData.blob, "image");
+        // For video editing, upload the trimmed video blob
+        if (editData.blob) {
+          const formData = new FormData();
+          formData.append("file", editData.blob, 'trimmed-video.webm');
+          formData.append("upload_preset", "ml_default");
+          
+          const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/video/upload", {
+            method: "POST",
+            body: formData,
+          });
+          
+          const data = await res.json();
+          if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+          finalUrl = data.secure_url;
+        } else {
+          throw new Error("No trimmed video blob created");
+        }
+      } else if (editingMedia.type === "image") {
+        // For images, handle with blob upload
+        if (editData.blob) {
+          const formData = new FormData();
+          formData.append("file", editData.blob);
+          formData.append("upload_preset", "ml_default");
+          
+          const res = await fetch("https://api.cloudinary.com/v1_1/djfulsk1f/image/upload", {
+            method: "POST",
+            body: formData,
+          });
+          
+          const data = await res.json();
+          if (!data.secure_url) throw new Error(data.error?.message || "Upload failed");
+          finalUrl = data.secure_url;
+        }
       }
 
       setNewPost((prev) => ({
@@ -112,10 +170,15 @@ export default function NewPostForm({
                 trimData: {
                   trimStart: editData.trimStart,
                   trimEnd: editData.trimEnd,
+                  originalDuration: editData.originalDuration || 0,
+                  trimmedDuration: editData.duration
                 },
                 editType: "video-trim",
               }
-            : { filters: editData.filters || {}, editType: "image" }),
+            : { 
+                filters: editData.filters || {}, 
+                editType: "image" 
+              }),
         },
       }));
 
@@ -162,7 +225,7 @@ export default function NewPostForm({
         canvasData: newPost.canvasData,
         dietaryPreferences: newPost.dietaryPreferences,
         typeRecipe: newPost.typeRecipe,
-        isGroupPost: isGroupPost === true, //If its true save as true, if didnt sent or false sent save as false
+        isGroupPost: isGroupPost === true,
         group: groupId,
       };
 
@@ -180,8 +243,8 @@ export default function NewPostForm({
         dietaryPreferences: [],
         mediaType: "image",
         canvasData: null,
-        isGroupPost: null,
-        group: null,
+        isGroupPost: isGroupPost || false,
+        group: groupId || null,
       });
       setIsEdited(false);
       setShowTemplateRecipe(false);
@@ -217,6 +280,24 @@ export default function NewPostForm({
 
   return (
     <div>
+      {/* Photo Editor Modal */}
+      {showPhotoEditor && editingMedia && (
+        <PhotoEditor 
+          imageUrl={editingMedia.url} 
+          onSave={handleSaveEdit} 
+          onCancel={handleCancelEdit} 
+        />
+      )}
+      
+      {/* Video Editor Modal */}
+      {showVideoEditor && editingMedia && (
+        <VideoEditor 
+          videoUrl={editingMedia.url} 
+          onSave={handleSaveEdit} 
+          onCancel={handleCancelEdit} 
+        />
+      )}
+
       {/* MODERN NEW POST FORM */}
       <div className="new-post-container">
         <div className="new-post-header">
@@ -235,7 +316,7 @@ export default function NewPostForm({
 
         <form onSubmit={handleNewPostSubmit} className="new-post-form-modern">
           <div className="new-post-layout-grid">
-            {/*Column 1: Media Upload and Preview */}
+            {/* Column 1: Media Upload and Preview */}
             <div className="media-column">
               <input
                 type="file"

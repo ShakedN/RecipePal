@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import ChatWindow from "./ChatWindow";
 
-// Add this to your existing components
+//Provides a button to open chat window with another user
 const MessageButton = ({ targetUser, currentUserId }) => {
   const [showChat, setShowChat] = useState(false);
 

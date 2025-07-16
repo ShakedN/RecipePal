@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import "./CreateGroupModal.css";
 import axios from "axios";
+//Provides a modal interface for creating new groups
 export default function CreateGroupModal({ onClose, onGroupCreated }) {
   const [groupData, setGroupData] = useState({
     name: "",
     description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+//Handles form submission to create a new group
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -20,7 +21,7 @@ export default function CreateGroupModal({ onClose, onGroupCreated }) {
 
     try {
       const userId = localStorage.getItem("userId");
-      const response = await axios.post("http://localhost:5000/api/groups", {
+      await axios.post("http://localhost:5000/api/groups", {
         name: groupData.name.trim(),
         description: groupData.description.trim(),
         admin: userId,

@@ -18,11 +18,9 @@ import {
 } from "lucide-react";
 import "./PhotoEditor.css";
 
-/* --------------------------------------------------------
- * PhotoEditor
- * ------------------------------------------------------ */
+
 export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
-  /* ----- refs & state ----- */
+
   const canvasRef = useRef(null);
   const imageRef = useRef(null);
 
@@ -46,11 +44,9 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
   const [showTextInput, setShowTextInput] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  /* drag state */
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ dx: 0, dy: 0 });
 
-  /* ---------------- drawing helpers ---------------- */
   const drawLayer = (ctx, layer) => {
     ctx.save();
     switch (layer.type) {
@@ -90,7 +86,6 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     ctx.restore();
   };
 
-  /* ---------------- canvas redraw ---------------- */
   const redrawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const img = imageRef.current;
@@ -98,10 +93,10 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     
     const ctx = canvas.getContext("2d");
     
-    // Clear canvas
+    //Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Apply filters to image
+    //Apply filters to image
     ctx.filter = `
       brightness(${filters.brightness}%)
       contrast(${filters.contrast}%)
@@ -111,16 +106,16 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
       grayscale(${filters.grayscale}%)
     `;
 
-    // Draw the base image
+    //Draw the base image
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // Reset filter for layers
+    //Reset filter for layers
     ctx.filter = "none";
     
-    // Draw all layers
+    //Draw all layers
     layers.forEach((layer) => drawLayer(ctx, layer));
 
-    // Draw selection indicator
+    //Draw selection indicator
     if (selectedLayer) {
       ctx.save();
       ctx.strokeStyle = "#ff7a00";
@@ -144,14 +139,13 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
           ctx.stroke();
           break;
         default:
-          // No selection indicator for unknown layer types
+          //No selection indicator for unknown layer types
           break;
       }
       ctx.restore();
     }
   }, [filters, layers, selectedLayer]);
 
-  /* ---------------- history helpers ---------------- */
   const saveToHistory = useCallback(() => {
     const snapshot = { layers: JSON.parse(JSON.stringify(layers)), filters: { ...filters } };
     setHistory((prev) => {
@@ -181,7 +175,6 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     }
   };
 
-  /* ---------------- canvas initialization ---------------- */
   const initializeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !imageUrl) return;
@@ -208,7 +201,7 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
       canvas.width = width;
       canvas.height = height;
 
-      // Initialize history only once
+      //Initialize history only once
       if (history.length === 0) {
         const initialSnapshot = { layers: [], filters: { ...filters } };
         setHistory([initialSnapshot]);
@@ -230,7 +223,6 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     initializeCanvas();
   }, [initializeCanvas]);
 
-  /* ---------------- layer creation ---------------- */
   const addTextLayer = () => {
     if (!textInput.trim()) return;
     const newLayer = {
@@ -276,7 +268,6 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     setTimeout(saveToHistory, 0);
   };
 
-  /* ---------------- coordinate helpers ---------------- */
   const getCanvasCoordinates = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -291,7 +282,6 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     };
   };
 
-  /* ---------------- hit testing ---------------- */
   const hitTestLayer = (pos, layer) => {
     switch (layer.type) {
       case "text": {
@@ -396,12 +386,10 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     return () => clearTimeout(timeoutId);
   }, [filters, saveToHistory]);
 
-  /* ---------------- filter change handler ---------------- */
   const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({ ...prev, [filterName]: parseInt(value) }));
   };
 
-  /* ---------------- export ---------------- */
   const saveEdit = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -421,12 +409,10 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
     );
   };
 
-  /* ======================================================
-   * UI
-   * ==================================================== */
+
   return (
     <div className="photo-editor">
-      {/* ---------- header ---------- */}
+      {/* header */}
       <div className="editor-header">
         <h3>Photo Editor</h3>
         <div className="editor-actions">
@@ -445,7 +431,7 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
         </div>
       </div>
 
-      {/* ---------- body ---------- */}
+      {/*  body  */}
       <div className="editor-content">
         {/* ===== sidebar ===== */}
         <div className="editor-sidebar">
@@ -551,7 +537,7 @@ export default function PhotoEditor({ imageUrl, onSave, onCancel }) {
           </section>
         </div>
 
-        {/* ===== canvas ===== */}
+        {/*  canvas  */}
         <div className="editor-canvas-container">
           <canvas 
             ref={canvasRef} 

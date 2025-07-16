@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { UserPlus, UserCheck, Clock, X, UserMinus } from "lucide-react";
 import "./FriendButton.css";
-
+//Provides a button to manage friendship status between users
 export default function FriendButton({ targetUserId, onStatusChange }) {
   const [friendshipStatus, setFriendshipStatus] = useState("none");
   const [loading, setLoading] = useState(false);
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const currentUserId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    checkFriendshipStatus();
-  }, [targetUserId]);
-
-  const checkFriendshipStatus = async () => {
+  const checkFriendshipStatus = useCallback(async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/auth/friendship-status/${currentUserId}/${targetUserId}`);
       setFriendshipStatus(res.data.status);
     } catch (err) {
       console.error("Failed to check friendship status:", err);
     }
-  };
+  }, [currentUserId, targetUserId]);
 
+  useEffect(() => {
+    checkFriendshipStatus();
+  }, [targetUserId, checkFriendshipStatus]);
+  //Send a friend request to the target user
   const sendFriendRequest = async () => {
     setLoading(true);
     try {

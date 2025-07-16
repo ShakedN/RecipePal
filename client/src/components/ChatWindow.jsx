@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import io from "socket.io-client";
 import { Send, X } from "lucide-react";
 import "./ChatWindow.css";
 
+//Initialize socket connection to server for real-time messaging
 const socket = io("http://localhost:5000");
-
+//Provides real-time chat interface between two users
 export default function ChatWindow({ otherUser, onClose, currentUserId }) {
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -13,11 +14,32 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
+  const initializeChat = useCallback(async () => {
+    try {
+      //Fetch or create chat between current user and other user
+      const res = await axios.post("http://localhost:5000/api/chat/get-or-create", {
+        userId1: currentUserId,
+        userId2: otherUser._id
+      });
+      
+      setChat(res.data);
+      setMessages(res.data.messages || []);
+      
+      // Join the specific chat room
+      socket.emit('join-chat', res.data._id);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error("Failed to initialize chat:", err);
+      setLoading(false);
+    }
+  }, [currentUserId, otherUser._id]);
+
   useEffect(() => {
     if (currentUserId && otherUser._id) {
       initializeChat();
     }
-  }, [currentUserId, otherUser._id]);
+  }, [currentUserId, otherUser._id, initializeChat]);
 
   useEffect(() => {
     // Join user's personal room
@@ -35,31 +57,12 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
       socket.off('new-message');
     };
   }, [chat?._id, currentUserId]);
-
+//Scroll to bottom when new messages arrive
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const initializeChat = async () => {
-    try {
-      const res = await axios.post("http://localhost:5000/api/chat/get-or-create", {
-        userId1: currentUserId,
-        userId2: otherUser._id
-      });
-      
-      setChat(res.data);
-      setMessages(res.data.messages || []);
-      
-      // Join the specific chat room
-      socket.emit('join-chat', res.data._id);
-      
-      setLoading(false);
-    } catch (err) {
-      console.error("Failed to initialize chat:", err);
-      setLoading(false);
-    }
-  };
-
+  //Scroll to the bottom of the chat message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -80,7 +83,7 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
       console.error("Failed to send message:", err);
     }
   };
-
+//Handle Enter key press to send message
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
