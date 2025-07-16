@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Edit3, BarChart2, Camera, Save, X, Cake, ChefHat } from "lucide-react";
 import "./ProfilePage.css";
@@ -6,17 +6,18 @@ import axios from "axios";
 import FriendButton from "../components/FriendButton";
 
 export default function ProfilePage() {
-  const { userId: urlUserId } = useParams();
-  const navigate = useNavigate();
-  const currentUserId = localStorage.getItem("userId");
-  const isOwnProfile = !urlUserId || urlUserId === currentUserId;
+  const { userId: urlUserId } = useParams(); //Get userId from URL
+  const navigate = useNavigate(); //Hook to programmatically navigate
+  const currentUserId = localStorage.getItem("userId"); //Get userId from local storage
+  const isOwnProfile = !urlUserId || urlUserId === currentUserId; //Check if its the logged in user's profile
   const profileUserId = urlUserId || currentUserId;
 
-  // Add all missing state variables
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+
+  //State that holds the edited data
   const [editData, setEditData] = useState({
     username: "",
     about: "",
@@ -27,12 +28,14 @@ export default function ProfilePage() {
     backgroundImagePreview: "",
   });
 
+  //Fetch user data when the page opens or when the profile ID changes
   useEffect(() => {
     fetchUserProfile();
   }, [profileUserId]);
 
+  //Fetch profile data from backend
   const fetchUserProfile = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token"); //Get user token from local storage
 
     if (!profileUserId || !token) {
       navigate("/");
@@ -49,6 +52,8 @@ export default function ProfilePage() {
         }
       );
       setUser(res.data);
+
+      //Set data into editing state
       setEditData({
         username: res.data.username || "",
         about: res.data.about || "",
@@ -60,6 +65,7 @@ export default function ProfilePage() {
         backgroundImagePreview:
           res.data.background_image || "/images/default-background.jpg",
       });
+
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch user profile:", err);
@@ -68,12 +74,14 @@ export default function ProfilePage() {
     }
   };
 
+  //Upload image to Cloudinary
   const handleImageUpload = async (imageFile) => {
-    const formData = new FormData();
+    const formData = new FormData(); //Create a FormData object to hold the file and upload preset
     formData.append("file", imageFile);
     formData.append("upload_preset", "ml_default");
 
     try {
+      //Send a POST request to Cloudinary's image upload endpoint
       const response = await fetch(
         "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
         {
@@ -82,10 +90,15 @@ export default function ProfilePage() {
         }
       );
 
+      //Parse the JSON response
       const data = await response.json();
+
+      //If the upload fails and no secure_url is returned throw an error
       if (!data.secure_url) {
         throw new Error(data.error?.message || "Upload failed");
       }
+
+      //Return the uploaded image's URL
       return data.secure_url;
     } catch (error) {
       console.error("Image upload failed:", error);
@@ -93,10 +106,12 @@ export default function ProfilePage() {
     }
   };
 
+  //Edit mode
   const handleEditClick = () => {
     setIsEditing(true);
   };
 
+  //Cancel editing and reset state
   const handleCancelEdit = () => {
     setEditData({
       username: user.username || "",
@@ -111,6 +126,7 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  //Save changes to backend
   const handleSaveChanges = async () => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
@@ -122,14 +138,14 @@ export default function ProfilePage() {
         cookingRole: editData.cookingRole,
       };
 
-      // Upload profile image if changed
+      //Upload profile image if changed
       if (editData.profileImageFile) {
         updateData.profile_image = await handleImageUpload(
           editData.profileImageFile
         );
       }
 
-      // Upload background image if changed
+      //Upload background image if changed
       if (editData.backgroundImageFile) {
         updateData.background_image = await handleImageUpload(
           editData.backgroundImageFile
@@ -154,6 +170,7 @@ export default function ProfilePage() {
     }
   };
 
+  //Handle profile or background file input
   const handleFileChange = (type, file) => {
     if (file) {
       const previewUrl = URL.createObjectURL(file);
@@ -165,6 +182,7 @@ export default function ProfilePage() {
     }
   };
 
+  //Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -229,6 +247,7 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/*Action buttons if profile owner*/}
       {isOwnProfile && !isEditing && (
         <div className="profile-buttons">
           <button className="edit-profile-btn" onClick={handleEditClick}>
@@ -243,7 +262,7 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Profile Photo and Info */}
+      {/*Profile Photo and Info*/}
       <div className="profile-info">
         <div className="profile-photo">
           <img
@@ -270,6 +289,7 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/*Username and friend button*/}
         <h1 className="profile-name">
           {user.firstName} {user.lastName}
         </h1>
@@ -290,14 +310,15 @@ export default function ProfilePage() {
           <FriendButton
             targetUserId={profileUserId}
             onStatusChange={(status) => {
-              // Optionally refresh user data when friendship status changes
+              //Refresh user data when friendship status changes
               if (status === "friends") {
                 fetchUserProfile();
               }
             }}
           />
         )}
-        {/* Cooking Role Section */}
+
+        {/*Cooking Role*/}
         <div className="profile-cooking-role-section">
           {isEditing ? (
             <div className="edit-cooking-role-container">
@@ -330,12 +351,13 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/*Birthday*/}
         <p className="profile-birthday">
           <Cake size={22} style={{ marginRight: 8, color: "#f17e0b" }} />
           Birthday: {formatDate(user.birthDate)}
         </p>
 
-        {/* About Section */}
+        {/*About*/}
         <div className="profile-about-section">
           {isEditing ? (
             <div className="edit-about-container">
@@ -360,7 +382,7 @@ export default function ProfilePage() {
           )}
         </div>
 
-        {/* Edit Action Buttons */}
+        {/*Edit Action Buttons*/}
         {isEditing && (
           <div className="edit-action-buttons">
             <button onClick={handleSaveChanges} className="save-profile-btn">
@@ -374,9 +396,12 @@ export default function ProfilePage() {
           </div>
         )}
 
+        {/*Profile statistics*/}
         <div className="profile-stats">
           <div className="stat">
-            <span className="stat-number">{user.posts?.filter(post => !post.isGroupPost).length || 0}</span>
+            <span className="stat-number">
+              {user.posts?.filter((post) => !post.isGroupPost).length || 0}
+            </span>
             <span className="stat-label">Posts</span>
           </div>
           <div className="stat">
@@ -390,8 +415,9 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Additional Sections */}
+      {/*Friends & Posts Preview*/}
       <div className="profile-sections">
+        {/*Friends*/}
         <div className="friends-section">
           <h2>Friends ({user.friends?.length || 0})</h2>
           {user.friends && user.friends.length > 0 ? (
@@ -417,12 +443,17 @@ export default function ProfilePage() {
           )}
         </div>
 
+        {/*Posts*/}
         <div className="posts-section">
-          <h2>Recent Posts ({user.posts?.filter(post => !post.isGroupPost).length || 0})</h2>
-          {user.posts && user.posts.filter(post => !post.isGroupPost).length > 0 ? (
+          <h2>
+            Recent Posts (
+            {user.posts?.filter((post) => !post.isGroupPost).length || 0})
+          </h2>
+          {user.posts &&
+          user.posts.filter((post) => !post.isGroupPost).length > 0 ? (
             <div className="posts-preview">
               {user.posts
-                .filter(post => !post.isGroupPost) // Filter out group posts
+                .filter((post) => !post.isGroupPost) //Filter out group posts
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .slice(0, 3)
                 .map((post) => (

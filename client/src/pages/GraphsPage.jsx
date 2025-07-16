@@ -149,8 +149,8 @@ const GraphsPage = () => {
     svg.append("g").call(
       d3
         .axisLeft(y)
-        .ticks(Math.ceil(d3.max(data, (d) => d.likeCount))) // מספר שלם של ticks
-        .tickFormat(d3.format("d")) // תצוגת מספרים שלמים בלבד
+        .ticks(Math.ceil(d3.max(data, (d) => d.likeCount))) //Integer number of ticks
+        .tickFormat(d3.format("d")) //Shoe only integers
     );
 
     //Draw the bars for each post
