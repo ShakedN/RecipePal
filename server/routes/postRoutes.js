@@ -11,6 +11,7 @@ import {
   deletePost,
   editPost,
   getUserPosts,
+  getFilteredPosts,
 } from "../controllers/postController.js";
 
 const router = express.Router();
@@ -18,6 +19,9 @@ const router = express.Router();
 
 // GET /api/posts - Get all posts
 router.get("/", getAllPosts);
+
+// GET /api/posts/filtered/:userId - Get filtered posts for user (friends + groups)
+router.get("/filtered/:userId", getFilteredPosts);
 
 // POST /api/posts - Create a new post
 router.post("/", createPost);

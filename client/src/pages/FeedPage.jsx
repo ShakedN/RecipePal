@@ -78,13 +78,13 @@ export default function FeedPage() {
 
   const fetchPosts = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/posts");
+      const res = await axios.get(`http://localhost:5000/api/posts/filtered/${userId}`);
       setPosts(res.data);
     } catch (err) {
       console.error("Failed to fetch posts:", err);
       setPosts([]);
     }
-  }, []);
+  }, [userId]);
 
   const fetchUserGroups = useCallback(async () => {
     try {
@@ -868,25 +868,23 @@ export default function FeedPage() {
         </div>
 
         {/*Posts*/}
-        {posts.filter((post) => !post.isGroupPost).length === 0 ? (
+        {posts.length === 0 ? (
           <div className="no-posts-message">
             <p>No posts yet. Be the first to share something delicious!</p>
           </div>
         ) : (
-          posts
-            .filter((post) => !post.isGroupPost)
-            .map((post) => (
-              <PostCard
-                key={post._id}
-                post={post}
-                onLike={handleLike}
-                onComment={handleComment}
-                onDeleteComment={handleDeleteComment}
-                onEditComment={handleEditComment}
-                onDeletePost={handleDeletePost}
-                onEditPost={handleEditPost}
-              />
-            ))
+          posts.map((post) => (
+            <PostCard
+              key={post._id}
+              post={post}
+              onLike={handleLike}
+              onComment={handleComment}
+              onDeleteComment={handleDeleteComment}
+              onEditComment={handleEditComment}
+              onDeletePost={handleDeletePost}
+              onEditPost={handleEditPost}
+            />
+          ))
         )}
       </div>
 

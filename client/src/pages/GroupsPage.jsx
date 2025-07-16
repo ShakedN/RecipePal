@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { UserPlus, Activity,LogOut,Trash2} from "lucide-react";
+import { UserPlus, Activity, LogOut, Trash2, Users, UserMinus } from "lucide-react";
 import axios from "axios";
 import "./GroupsPage.css";
 import { useParams } from "react-router-dom";
@@ -145,6 +145,30 @@ export default function GroupsPage() {
       fetchSuggestedGroups();
     } catch (error) {
       console.error("Error joining group:", error);
+    }
+  };
+
+  const handleRemoveMember = async (memberIdToRemove) => {
+    if (!window.confirm("Are you sure you want to remove this member from the group?")) {
+      return;
+    }
+
+    try {
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/remove-member`, {
+        userId,
+        memberIdToRemove
+      });
+      
+      // Update the group state to remove the member
+      setGroup(prevGroup => ({
+        ...prevGroup,
+        members: prevGroup.members.filter(member => member._id !== memberIdToRemove)
+      }));
+      
+      alert("Member removed successfully!");
+    } catch (error) {
+      console.error("Error removing member:", error);
+      alert(error.response?.data?.message || "Failed to remove member. Please try again.");
     }
   };
 
@@ -357,6 +381,8 @@ export default function GroupsPage() {
             ))
           )}
         </div>
+
+
       </div>
 
       {/* Main Content */}
@@ -440,6 +466,49 @@ export default function GroupsPage() {
           )}
         </div>
       </div>
+              {/* Members List Widget */}
+        <div className="widget">
+          <div className="sidebar-title">
+            <Users size={20} />
+            Group Members ({group?.members?.length || 0})
+          </div>
+          {!group ? (
+            <p>Loading members...</p>
+          ) : group.members.length === 0 ? (
+            <p>No members in this group.</p>
+          ) : (
+            group.members.map((member) => (
+              <div key={member._id} className="member-item">
+                <div className="member-avatar">
+                  {member.profile_image ? (
+                    <img src={member.profile_image} alt={member.username} />
+                  ) : (
+                    member.username?.charAt(0).toUpperCase() || 'U'
+                  )}
+                </div>
+                <div className="member-info">
+                  <div className="member-name">
+                    {member.firstName} {member.lastName}
+                    {member._id === group.admin._id && (
+                      <span className="admin-badge">Admin</span>
+                    )}
+                  </div>
+                  <div className="member-username">@{member.username}</div>
+                </div>
+                {isGroupAdmin && member._id !== group.admin._id && (
+                  <button
+                    className="remove-member-btn"
+                    onClick={() => handleRemoveMember(member._id)}
+                    title="Remove member"
+                  >
+                    <UserMinus size={16} />
+                  </button>
+                )}
+              </div>
+            ))
+          )}
+        </div>
     </div>
+    
   );
 }
