@@ -1,57 +1,22 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
 import PhotoEditor from "../components/PhotoEditor";
 import VideoEditor from "../components/VideoEditor";
-import { Video, Image, Edit3, X, Users, Plus } from "lucide-react";
+import { Users, Plus } from "lucide-react";
 import "./FeedPage.css";
 import axios from "axios";
 import JoinGroupPopup from "../components/JoinGroupPopup";
 import CreateGroupModal from "../components/CreateGroupModal";
 import NewPostForm from "../components/NewPostForm";
-const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? This {adjective1}, {adjective2} {dish type} is:
-
-{• Feature 1}  
-{• Feature 2}  
-{• Feature 3}  
-
-📋 **What You Need**  
-<!-- ✏️  Start listing ingredients here, one per line.  -->
-•   
-•   
-•   
-•   
-
-🍰 **{Optional Sub-section (e.g., Frosting / Filling / Glaze)}**  
-<!-- ✏️  List sub-ingredients if your recipe has a second component. Delete this block if not needed. -->
-•   
-•   
-•   
-
-👩‍🍳 **Steps in a Snap**  
-1️⃣ {Step 1 (verb + short instruction)}  
-2️⃣ {Step 2}  
-3️⃣ {Step 3}  
-4️⃣ {Step 4}  
-5️⃣ {Step 5}  
-
-💡 **Pro Tips**  
-• {Tip 1}  
-• {Tip 2}  
-• {Tip 3}  
-
-📸 Don't forget to snap a pic and tag me so I can drool over your masterpiece! 😍👩‍🍳`;
 
 export default function FeedPage() {
   const navigate = useNavigate();
-  const fileInputRef = useRef(null);
   const [posts, setPosts] = useState([]);
   const [showPhotoEditor, setShowPhotoEditor] = useState(false);
   const [showVideoEditor, setShowVideoEditor] = useState(false);
   const [editingMedia, setEditingMedia] = useState(null);
   const [isEdited, setIsEdited] = useState(false);
-  const [showMediaActions, setShowMediaActions] = useState(false);
-  const [showTemplateRecipe, setShowTemplateRecipe] = useState(false);
   const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -59,28 +24,11 @@ export default function FeedPage() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    image: "",
-    video: "",
-    kindOfPost: "",
-    typeRecipe: "",
-    dietaryPreferences: [],
-    imageFile: null,
-    videoFile: null,
-    mediaType: "image",
-    canvasData: null,
-    group: null,
-    isGroupPost: null,
-  });
-
   const userId = localStorage.getItem("userId");
   const userName = localStorage.getItem("username");
 
   const fetchPosts = useCallback(async () => {
     try {
-
       const res = await axios.get(`http://localhost:5000/api/posts/filtered/${userId}`);
       setPosts(res.data);
     } catch (err) {
@@ -252,63 +200,6 @@ export default function FeedPage() {
     }
   };
 
-  const handleNewPostChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (type === "checkbox") {
-      setNewPost((prev) => ({
-        ...prev,
-        dietaryPreferences: checked
-          ? [...prev.dietaryPreferences, value]
-          : prev.dietaryPreferences.filter((pref) => pref !== value),
-      }));
-    } else {
-      setNewPost((prev) => ({ ...prev, [name]: value }));
-
-      if (
-        name === "content" &&
-        value !== recipeExContent &&
-        showTemplateRecipe
-      ) {
-        setShowTemplateRecipe(false);
-      }
-    }
-  };
-
-  const handleImageUpload = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ml_default");
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-    const data = await res.json();
-    if (!data.secure_url)
-      throw new Error(data.error?.message || "Upload failed");
-    return data.secure_url;
-  };
-
-  const handleVideoUpload = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ml_default");
-    const res = await fetch(
-      "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-    const data = await res.json();
-    if (!data.secure_url)
-      throw new Error(data.error?.message || "Upload failed");
-    return data.secure_url;
-  };
-
   const handleEditComment = async (postId, commentId, newContent) => {
     const userId = localStorage.getItem("userId");
     try {
@@ -326,80 +217,6 @@ export default function FeedPage() {
       alert(
         "Failed to edit comment: " +
           (err.response?.data?.message || err.message)
-      );
-    }
-  };
-
-  const handleNewPostSubmit = async (e) => {
-    e.preventDefault();
-    const userName = localStorage.getItem("username");
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      alert("You must be logged in to post.");
-      return;
-    }
-
-    try {
-      let imageUrl = "";
-      let videoUrl = "";
-
-      if (newPost.mediaType === "image" && newPost.imageFile) {
-        if (isEdited && newPost.canvasData?.editedUrl) {
-          imageUrl = newPost.canvasData.editedUrl;
-        } else {
-          imageUrl = await handleImageUpload(newPost.imageFile);
-        }
-      } else if (newPost.mediaType === "video" && newPost.videoFile) {
-        if (isEdited && newPost.canvasData?.editedUrl) {
-          videoUrl = newPost.canvasData.editedUrl;
-        } else {
-          videoUrl = await handleVideoUpload(newPost.videoFile);
-        }
-      }
-
-      const postPayload = {
-        userId,
-        userName,
-        kindOfPost: newPost.kindOfPost,
-        title: newPost.title,
-        content: newPost.content,
-        mediaType: newPost.mediaType,
-        image: imageUrl,
-        video: videoUrl,
-        group: newPost.group,
-        canvasData: newPost.canvasData,
-        isGroupPost: false,
-      };
-
-      if (newPost.kindOfPost === "recipe") {
-        postPayload.typeRecipe = newPost.typeRecipe;
-        postPayload.dietaryPreferences = newPost.dietaryPreferences;
-      }
-
-      await axios.post("http://localhost:5000/api/posts", postPayload);
-      await fetchPosts();
-
-      setNewPost({
-        title: "",
-        content: "",
-        image: "",
-        video: "",
-        kindOfPost: "",
-        typeRecipe: "",
-        dietaryPreferences: [],
-        imageFile: null,
-        videoFile: null,
-        mediaType: "image",
-        canvasData: null,
-        isGroupPost: null,
-      });
-      setIsEdited(false);
-      setShowMediaActions(false);
-      setShowTemplateRecipe(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } catch (err) {
-      alert(
-        "Failed to add post: " + (err.response?.data?.error || err.message)
       );
     }
   };
@@ -437,13 +254,6 @@ export default function FeedPage() {
     }
   };
 
-  const handleEditMedia = (file, type) => {
-    const url = URL.createObjectURL(file);
-    setEditingMedia({ url, type, file });
-    if (type === "image") setShowPhotoEditor(true);
-    else if (type === "video") setShowVideoEditor(true);
-  };
-
   const handleSaveEdit = async (editData) => {
     try {
       let finalUrl = "";
@@ -469,21 +279,6 @@ export default function FeedPage() {
         } else {
           throw new Error("No trimmed video blob created");
         }
-
-        setNewPost((prev) => ({
-          ...prev,
-          canvasData: {
-            originalUrl: editingMedia.url,
-            editedUrl: finalUrl,
-            trimData: {
-              trimStart: editData.trimStart,
-              trimEnd: editData.trimEnd,
-              originalDuration: editData.originalDuration || 0,
-              trimmedDuration: editData.duration,
-            },
-            editType: "video-trim",
-          },
-        }));
       } else if (editingMedia.type === "image") {
         if (editData.blob) {
           const formData = new FormData();
@@ -503,23 +298,12 @@ export default function FeedPage() {
             throw new Error(data.error?.message || "Upload failed");
           finalUrl = data.secure_url;
         }
-
-        setNewPost((prev) => ({
-          ...prev,
-          canvasData: {
-            originalUrl: editingMedia.url,
-            editedUrl: finalUrl,
-            filters: editData.filters || {},
-            editType: "image",
-          },
-        }));
       }
 
       setIsEdited(true);
       setShowPhotoEditor(false);
       setShowVideoEditor(false);
       setEditingMedia(null);
-      setShowMediaActions(false);
     } catch (error) {
       console.error("Failed to save edit:", error);
       alert("Failed to save edited media: " + error.message);
@@ -532,23 +316,6 @@ export default function FeedPage() {
     setEditingMedia(null);
   };
 
-  const handleShowMediaActions = () => {
-    setShowMediaActions(true);
-  };
-
-  const handleHideMediaActions = () => {
-    setShowMediaActions(false);
-  };
-
-  const handleTemplateRecipe = () => {
-    if (showTemplateRecipe) {
-      setNewPost({ ...newPost, content: "" });
-      setShowTemplateRecipe(false);
-    } else {
-      setNewPost({ ...newPost, content: recipeExContent });
-      setShowTemplateRecipe(true);
-    }
-  };
   return (
     <div className="feed-page-container">
       {/* Groups Sidebar */}
