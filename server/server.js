@@ -7,7 +7,7 @@ import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
-import searchRoutes from "./routes/search.js";
+import searchRoutes from "./routes/searchRoutes.js";
 import Chat from "./models/Chat.js";
 import graphsRoutes from "./routes/graphsRoutes.js";
 import groupRoutes from './routes/groupRoutes.js';

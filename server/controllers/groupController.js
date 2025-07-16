@@ -1,7 +1,8 @@
 import Group from "../models/Group.js";
 import User from "../models/User.js";
 import Post from "../models/Post.js";
-
+//Req- Contains group name, description, and admin user ID
+//Res- Returns the created group object
 //Create a new group
 export const createGroup = async (req, res) => {
   const { name, description, admin } = req.body;
@@ -20,7 +21,7 @@ export const createGroup = async (req, res) => {
       return res.status(404).json({ message: "Admin user not found" });
     }
 
-    //Check if group name already exists (optional uniqueness check)
+    //Check if group name already exists
     const existingGroup = await Group.findOne({ name: name.trim() });
     if (existingGroup) {
       return res.status(400).json({
@@ -43,7 +44,7 @@ export const createGroup = async (req, res) => {
       $push: { groups: group._id },
     });
 
-    //Populate the group with admin and members info before returning
+    //Insert the group with admin and members info before returning
     const populatedGroup = await Group.findById(group._id)
       .populate("admin", "username firstName lastName profile_image")
       .populate("members", "username firstName lastName profile_image");
@@ -59,11 +60,13 @@ export const createGroup = async (req, res) => {
     });
   }
 };
-// Update the requestJoinGroup function to use pendingRequests
+//Req- Contains groupId
+//Res- Returns the group object with admin and members populated
+//Update the requestJoinGroup function to use pendingRequests
 export const requestJoinGroup = async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;
-
+//Validate user and group exist
   try {
     const user = await User.findById(userId);
     const group = await Group.findById(groupId)
@@ -73,17 +76,17 @@ export const requestJoinGroup = async (req, res) => {
       return res.status(404).json({ message: "User or group not found" });
     }
 
-    // Check if user is already a member
+    //Check if user is already a member
     if (group.members.includes(userId)) {
       return res.status(400).json({ message: "User is already a member" });
     }
 
-    // Check if request already exists (using pendingRequests)
+    //Check if request already exists
     if (group.pendingRequests.includes(userId)) {
       return res.status(400).json({ message: "Join request already sent" });
     }
 
-    // Add user to pendingRequests
+    //Add user to pending requests list
     group.pendingRequests.push(userId);
     await group.save();
 
@@ -95,6 +98,8 @@ export const requestJoinGroup = async (req, res) => {
     });
   }
 };
+//Req-ID of the user
+//Res- Returns all groups where user is admin or member
 //Get user's groups (groups where user is admin or member)
 export const getUserGroups = async (req, res) => {
   const { userId } = req.params;
@@ -116,29 +121,8 @@ export const getUserGroups = async (req, res) => {
   }
 };
 
-//Get suggested groups (groups user is not part of)
-// export const getSuggestedGroups = async (req, res) => {
-//   const { userId } = req.params;
-
-//   try {
-//     const groups = await Group.find({
-//       members: { $ne: userId },
-//       admin: { $ne: userId },
-//     })
-//       .populate("admin", "username firstName lastName profile_image")
-//       .populate("members", "username firstName lastName profile_image")
-//       .sort({ createdAt: -1 })
-//       .limit(10);
-
-//     res.status(200).json(groups);
-//   } catch (error) {
-//     res.status(500).json({
-//       message: "Error fetching suggested groups",
-//       error: error.message,
-//     });
-//   }
-// };
-
+//Req- Contains groupId of group to join,userId  of the user that want to join to the group
+//Res- Returns the updated group object with admin and members 
 //Join a group
 export const joinGroup = async (req, res) => {
   const { groupId } = req.params;
@@ -189,13 +173,17 @@ export const joinGroup = async (req, res) => {
     });
   }
 };
-
+//Req- gets the userId and GroupId- 
+// >The name of the group that the user want to leave 
+// >The userId of the user that want to leave the group
+//Res- Returns success message
 //Leave a group
 export const leaveGroup = async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;
 
   try {
+    //Find the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
@@ -243,7 +231,8 @@ export const leaveGroup = async (req, res) => {
     });
   }
 };
-
+//Req- gets the groupId
+//Res- Returns the group object with admin and members populated
 //Get group by ID
 export const getGroupById = async (req, res) => {
   const { groupId } = req.params;
@@ -266,7 +255,8 @@ export const getGroupById = async (req, res) => {
     });
   }
 };
-
+//Req- Contains groupId
+//Res- Returns all posts in the group
 //Get posts for a specific group
 export const getGroupPosts = async (req, res) => {
   const { groupId } = req.params;
@@ -287,7 +277,8 @@ export const getGroupPosts = async (req, res) => {
     });
   }
 };
-
+//Req- Contains userId
+//Res- Returns all posts from groups user is a member of
 //Get feed for user's groups (all posts from groups user is a member of)
 export const getGroupsFeed = async (req, res) => {
   const { userId } = req.params;
@@ -316,13 +307,15 @@ export const getGroupsFeed = async (req, res) => {
     });
   }
 };
-
+//Req- Contains groupId,name,description,userId
+//Res- Returns the updated group object with admin and members populated
 //Update group (admin only)
 export const updateGroup = async (req, res) => {
   const { groupId } = req.params;
   const { name, description, userId } = req.body;
 
   try {
+    //Find the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
@@ -356,7 +349,8 @@ export const updateGroup = async (req, res) => {
     });
   }
 };
-
+//Req- Contains groupId and userId
+//Res- Returns success message
 //Delete group (admin only)
 export const deleteGroup = async (req, res) => {
   const { groupId } = req.params;
@@ -395,11 +389,13 @@ export const deleteGroup = async (req, res) => {
     });
   }
 };
-
+//Req- Contains userId
+//Res- Returns all groups where user is admin or member 
 //Get 3 suggested group for user based on his friend's groups
 export const getSuggestedGroups = async (req, res) => {
   const userId = req.params.userId;
   try {
+    //Get user with their friends list
     const user = await User.findById(userId).populate("friends");
 
     const friendsIds = user.friends.map((friend) => friend._id);
@@ -414,7 +410,7 @@ export const getSuggestedGroups = async (req, res) => {
     .populate("admin", "username firstName lastName profile_image")
     .populate("members", "username firstName lastName profile_image")
     .limit(3);
-
+//Handle case where no suggestions are found
     if (groupsWithFriends.length === 0) {
       return res
         .status(200)
@@ -429,17 +425,19 @@ export const getSuggestedGroups = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
+//Req- Contains groupId and userId
+//Res- Returns success message
 export const acceptGroupRequest = async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;
 
   try {
+    //Find the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
     }
-
+    //Add user to members and remove from pending requests
     group.members.push(userId);
     group.pendingRequests = group.pendingRequests.filter((id) => id.toString() !== userId);
     await group.save();
@@ -454,17 +452,20 @@ export const acceptGroupRequest = async (req, res) => {
     res.status(500).json({ message: "Error accepting group request", error: error.message });
   }
 };
-
+//Req- Contains groupId,userId and userId
+//Res- Returns success message
+//Reject group join request
 export const rejectGroupRequest = async (req, res) => {
   const { groupId } = req.params;
   const { userId } = req.body;
 
   try {
+    //Find the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
     }
-
+    //Remove user from pending requests
     group.pendingRequests = group.pendingRequests.filter((id) => id.toString() !== userId);
     await group.save();
 
@@ -473,13 +474,15 @@ export const rejectGroupRequest = async (req, res) => {
     res.status(500).json({ message: "Error rejecting group request", error: error.message });
   }
 };
-
+//Req- Contains groupId and userId
+//Res- Returns success message
 // Remove member from group (admin only)
 export const removeMemberFromGroup = async (req, res) => {
   const { groupId } = req.params;
   const { userId, memberIdToRemove } = req.body;
 
   try {
+    //Find the group
     const group = await Group.findById(groupId);
     if (!group) {
       return res.status(404).json({ message: "Group not found" });
