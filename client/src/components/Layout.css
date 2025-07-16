@@ -1,13 +1,14 @@
 .page-content {
   padding: 20px;
-  background-image: url('/public/images/BACKGROUND-Feed.png');
+  /* background-image: url("/public/images/BACKGROUND-Feed.png"); */
+  background-color: #faf3e0;
 }
 
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(90deg, #FF8C00, #ff854a);
+  background: linear-gradient(90deg, #ff8c00, #ff854a);
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -20,12 +21,13 @@
   color: white;
   text-decoration: none;
   font-size: 16px;
+  padding-right: 1.5rem;
 }
 
 .navbar-links {
   display: flex;
-  align-items: center;   /* מיישר את כל הילדים לגובה אחיד */
-  gap: 24px;             /* ריווח קבוע בין אייקונים */
+  align-items: center; /* מיישר את כל הילדים לגובה אחיד */
+  gap: 24px; /* ריווח קבוע בין אייקונים */
   list-style: none;
   margin: 0;
   padding: 0;
@@ -35,130 +37,129 @@
   align-items: center;
 }
 
-
 .navbar-links a:hover {
   text-decoration: underline;
 }
 .navbar-search {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .search-input {
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-  }
-  
-  .search-button {
-    padding: 5px 10px;
-    background-color: #FFA500;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .search-button:hover {
-    background-color: #FFA500;
-  }
-    .navbar-search-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-input {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.search-button {
+  padding: 5px 10px;
+  background-color: #ffa500;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #ffa500;
+}
+.navbar-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .navbar-search {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-input {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.search-button {
+  padding: 5px 10px;
+  background-color: #ffa500;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: #ffa500;
+}
+.navbar-search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-search {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-input {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  width: 250px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #ff9933;
+  box-shadow: 0 0 0 2px rgba(255, 153, 51, 0.2);
+  width: 300px;
+}
+
+.search-button {
+  padding: 8px 16px;
+  background-color: #ff9933;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s ease;
+}
+
+.search-button:hover:not(:disabled) {
+  background-color: #e96b00;
+}
+
+.search-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
   .search-input {
-    padding: 5px 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    font-size: 14px;
+    width: 150px;
   }
-  
-  .search-button {
-    padding: 5px 10px;
-    background-color: #FFA500;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .search-button:hover {
-    background-color: #FFA500;
-  }
-    .navbar-search-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  
-  .navbar-search {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .search-input {
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-    width: 250px;
-    outline: none;
-    transition: all 0.3s ease;
-  }
-  
+
   .search-input:focus {
-    border-color: #ff9933;
-    box-shadow: 0 0 0 2px rgba(255, 153, 51, 0.2);
-    width: 300px;
+    width: 180px;
   }
-  
+
   .search-button {
-    padding: 8px 16px;
-    background-color: #ff9933;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background 0.3s ease;
+    padding: 6px 12px;
+    font-size: 12px;
   }
-  
-  .search-button:hover:not(:disabled) {
-    background-color: #e96b00;
-  }
-  
-  .search-button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .search-input {
-      width: 150px;
-    }
-    
-    .search-input:focus {
-      width: 180px;
-    }
-    
-    .search-button {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-  }
-  .friend-requests-container {
+}
+.friend-requests-container {
   position: relative;
 }
 
@@ -252,7 +253,7 @@
 }
 
 .friend-requests-tab.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -2px;
   left: 0;
@@ -372,21 +373,21 @@
     min-width: 350px;
     right: -20px;
   }
-  
+
   .request-item {
     padding: 12px;
   }
-  
+
   .request-avatar {
     width: 48px;
     height: 48px;
   }
-  
+
   .request-actions {
     flex-direction: column;
     gap: 6px;
   }
-  
+
   .accept-btn,
   .reject-btn {
     padding: 8px 16px;
@@ -404,21 +405,21 @@
     min-width: 300px;
     right: -20px;
   }
-  
+
   .request-item {
     padding: 10px;
   }
-  
+
   .request-avatar {
     width: 40px;
     height: 40px;
   }
-  
+
   .request-actions {
     flex-direction: column;
     gap: 6px;
   }
-  
+
   .accept-btn,
   .reject-btn {
     padding: 5px 8px;
@@ -533,11 +534,11 @@
     min-width: 300px;
     right: -20px;
   }
-  
+
   .friend-chat-item {
     padding: 10px;
   }
-  
+
   .friend-chat-avatar {
     width: 40px;
     height: 40px;
