@@ -2,10 +2,8 @@ import React from "react";
 import "./JoinGroupPopup.css";
 
 export default function JoinGroupPopup({ group, onJoin, onCancel }) {
-  // Debug logging to see what admin data we're getting
-  console.log("JoinGroupPopup - group data:", group);
-  console.log("JoinGroupPopup - admin data:", group.admin);
   
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">

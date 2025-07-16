@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { UserPlus, UserCheck, Clock, X, UserMinus } from "lucide-react";
 import "./FriendButton.css";
-
+//Provides a button to manage friendship status between users
 export default function FriendButton({ targetUserId, onStatusChange }) {
   const [friendshipStatus, setFriendshipStatus] = useState("none");
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export default function FriendButton({ targetUserId, onStatusChange }) {
       console.error("Failed to check friendship status:", err);
     }
   };
-
+  //Send a friend request to the target user
   const sendFriendRequest = async () => {
     setLoading(true);
     try {

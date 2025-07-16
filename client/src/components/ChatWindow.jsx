@@ -4,8 +4,9 @@ import io from "socket.io-client";
 import { Send, X } from "lucide-react";
 import "./ChatWindow.css";
 
+//Initialize socket connection to server for real-time messaging
 const socket = io("http://localhost:5000");
-
+//Provides real-time chat interface between two users
 export default function ChatWindow({ otherUser, onClose, currentUserId }) {
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -35,13 +36,14 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
       socket.off('new-message');
     };
   }, [chat?._id, currentUserId]);
-
+//Scroll to bottom when new messages arrive
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
+//Initialize chat with the other user
   const initializeChat = async () => {
     try {
+      //Fetch or create chat between current user and other user
       const res = await axios.post("http://localhost:5000/api/chat/get-or-create", {
         userId1: currentUserId,
         userId2: otherUser._id
@@ -59,7 +61,7 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
       setLoading(false);
     }
   };
-
+  //Scroll to the bottom of the chat message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -80,7 +82,7 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
       console.error("Failed to send message:", err);
     }
   };
-
+//Handle Enter key press to send message
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();

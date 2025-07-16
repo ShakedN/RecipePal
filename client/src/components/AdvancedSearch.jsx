@@ -1,35 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, X, ChevronDown, User,Users, FileText } from 'lucide-react';
 import './AdvancedSearch.css';
-
+//Provides advanced search functionality with filters for posts, users, and groups
 const AdvancedSearch = ({ onSearch, onClose }) => {
   const [searchType, setSearchType] = useState('posts');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Post filters
+  //Post filters
   const [postFilters, setPostFilters] = useState({
     title: '',
     kindOfPost: '',
     typeRecipe: '',
     dietaryPreferences: []
   });
+  //Group filters
     const [groupFilters, setGroupFilters] = useState({
     name: '',
     description: ''
   });
-  // User filters
+  //User filters
   const [userFilters, setUserFilters] = useState({
     username: '',
     cookingRole: '',
     group: '',
     name: ''
   });
-
+//Declare options for post filters-dropdown options
   const kindOfPostOptions = ['recipe', 'shared thoughts'];
   const typeRecipeOptions = ['desert', 'main dish', 'appetize', 'side dish'];
   const dietaryPreferencesOptions = ['dairy-free', 'gluten-free', 'vegan', 'vegeterian'];
-
+//Function to handle dietary preference checkbox changes
   const handleDietaryPreferenceChange = (preference) => {
     setPostFilters(prev => ({
       ...prev,
@@ -38,7 +39,7 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
         : [...prev.dietaryPreferences, preference]
     }));
   };
-
+//Function to handle search action
   const handleSearch = async () => {
    let filters;
     switch (searchType) {
@@ -55,14 +56,15 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
         filters = {};
     }
 
+    //Prepare search data object
     const searchData = {
-      type: searchType,
-      query: searchQuery,
-      filters: filters
+      type: searchType,           //What we're searching for
+      query: searchQuery,         //Main search text
+      filters: filters           //Additional filters
     };
     await onSearch(searchData);
   };
-
+//Function to reset all filters and search query
   const handleReset = () => {
     setSearchQuery('');
     setPostFilters({
@@ -82,8 +84,7 @@ const AdvancedSearch = ({ onSearch, onClose }) => {
       description: ''
     });
   };
-
-  const currentFilters = searchType === 'posts' ? postFilters : userFilters;
+//Check if there are any active filters to show the reset button
   const hasActiveFilters = (() => {
     switch (searchType) {
       case 'posts':
