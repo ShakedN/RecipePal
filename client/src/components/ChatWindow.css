@@ -59,7 +59,7 @@
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #fff;
 }
 
 .chat-messages {
@@ -107,7 +107,7 @@
 
 .message-time {
   font-size: 11px;
-  color: #666;
+  color: #fff;
   margin-top: 2px;
   padding: 0 5px;
 }
@@ -131,7 +131,7 @@
   outline: none;
   min-height: 20px;
   max-height: 100px;
-  background: var(--glass-bg);
+  background: var(--neutral-100);
   color: var(--neutral-900);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
