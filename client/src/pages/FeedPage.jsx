@@ -80,15 +80,14 @@ export default function FeedPage() {
 
   const fetchPosts = useCallback(async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/posts/feed/${userId}`
-      );
+
+      const res = await axios.get(`http://localhost:5000/api/posts/filtered/${userId}`);
       setPosts(res.data);
     } catch (err) {
       console.error("Failed to fetch posts:", err);
       setPosts([]);
     }
-  }, []);
+  }, [userId]);
 
   const fetchUserGroups = useCallback(async () => {
     try {
@@ -641,7 +640,6 @@ export default function FeedPage() {
           />
         </div>
 
-        {/*Posts*/}
         {/*Posts*/}
         {posts.length === 0 ? (
           <div className="no-posts-message">

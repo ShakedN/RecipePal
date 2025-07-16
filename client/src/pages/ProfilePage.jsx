@@ -376,7 +376,7 @@ export default function ProfilePage() {
 
         <div className="profile-stats">
           <div className="stat">
-            <span className="stat-number">{user.posts?.length || 0}</span>
+            <span className="stat-number">{user.posts?.filter(post => !post.isGroupPost).length || 0}</span>
             <span className="stat-label">Posts</span>
           </div>
           <div className="stat">
@@ -418,25 +418,29 @@ export default function ProfilePage() {
         </div>
 
         <div className="posts-section">
-          <h2>Recent Posts ({user.posts?.length || 0})</h2>
-          {user.posts && user.posts.length > 0 ? (
+          <h2>Recent Posts ({user.posts?.filter(post => !post.isGroupPost).length || 0})</h2>
+          {user.posts && user.posts.filter(post => !post.isGroupPost).length > 0 ? (
             <div className="posts-preview">
-              {user.posts.slice(0, 3).map((post) => (
-                <div key={post._id} className="post-preview">
-                  <h4>{post.title}</h4>
-                  <p>
-                    {post.content
-                      ? post.content.substring(0, 100) + "..."
-                      : "No content available"}
-                  </p>
-                  <span className="post-date">
-                    {new Date(post.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              ))}
+              {user.posts
+                .filter(post => !post.isGroupPost) // Filter out group posts
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 3)
+                .map((post) => (
+                  <div key={post._id} className="post-preview">
+                    <h4>{post.title}</h4>
+                    <p>
+                      {post.content
+                        ? post.content.substring(0, 100) + "..."
+                        : "No content available"}
+                    </p>
+                    <span className="post-date">
+                      {new Date(post.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
             </div>
           ) : (
-            <p>No posts yet</p>
+            <p>No feed posts yet</p>
           )}
         </div>
       </div>

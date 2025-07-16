@@ -11,7 +11,10 @@ import {
   deletePost,
   editPost,
   getUserPosts,
-  getFeedPosts,
+
+  getFilteredPosts,
+
+
 } from "../controllers/postController.js";
 
 const router = express.Router();
@@ -19,6 +22,9 @@ const router = express.Router();
 
 // GET /api/posts - Get all posts
 router.get("/", getAllPosts);
+
+// GET /api/posts/filtered/:userId - Get filtered posts for user (friends + groups)
+router.get("/filtered/:userId", getFilteredPosts);
 
 // POST /api/posts - Create a new post
 router.post("/", createPost);
@@ -50,7 +56,5 @@ router.delete("/:postId", deletePost);
 // GET /api/posts/user/:userId - Get posts by user ID
 router.get("/user/:userId", getUserPosts);
 
-// Get feed posts for a user (friends + groups)
-router.get("/feed/:userId", getFeedPosts);
 
 export default router;

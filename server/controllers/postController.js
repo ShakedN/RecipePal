@@ -69,6 +69,61 @@ export const getAllPosts = async (req, res) => {
   }
 };
 
+// Get filtered posts for friends and groups
+export const getFilteredPosts = async (req, res) => {
+  const { userId } = req.params;
+  
+  try {
+    // Get user with their friends and groups
+    const user = await User.findById(userId)
+      .populate('friends', '_id')
+      .populate('groups', '_id');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Get friend IDs
+    const friendIds = user.friends.map(friend => friend._id);
+    // Get group IDs
+    const groupIds = user.groups.map(group => group._id);
+
+    // Build the query to get posts from:
+    // 1. User's own posts (non-group posts)
+    // 2. Friends' posts (non-group posts)
+    // 3. Posts from groups the user is a member of
+    const queryConditions = [
+      // User's own non-group posts
+      { user: userId, isGroupPost: { $ne: true } }
+    ];
+
+    // Add friends' posts if user has friends
+    if (friendIds.length > 0) {
+      queryConditions.push({ user: { $in: friendIds }, isGroupPost: { $ne: true } });
+    }
+
+    // Add group posts if user is in any groups
+    if (groupIds.length > 0) {
+      queryConditions.push({ group: { $in: groupIds }, isGroupPost: true });
+    }
+
+    const query = { $or: queryConditions };
+
+    const posts = await Post.find(query)
+      .populate("user", "username profile_image")
+      .populate("group", "name")
+      .populate("likes", "username")
+      .populate("comments.user", "username profile_image")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching filtered posts", error: error.message });
+  }
+};
+
 //Create a new post
 export const createPost = async (req, res) => {
   const {

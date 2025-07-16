@@ -473,3 +473,44 @@ export const rejectGroupRequest = async (req, res) => {
     res.status(500).json({ message: "Error rejecting group request", error: error.message });
   }
 };
+
+// Remove member from group (admin only)
+export const removeMemberFromGroup = async (req, res) => {
+  const { groupId } = req.params;
+  const { userId, memberIdToRemove } = req.body;
+
+  try {
+    const group = await Group.findById(groupId);
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" });
+    }
+
+    // Check if the user is the admin
+    if (group.admin.toString() !== userId) {
+      return res.status(403).json({ message: "Only admin can remove members" });
+    }
+
+    // Check if member exists in the group
+    if (!group.members.includes(memberIdToRemove)) {
+      return res.status(400).json({ message: "User is not a member of this group" });
+    }
+
+    // Don't allow admin to remove themselves
+    if (group.admin.toString() === memberIdToRemove) {
+      return res.status(400).json({ message: "Admin cannot remove themselves" });
+    }
+
+    // Remove member from group
+    group.members = group.members.filter(id => id.toString() !== memberIdToRemove);
+    await group.save();
+
+    // Remove group from user's groups array
+    await User.findByIdAndUpdate(memberIdToRemove, {
+      $pull: { groups: groupId }
+    });
+
+    res.status(200).json({ message: "Member removed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing member", error: error.message });
+  }
+};

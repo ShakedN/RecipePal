@@ -13,6 +13,7 @@ import {
   requestJoinGroup,
    acceptGroupRequest, 
   rejectGroupRequest,
+  removeMemberFromGroup,
 } from '../controllers/groupController.js';
 
 const router = express.Router();
@@ -49,6 +50,11 @@ router.put('/:groupId', updateGroup);
 
 // DELETE /api/groups/:groupId - Delete group
 router.delete('/:groupId', deleteGroup);
+
+// POST /api/groups/:groupId/remove-member - Remove member from group (admin only)
+router.post('/:groupId/remove-member', removeMemberFromGroup);
+
 router.post("/:groupId/accept-request", acceptGroupRequest);
 router.post("/:groupId/reject-request", rejectGroupRequest);
+
 export default router;
