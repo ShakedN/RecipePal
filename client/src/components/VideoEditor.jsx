@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { 
   Save, X, Play, Pause, Scissors
 } from "lucide-react";
@@ -13,6 +13,19 @@ export default function VideoEditor({ videoUrl, onSave, onCancel }) {
   const [trimStart, setTrimStart] = useState(0);
   const [trimEnd, setTrimEnd] = useState(0);
 
+  const handleLoadedMetadata = useCallback(() => {
+    const video = videoRef.current;
+    setDuration(video.duration);
+    setTrimEnd(video.duration);
+    setupCanvas();
+  }, []);
+
+  const handleTimeUpdate = useCallback(() => {
+    const video = videoRef.current;
+    setCurrentTime(video.currentTime);
+    drawVideoFrame();
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (video) {
@@ -23,20 +36,7 @@ export default function VideoEditor({ videoUrl, onSave, onCancel }) {
         video.removeEventListener('timeupdate', handleTimeUpdate);
       };
     }
-  }, []);
-
-  const handleLoadedMetadata = () => {
-    const video = videoRef.current;
-    setDuration(video.duration);
-    setTrimEnd(video.duration);
-    setupCanvas();
-  };
-
-  const handleTimeUpdate = () => {
-    const video = videoRef.current;
-    setCurrentTime(video.currentTime);
-    drawVideoFrame();
-  };
+  }, [handleLoadedMetadata, handleTimeUpdate]);
 
   const setupCanvas = () => {
     const video = videoRef.current;

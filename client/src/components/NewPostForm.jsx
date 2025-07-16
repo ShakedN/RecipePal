@@ -1,13 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Image, Video, Edit3, X } from "lucide-react";
-import PhotoEditor from "./PhotoEditor";
-import VideoEditor from "./VideoEditor";
 import axios from "axios";
 import "./NewPostForm.css";
+import recipeExContent from "../pages/recipeExampleContent"; // Importing the example content for recipe posts
 
-const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? ...`; //Template content for recipe
 
-
+//Handles post creation for both individual and group posts with media support and recipe templates
 export default function NewPostForm({
   userId,
   username,
@@ -19,43 +17,46 @@ export default function NewPostForm({
 
   const fileInputRef = useRef(null);
 
-  // Debug effect to track userProfileImage changes
+  //Debug effect to track userProfileImage changes for troubleshooting
   useEffect(() => {
     console.log("NewPostForm - userProfileImage prop changed:", userProfileImage);
   }, [userProfileImage]);
 
   const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    imageFile: null,
-    videoFile: null,
-    kindOfPost: "",
-    typeRecipe: "",
-    dietaryPreferences: [],
-    mediaType: "image",
-    canvasData: null,
-    isGroupPost: null,
-    group: null,
+    title: "",                    //Post title
+    content: "",                  //Post content/description
+    imageFile: null,              //Selected image file
+    videoFile: null,              //Selected video file
+    kindOfPost: "",               //Type of post (recipe/shared thoughts)
+    typeRecipe: "",               //Recipe category (dessert/main dish/etc)
+    dietaryPreferences: [],       //Array of dietary tags
+    mediaType: "image",           //Current media type being uploaded
+    canvasData: null,             //Edited media data from editors
+    isGroupPost: null,            //Whether this is a group post
+    group: null,                  //Group ID if applicable
   });
 
-  const [isEdited, setIsEdited] = useState(false);
-  const [editingMedia, setEditingMedia] = useState(null);
-  const [showPhotoEditor, setShowPhotoEditor] = useState(false);
-  const [showVideoEditor, setShowVideoEditor] = useState(false);
-  const [showMediaActions, setShowMediaActions] = useState(false);
-  const [showTemplateRecipe, setShowTemplateRecipe] = useState(false);
+  const [isEdited, setIsEdited] = useState(false);                    //Track if media has been edited
+  const [editingMedia, setEditingMedia] = useState(null);             //Currently editing media object
+  const [showMediaActions, setShowMediaActions] = useState(false);    //Media action buttons visibility
+  const [showTemplateRecipe, setShowTemplateRecipe] = useState(false); //Recipe template toggle state
 
+  
   const handleNewPostChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    //Handle checkbox inputs for dietary preferences array
     if (type === "checkbox") {
       setNewPost((prev) => ({
         ...prev,
         dietaryPreferences: checked
-          ? [...prev.dietaryPreferences, value]
-          : prev.dietaryPreferences.filter((pref) => pref !== value),
+          ? [...prev.dietaryPreferences, value]      //Add preference if checked
+          : prev.dietaryPreferences.filter((pref) => pref !== value), //Remove if unchecked
       }));
     } else {
       setNewPost((prev) => ({ ...prev, [name]: value }));
+      
+      //Hide template when user starts typing custom content
       if (
         name === "content" &&
         value !== recipeExContent &&
@@ -66,47 +67,65 @@ export default function NewPostForm({
     }
   };
 
+  //Uploads media files to Cloudinary cloud storage
+  //Returns - Secure URL of uploaded media
   const handleMediaUpload = async (file, type) => {
+    //Create form data for Cloudinary upload
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "ml_default");
+    
+    //Select appropriate Cloudinary endpoint based on media type
     const url =
       type === "image"
         ? "https://api.cloudinary.com/v1_1/djfulsk1f/image/upload"
         : "https://api.cloudinary.com/v1_1/djfulsk1f/video/upload";
+    
+    //Upload to Cloudinary
     const res = await fetch(url, {
       method: "POST",
       body: formData,
     });
     const data = await res.json();
+    
+    //Validate upload success
     if (!data.secure_url)
       throw new Error(data.error?.message || "Upload failed");
     return data.secure_url;
   };
 
+  //Prepares media file for editing by creating object URL and opening appropriate editor
   const handleEditMedia = (file, type) => {
     const url = URL.createObjectURL(file);
     setEditingMedia({ url, type, file });
-    if (type === "image") setShowPhotoEditor(true);
-    else setShowVideoEditor(true);
+    
+    //Open appropriate editor based on media type
+    // TODO: Implement photo and video editors
+    console.log(`Opening ${type} editor for file:`, file);
   };
 
+  //Saves edited media data and uploads processed media to Cloudinary
+  //Updates post state with edited media URL and canvas data
   const handleSaveEdit = async (editData) => {
     try {
       let finalUrl = "";
 
+      //Handle video editing (trimming)
       if (editingMedia.type === "video") {
         const blob = editData.blob;
         finalUrl = await handleMediaUpload(blob, "video");
       } else {
+        //Handle image editing (filters, cropping, etc.)
         finalUrl = await handleMediaUpload(editData.blob, "image");
       }
 
+      //Update post state with edited media information
       setNewPost((prev) => ({
         ...prev,
         canvasData: {
           originalUrl: editingMedia.url,
           editedUrl: finalUrl,
+          //Add video-specific trim data or image filter data
           ...(editingMedia.type === "video"
             ? {
                 trimData: {
@@ -119,9 +138,8 @@ export default function NewPostForm({
         },
       }));
 
+      //Reset editing state
       setIsEdited(true);
-      setShowPhotoEditor(false);
-      setShowVideoEditor(false);
       setEditingMedia(null);
       setShowMediaActions(false);
     } catch (err) {
@@ -129,6 +147,8 @@ export default function NewPostForm({
     }
   };
 
+  //Handles form submission and creates new post in database
+  //Uploads media, constructs post payload, and sends to backend API
   const handleNewPostSubmit = async (e) => {
     e.preventDefault();
 
@@ -136,6 +156,7 @@ export default function NewPostForm({
       let imageUrl = "",
         videoUrl = "";
 
+      //Upload image if present (use edited version if available)
       if (newPost.mediaType === "image" && newPost.imageFile) {
         imageUrl =
           isEdited && newPost.canvasData?.editedUrl
@@ -143,6 +164,7 @@ export default function NewPostForm({
             : await handleMediaUpload(newPost.imageFile, "image");
       }
 
+      //Upload video if present (use edited version if available)
       if (newPost.mediaType === "video" && newPost.videoFile) {
         videoUrl =
           isEdited && newPost.canvasData?.editedUrl
@@ -150,6 +172,7 @@ export default function NewPostForm({
             : await handleMediaUpload(newPost.videoFile, "video");
       }
 
+      //Construct post payload for backend API
       const postPayload = {
         userId,
         userName: username,
@@ -166,10 +189,13 @@ export default function NewPostForm({
         group: groupId,
       };
 
+      //Send post to backend API
       await axios.post("http://localhost:5000/api/posts", postPayload);
+      
+      // Notify parent component of successful post creation
       if (onPostCreated) onPostCreated();
 
-      // Reset form
+      //Reset form to initial state
       setNewPost({
         title: "",
         content: "",
@@ -191,25 +217,23 @@ export default function NewPostForm({
     }
   };
 
-  const handleCancelEdit = () => {
-    setShowPhotoEditor(false);
-    setShowVideoEditor(false);
-    setEditingMedia(null);
-  };
-
+  //Shows media action buttons overlay
   const handleShowMediaActions = () => {
     setShowMediaActions(true);
   };
 
+  //Hides media action buttons overlay
   const handleHideMediaActions = () => {
     setShowMediaActions(false);
   };
 
   const handleTemplateRecipe = () => {
     if (showTemplateRecipe) {
+      //Remove template content
       setNewPost({ ...newPost, content: "" });
       setShowTemplateRecipe(false);
     } else {
+      //Load template content
       setNewPost({ ...newPost, content: recipeExContent });
       setShowTemplateRecipe(true);
     }
@@ -217,8 +241,9 @@ export default function NewPostForm({
 
   return (
     <div>
-      {/* MODERN NEW POST FORM */}
+      {/* MODERN NEW POST FORM - Complete post creation interface */}
       <div className="new-post-container">
+        {/* Header section with user profile and greeting */}
         <div className="new-post-header">
           <img
             src={userProfileImage || "/images/default-profile.png"}
@@ -233,16 +258,19 @@ export default function NewPostForm({
           </div>
         </div>
 
+        {/* Main form with grid layout for media and form sections */}
         <form onSubmit={handleNewPostSubmit} className="new-post-form-modern">
           <div className="new-post-layout-grid">
-            {/*Column 1: Media Upload and Preview */}
+            {/* Column 1: Media Upload and Preview Section */}
             <div className="media-column">
+              {/* Hidden file input for media selection */}
               <input
                 type="file"
                 accept="image/*,video/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {
+                    // Determine media type and update state
                     const fileType = file.type.startsWith("video")
                       ? "video"
                       : "image";
@@ -252,6 +280,7 @@ export default function NewPostForm({
                       imageFile: fileType === "image" ? file : null,
                       videoFile: fileType === "video" ? file : null,
                     });
+                    // Reset editing state for new file
                     setIsEdited(false);
                     setEditingMedia(null);
                     setShowMediaActions(false);
@@ -260,6 +289,8 @@ export default function NewPostForm({
                 className="media-input"
                 ref={fileInputRef}
               />
+              
+              {/* Media upload zone - shown when no media selected */}
               {!newPost.imageFile && !newPost.videoFile ? (
                 <div
                   className="media-upload-zone"
@@ -276,7 +307,9 @@ export default function NewPostForm({
                   </span>
                 </div>
               ) : (
+                // Media preview section - shown when media is selected
                 <div className="media-preview-container">
+                  {/* Image preview */}
                   {newPost.imageFile && (
                     <img
                       src={URL.createObjectURL(newPost.imageFile)}
@@ -284,6 +317,8 @@ export default function NewPostForm({
                       className="media-preview"
                     />
                   )}
+                  
+                  {/* Video preview with controls */}
                   {newPost.videoFile && (
                     <video
                       src={URL.createObjectURL(newPost.videoFile)}
@@ -292,6 +327,7 @@ export default function NewPostForm({
                     />
                   )}
 
+                  {/* Edit media trigger button */}
                   {!showMediaActions && (
                     <div
                       className="media-actions-trigger"
@@ -304,6 +340,7 @@ export default function NewPostForm({
                     </div>
                   )}
 
+                  {/* Media action buttons overlay */}
                   {showMediaActions && (
                     <div className="media-actions-overlay active">
                       <button
@@ -321,6 +358,7 @@ export default function NewPostForm({
                       <button
                         type="button"
                         onClick={() => {
+                          // Remove current media and reset file input
                           setNewPost({
                             ...newPost,
                             imageFile: null,
@@ -343,13 +381,15 @@ export default function NewPostForm({
                     </div>
                   )}
 
+                  {/* Edited badge indicator */}
                   {isEdited && <div className="edited-badge">Edited</div>}
                 </div>
               )}
             </div>
 
-            {/* Column 2: Form Details */}
+            {/* Column 2: Form Details and Content */}
             <div className="form-column">
+              {/* Post type selection */}
               <div className="form-section">
                 <label className="form-label">What are you sharing?</label>
                 <select
@@ -364,6 +404,8 @@ export default function NewPostForm({
                   <option value="shared thoughts">💭 Shared Thoughts</option>
                 </select>
               </div>
+              
+              {/* Post title input */}
               <div className="form-section">
                 <input
                   type="text"
@@ -375,8 +417,11 @@ export default function NewPostForm({
                   required
                 />
               </div>
+              
+              {/* Recipe-specific fields - only shown when recipe type is selected */}
               {newPost.kindOfPost === "recipe" && (
                 <div className="recipe-details">
+                  {/* Recipe category selection */}
                   <div className="form-section-inline">
                     <div className="form-section">
                       <label className="form-label">Category</label>
@@ -395,6 +440,8 @@ export default function NewPostForm({
                       </select>
                     </div>
                   </div>
+                  
+                  {/* Dietary preferences checkboxes */}
                   <div className="form-section">
                     <label className="form-label">Dietary Tags</label>
                     <div className="dietary-preferences">
@@ -423,6 +470,7 @@ export default function NewPostForm({
                 </div>
               )}
 
+              {/* Content textarea with template button */}
               <div className="form-section">
                 <div className="textarea-header">
                   <label className="form-label">Recipe & Instructions</label>
@@ -450,6 +498,7 @@ export default function NewPostForm({
             </div>
           </div>
 
+          {/* Form submission button */}
           <div className="form-actions-footer">
             <button type="submit" className="post-submit-btn">
               <span>Share Post</span>

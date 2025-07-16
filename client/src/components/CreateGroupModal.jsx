@@ -21,7 +21,7 @@ export default function CreateGroupModal({ onClose, onGroupCreated }) {
 
     try {
       const userId = localStorage.getItem("userId");
-      const response = await axios.post("http://localhost:5000/api/groups", {
+      await axios.post("http://localhost:5000/api/groups", {
         name: groupData.name.trim(),
         description: groupData.description.trim(),
         admin: userId,

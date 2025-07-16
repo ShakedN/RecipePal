@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Edit3, BarChart2, Camera, Save, X, Cake, ChefHat } from "lucide-react";
 import "./ProfilePage.css";
@@ -27,11 +27,7 @@ export default function ProfilePage() {
     backgroundImagePreview: "",
   });
 
-  useEffect(() => {
-    fetchUserProfile();
-  }, [profileUserId]);
-
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     const token = localStorage.getItem("token");
 
     if (!profileUserId || !token) {
@@ -40,7 +36,7 @@ export default function ProfilePage() {
     }
 
     try {
-      const res = await axios.get(
+      const response = await axios.get(
         `http://localhost:5000/api/auth/profile/${profileUserId}`,
         {
           headers: {
@@ -48,25 +44,27 @@ export default function ProfilePage() {
           },
         }
       );
-      setUser(res.data);
+      setUser(response.data);
       setEditData({
-        username: res.data.username || "",
-        about: res.data.about || "",
-        cookingRole: res.data.cookingRole || "",
+        username: response.data.username || "",
+        about: response.data.about || "",
+        cookingRole: response.data.cookingRole || "",
         profileImageFile: null,
         backgroundImageFile: null,
-        profileImagePreview:
-          res.data.profile_image || "/images/default-profile.png",
-        backgroundImagePreview:
-          res.data.background_image || "/images/default-background.jpg",
+        profileImagePreview: response.data.profile_image || "",
+        backgroundImagePreview: response.data.background_image || "",
       });
-      setLoading(false);
-    } catch (err) {
-      console.error("Failed to fetch user profile:", err);
-      setError("Failed to load profile data");
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setError("Failed to load user profile");
+    } finally {
       setLoading(false);
     }
-  };
+  }, [profileUserId, navigate]);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [profileUserId, fetchUserProfile]);
 
   const handleImageUpload = async (imageFile) => {
     const formData = new FormData();

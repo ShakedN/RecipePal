@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import io from "socket.io-client";
 import { Send, X } from "lucide-react";
@@ -14,11 +14,32 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
+  const initializeChat = useCallback(async () => {
+    try {
+      //Fetch or create chat between current user and other user
+      const res = await axios.post("http://localhost:5000/api/chat/get-or-create", {
+        userId1: currentUserId,
+        userId2: otherUser._id
+      });
+      
+      setChat(res.data);
+      setMessages(res.data.messages || []);
+      
+      // Join the specific chat room
+      socket.emit('join-chat', res.data._id);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error("Failed to initialize chat:", err);
+      setLoading(false);
+    }
+  }, [currentUserId, otherUser._id]);
+
   useEffect(() => {
     if (currentUserId && otherUser._id) {
       initializeChat();
     }
-  }, [currentUserId, otherUser._id]);
+  }, [currentUserId, otherUser._id, initializeChat]);
 
   useEffect(() => {
     // Join user's personal room
@@ -40,27 +61,7 @@ export default function ChatWindow({ otherUser, onClose, currentUserId }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-//Initialize chat with the other user
-  const initializeChat = async () => {
-    try {
-      //Fetch or create chat between current user and other user
-      const res = await axios.post("http://localhost:5000/api/chat/get-or-create", {
-        userId1: currentUserId,
-        userId2: otherUser._id
-      });
-      
-      setChat(res.data);
-      setMessages(res.data.messages || []);
-      
-      // Join the specific chat room
-      socket.emit('join-chat', res.data._id);
-      
-      setLoading(false);
-    } catch (err) {
-      console.error("Failed to initialize chat:", err);
-      setLoading(false);
-    }
-  };
+
   //Scroll to the bottom of the chat message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

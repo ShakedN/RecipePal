@@ -16,7 +16,6 @@ export default function FeedPage() {
   const [showPhotoEditor, setShowPhotoEditor] = useState(false);
   const [showVideoEditor, setShowVideoEditor] = useState(false);
   const [editingMedia, setEditingMedia] = useState(null);
-  const [isEdited, setIsEdited] = useState(false);
   const [groups, setGroups] = useState([]);
   const [suggestedGroups, setSuggestedGroups] = useState([]);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
@@ -296,7 +295,8 @@ export default function FeedPage() {
           const data = await res.json();
           if (!data.secure_url)
             throw new Error(data.error?.message || "Upload failed");
-          finalUrl = data.secure_url;
+          // Store uploaded URL for potential future use
+          data.secure_url;
         }
       }
 

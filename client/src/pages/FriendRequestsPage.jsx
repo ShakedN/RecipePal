@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { UserCheck, X } from "lucide-react";
 import "./FriendRequestsPage.css";
@@ -8,11 +8,7 @@ export default function FriendRequestsPage() {
   const [loading, setLoading] = useState(true);
   const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    fetchFriendRequests();
-  }, []);
-
-  const fetchFriendRequests = async () => {
+  const fetchFriendRequests = useCallback(async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/auth/friend-requests/${userId}`);
       setFriendRequests(res.data);
@@ -21,7 +17,11 @@ export default function FriendRequestsPage() {
       console.error("Failed to fetch friend requests:", err);
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    fetchFriendRequests();
+  }, [fetchFriendRequests]);
 
   const acceptRequest = async (requesterId) => {
     try {

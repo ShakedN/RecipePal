@@ -31,7 +31,7 @@ export default function RegisterPage() {
 
     try {
       console.log("Submitting form:", form);
-      const res = await axios.post(
+      await axios.post(
         "http://localhost:5000/api/auth/register",
         form,
         {

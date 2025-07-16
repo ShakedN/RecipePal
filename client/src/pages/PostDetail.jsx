@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostCard from '../components/PostCard';
@@ -11,11 +11,8 @@ export default function PostDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchPost();
-  }, [postId]);
-// Fetches a single post by ID from the backend , Handles loading states and error cases
-  const fetchPost = async () => {
+  // Fetches a single post by ID from the backend, Handles loading states and error cases
+  const fetchPost = useCallback(async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/posts/${postId}`);
       setPost(response.data);
@@ -25,7 +22,11 @@ export default function PostDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    fetchPost();
+  }, [postId, fetchPost]);
 
   const handleLike = async (postId) => {
     const userId = localStorage.getItem('userId');

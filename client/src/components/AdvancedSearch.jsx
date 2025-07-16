@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, Filter, X, ChevronDown, User,Users, FileText } from 'lucide-react';
 import './AdvancedSearch.css';
 //Provides advanced search functionality with filters for posts, users, and groups

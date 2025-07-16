@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, FileText, Clock, Heart, Users } from 'lucide-react';
 import axios from 'axios';
@@ -13,14 +13,7 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
   
   const currentUserId = localStorage.getItem('userId');
 
-  // Fetch user's groups when component mounts
-  useEffect(() => {
-    if (currentUserId) {
-      fetchUserGroups();
-    }
-  }, [currentUserId]);
-
-  const fetchUserGroups = async () => {
+  const fetchUserGroups = useCallback(async () => {
     if (!currentUserId) return;
     
     try {
@@ -30,7 +23,14 @@ export default function SearchResults({ results, isVisible, onClose, onUserSelec
       console.error('Error fetching user groups:', error);
       setUserGroups([]);
     }
-  };
+  }, [currentUserId]);
+
+  // Fetch user's groups when component mounts
+  useEffect(() => {
+    if (currentUserId) {
+      fetchUserGroups();
+    }
+  }, [currentUserId, fetchUserGroups]);
 
   const isUserMemberOfGroup = (groupId) => {
     if (!currentUserId) return false;
