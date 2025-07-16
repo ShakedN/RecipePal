@@ -11,50 +11,45 @@ import {
   deletePost,
   editPost,
   getUserPosts,
-
   getFilteredPosts,
-
-
 } from "../controllers/postController.js";
 
 const router = express.Router();
-//router.get("/search", searchAll);
 
-// GET /api/posts - Get all posts
+//Get all posts
 router.get("/", getAllPosts);
 
-// GET /api/posts/filtered/:userId - Get filtered posts for user (friends + groups)
+//Get filtered posts for user (posts of user's friends and user's groups)
 router.get("/filtered/:userId", getFilteredPosts);
 
-// POST /api/posts - Create a new post
+//Create a new post
 router.post("/", createPost);
 
-// GET /api/posts/:id - Get a single post by ID
+//Get a post by ID
 router.get("/:id", getPostById);
 
-// PUT /api/posts/:postId/like - Like/Unlike a post
+//Like/Unlike a post
 router.put("/:postId/like", likePost);
 
-// POST /api/posts/:postId/comment - Add a comment to a post
+//Add a comment to a post
 router.post("/:postId/comment", addComment);
 
-// GET /api/posts/:postId/comments - Get comments for a post
+//Get comments for a post
 router.get("/:postId/comments", getPostComments);
 
-// PUT /api/posts/:postId/comment/:commentId - Edit a comment
+//Edit a comment
 router.put("/:postId/comment/:commentId", editComment);
 
-// DELETE /api/posts/:postId/comment/:commentId - Delete a comment
+//Delete a comment (only for user's own posts and group admin)
 router.delete("/:postId/comment/:commentId", deleteComment);
 
-// PUT /api/posts/:postId - Edit a post
+//Edit a post
 router.put("/:postId", editPost);
 
-// DELETE /api/posts/:postId - Delete a post- delete only my post
+//Delete a post (only for user's own posts and group admin)
 router.delete("/:postId", deletePost);
 
-// GET /api/posts/user/:userId - Get posts by user ID
+//Get posts by user ID
 router.get("/user/:userId", getUserPosts);
-
 
 export default router;

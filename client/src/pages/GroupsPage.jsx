@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { UserPlus, Activity, LogOut, Trash2, Users, UserMinus } from "lucide-react";
+import {
+  UserPlus,
+  Activity,
+  LogOut,
+  Trash2,
+  Users,
+  UserMinus,
+} from "lucide-react";
 import axios from "axios";
 import "./GroupsPage.css";
 import { useParams } from "react-router-dom";
@@ -12,11 +19,14 @@ export default function GroupsPage() {
   const [loading, setLoading] = useState(true);
   const [group, setGroup] = useState(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
+
+  //Params and localStorage user info
   const { groupId } = useParams();
   const userId = localStorage.getItem("userId");
   const userName = localStorage.getItem("username");
   const [currentUser, setCurrentUser] = useState(null);
 
+  //Fetch suggested groups for the user (based on his friend's groups)
   const fetchSuggestedGroups = useCallback(async () => {
     try {
       setLoadingSuggestions(true);
@@ -32,7 +42,7 @@ export default function GroupsPage() {
     }
   }, [userId]);
 
-  // Fetch current user data including profile image
+  //Fetch current user data including profile image
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -87,6 +97,7 @@ export default function GroupsPage() {
     return String(group.admin._id) === String(currentUser._id);
   }, [group, currentUser]); //Check if the user is the admin of the group, useMemo to ensure it happend only when both group and currentUser loaded
 
+  //Refetch group posts
   const fetchGroupPosts = async (groupId) => {
     if (!groupId) {
       console.error("Group ID is required to fetch group posts");
@@ -104,39 +115,44 @@ export default function GroupsPage() {
     }
   };
 
+  //Leave or delete group depending on user status (admin/member)
   const handleLeaveGroup = async () => {
     if (!group || !userId) return;
-    
-    const confirmMessage = isGroupAdmin 
+
+    const confirmMessage = isGroupAdmin
       ? "Are you sure you want to delete this group? This action cannot be undone and will remove all posts and members."
       : "Are you sure you want to leave this group?";
-    
+
     if (!window.confirm(confirmMessage)) return;
 
     try {
       if (isGroupAdmin) {
-        // Delete group (admin only)
+        //Delete group (admin only)
         await axios.delete(`http://localhost:5000/api/groups/${groupId}`, {
-          data: { userId }
+          data: { userId },
         });
         alert("Group deleted successfully!");
-        // Redirect to groups page or main feed
-        window.location.href = '/';
+        //Navigate main feed
+        window.location.href = "/";
       } else {
-        // Leave group (regular member)
+        //Leave group (group member)
         await axios.post(`http://localhost:5000/api/groups/${groupId}/leave`, {
-          userId
+          userId,
         });
         alert("You have left the group successfully!");
-        // Redirect to groups page or main feed
-        window.location.href = '/';
+        //Navigate to groups page or main feed
+        window.location.href = "/";
       }
     } catch (error) {
       console.error("Error leaving/deleting group:", error);
-      alert(error.response?.data?.message || "Failed to perform action. Please try again.");
+      alert(
+        error.response?.data?.message ||
+          "Failed to perform action. Please try again."
+      );
     }
   };
 
+  //Join group
   const handleJoinGroup = async (groupId) => {
     try {
       await axios.post(`http://localhost:5000/api/groups/${groupId}/join`, {
@@ -148,39 +164,44 @@ export default function GroupsPage() {
     }
   };
 
+  //Admin remove member from the group
   const handleRemoveMember = async (memberIdToRemove) => {
-    if (!window.confirm("Are you sure you want to remove this member from the group?")) {
+    if (
+      !window.confirm(
+        "Are you sure you want to remove this member from the group?"
+      )
+    ) {
       return;
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/groups/${groupId}/remove-member`, {
-        userId,
-        memberIdToRemove
-      });
-      
-      // Update the group state to remove the member
-      setGroup(prevGroup => ({
+      await axios.post(
+        `http://localhost:5000/api/groups/${groupId}/remove-member`,
+        {
+          userId,
+          memberIdToRemove,
+        }
+      );
+
+      //Update the group state to remove the member
+      setGroup((prevGroup) => ({
         ...prevGroup,
-        members: prevGroup.members.filter(member => member._id !== memberIdToRemove)
+        members: prevGroup.members.filter(
+          (member) => member._id !== memberIdToRemove
+        ),
       }));
-      
+
       alert("Member removed successfully!");
     } catch (error) {
       console.error("Error removing member:", error);
-      alert(error.response?.data?.message || "Failed to remove member. Please try again.");
+      alert(
+        error.response?.data?.message ||
+          "Failed to remove member. Please try again."
+      );
     }
   };
 
-  // const filteredPosts = groupPosts.filter((post) => {
-  //   if (activeFilter === "all") return true;
-  //   if (activeFilter === "myGroups")
-  //     return suggestedGroups.some((g) => g._id === post.group?._id);
-  //   return true;
-  // });
-
-  //Posts functions
-
+  //Post actions: delete, edit, like and comment
   const handleDeletePost = async (postId) => {
     const userId = localStorage.getItem("userId");
     try {
@@ -306,21 +327,9 @@ export default function GroupsPage() {
     }
   };
 
-  // const handleGroupSelect = (group) => {
-  //   // If the same group is already selected, deselect it
-  //   if (selectedGroup && selectedGroup._id === group._id) {
-  //     setSelectedGroup(null);
-  //     fetchGroupPosts(); // Fetch all posts again (without specific group filter)
-  //   } else {
-  //     // Select the new group
-  //     setSelectedGroup(group);
-  //     fetchGroupPosts(group._id);
-  //   }
-  // };
-
   return (
     <div className="groups-page">
-      {/* Right Sidebar - Suggested Groups */}
+      {/*Right Sidebar- Suggested Groups*/}
       <div className="groups-right-sidebar">
         <div className="widget">
           <div className="sidebar-title">
@@ -367,11 +376,13 @@ export default function GroupsPage() {
             groupPosts.slice(0, 3).map((post) => (
               <div key={post._id} className="activity-item">
                 <div className="group-avatar activity">
-                  {post.user?.username?.charAt(0).toUpperCase() || 'U'}
+                  {post.user?.username?.charAt(0).toUpperCase() || "U"}
                 </div>
                 <div className="activity-info">
                   <div className="activity-text">
-                    {post.user?.username || 'Unknown user'} posted "{post.title?.substring(0, 30)}{post.title?.length > 30 ? '...' : ''}"
+                    {post.user?.username || "Unknown user"} posted "
+                    {post.title?.substring(0, 30)}
+                    {post.title?.length > 30 ? "..." : ""}"
                   </div>
                   <div className="activity-group">
                     {new Date(post.createdAt).toLocaleDateString()}
@@ -381,11 +392,9 @@ export default function GroupsPage() {
             ))
           )}
         </div>
-
-
       </div>
 
-      {/* Main Content */}
+      {/*Main Content*/}
       <div className="groups-main-content">
         {/*Group data*/}
         {group ? (
@@ -397,29 +406,29 @@ export default function GroupsPage() {
               <h2>{group.name}</h2>
             </div>
             <p>{group.description}</p>
-            
-            {/* Group Actions */}
+
+            {/*Group Actions*/}
             <div className="group-actions">
-            {isGroupAdmin ? (
-              <button 
-                className="delete-group-btn"
-                onClick={handleLeaveGroup}
-                title="Delete Group"
-              >
-                <Trash2 size={16} />
-                Delete Group
-              </button>
-            ) : (
-              <button 
-                className="leave-group-btn"
-                onClick={handleLeaveGroup}
-                title="Leave Group"
-              >
-                <LogOut size={16} />
-                Leave Group
-              </button>
-            )}
-          </div>
+              {isGroupAdmin ? (
+                <button
+                  className="delete-group-btn"
+                  onClick={handleLeaveGroup}
+                  title="Delete Group"
+                >
+                  <Trash2 size={16} />
+                  Delete Group
+                </button>
+              ) : (
+                <button
+                  className="leave-group-btn"
+                  onClick={handleLeaveGroup}
+                  title="Leave Group"
+                >
+                  <LogOut size={16} />
+                  Leave Group
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="group-data">
@@ -439,7 +448,7 @@ export default function GroupsPage() {
           />
         </div>
 
-        {/* Group Posts Feed */}
+        {/*Group Posts Feed*/}
         <div className="groups-feed">
           {loading ? (
             <div className="loading">Loading posts...</div>
@@ -466,49 +475,48 @@ export default function GroupsPage() {
           )}
         </div>
       </div>
-              {/* Members List Widget */}
-        <div className="widget">
-          <div className="sidebar-title">
-            <Users size={20} />
-            Group Members ({group?.members?.length || 0})
-          </div>
-          {!group ? (
-            <p>Loading members...</p>
-          ) : group.members.length === 0 ? (
-            <p>No members in this group.</p>
-          ) : (
-            group.members.map((member) => (
-              <div key={member._id} className="member-item">
-                <div className="member-avatar">
-                  {member.profile_image ? (
-                    <img src={member.profile_image} alt={member.username} />
-                  ) : (
-                    member.username?.charAt(0).toUpperCase() || 'U'
-                  )}
-                </div>
-                <div className="member-info">
-                  <div className="member-name">
-                    {member.firstName} {member.lastName}
-                    {member._id === group.admin._id && (
-                      <span className="admin-badge">Admin</span>
-                    )}
-                  </div>
-                  <div className="member-username">@{member.username}</div>
-                </div>
-                {isGroupAdmin && member._id !== group.admin._id && (
-                  <button
-                    className="remove-member-btn"
-                    onClick={() => handleRemoveMember(member._id)}
-                    title="Remove member"
-                  >
-                    <UserMinus size={16} />
-                  </button>
+      {/*Members List*/}
+      <div className="widget">
+        <div className="sidebar-title">
+          <Users size={20} />
+          Group Members ({group?.members?.length || 0})
+        </div>
+        {!group ? (
+          <p>Loading members...</p>
+        ) : group.members.length === 0 ? (
+          <p>No members in this group.</p>
+        ) : (
+          group.members.map((member) => (
+            <div key={member._id} className="member-item">
+              <div className="member-avatar">
+                {member.profile_image ? (
+                  <img src={member.profile_image} alt={member.username} />
+                ) : (
+                  member.username?.charAt(0).toUpperCase() || "U"
                 )}
               </div>
-            ))
-          )}
-        </div>
+              <div className="member-info">
+                <div className="member-name">
+                  {member.firstName} {member.lastName}
+                  {member._id === group.admin._id && (
+                    <span className="admin-badge">Admin</span>
+                  )}
+                </div>
+                <div className="member-username">@{member.username}</div>
+              </div>
+              {isGroupAdmin && member._id !== group.admin._id && (
+                <button
+                  className="remove-member-btn"
+                  onClick={() => handleRemoveMember(member._id)}
+                  title="Remove member"
+                >
+                  <UserMinus size={16} />
+                </button>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
-    
   );
 }
