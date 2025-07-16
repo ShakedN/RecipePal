@@ -11,6 +11,7 @@ import {
   deletePost,
   editPost,
   getUserPosts,
+  getFeedPosts,
 } from "../controllers/postController.js";
 
 const router = express.Router();
@@ -43,11 +44,13 @@ router.delete("/:postId/comment/:commentId", deleteComment);
 // PUT /api/posts/:postId - Edit a post
 router.put("/:postId", editPost);
 
-
-// DELETE /api/posts/:postId - Delete a post- delete only my post 
+// DELETE /api/posts/:postId - Delete a post- delete only my post
 router.delete("/:postId", deletePost);
 
 // GET /api/posts/user/:userId - Get posts by user ID
 router.get("/user/:userId", getUserPosts);
+
+// Get feed posts for a user (friends + groups)
+router.get("/feed/:userId", getFeedPosts);
 
 export default router;

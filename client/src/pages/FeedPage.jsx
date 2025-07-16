@@ -8,6 +8,7 @@ import "./FeedPage.css";
 import axios from "axios";
 import JoinGroupPopup from "../components/JoinGroupPopup";
 import CreateGroupModal from "../components/CreateGroupModal";
+import NewPostForm from "../components/NewPostForm";
 const recipeExContent = `Hey #BakersOfRecipePal, ready to level up your **{dessert / dish}** game? This {adjective1}, {adjective2} {dish type} is:
 
 {• Feature 1}  
@@ -75,10 +76,13 @@ export default function FeedPage() {
   });
 
   const userId = localStorage.getItem("userId");
+  const userName = localStorage.getItem("username");
 
   const fetchPosts = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/posts");
+      const res = await axios.get(
+        `http://localhost:5000/api/posts/feed/${userId}`
+      );
       setPosts(res.data);
     } catch (err) {
       console.error("Failed to fetch posts:", err);
@@ -628,265 +632,34 @@ export default function FeedPage() {
 
         {/* MODERN NEW POST FORM */}
         <div className="new-post-container-modern">
-          <div className="new-post-header">
-            <img
-              src={currentUser?.profile_image || "/images/default-profile.png"}
-              alt="Your Profile"
-              className="new-post-avatar"
-              onError={(e) => {
-                e.target.src = "/images/default-profile.png";
-              }}
-            />
-            <div className="new-post-greeting">
-              <span>What's cooking, {localStorage.getItem("username")}?</span>
-            </div>
-          </div>
-
-          <form onSubmit={handleNewPostSubmit} className="new-post-form-modern">
-            <div className="new-post-layout-grid">
-              {/* Column 1: Media Upload and Preview */}
-              <div className="media-column">
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      const fileType = file.type.startsWith("video")
-                        ? "video"
-                        : "image";
-                      setNewPost({
-                        ...newPost,
-                        mediaType: fileType,
-                        imageFile: fileType === "image" ? file : null,
-                        videoFile: fileType === "video" ? file : null,
-                      });
-                      setIsEdited(false);
-                      setEditingMedia(null);
-                      setShowMediaActions(false);
-                    }
-                  }}
-                  className="media-input"
-                  ref={fileInputRef}
-                />
-                {!newPost.imageFile && !newPost.videoFile ? (
-                  <div
-                    className="media-upload-zone"
-                    onClick={() => fileInputRef.current.click()}
-                  >
-                    <Image size={48} strokeWidth={1.5} />
-                    <Video size={48} strokeWidth={1.5} />
-                    <p>
-                      <strong>Click to upload</strong> or drag and drop a photo
-                      or video.
-                    </p>
-                    <span className="upload-hint">
-                      High-quality visuals get more likes!
-                    </span>
-                  </div>
-                ) : (
-                  <div className="media-preview-container">
-                    {newPost.imageFile && (
-                      <img
-                        src={URL.createObjectURL(newPost.imageFile)}
-                        alt="Preview"
-                        className="media-preview"
-                      />
-                    )}
-                    {newPost.videoFile && (
-                      <video
-                        src={URL.createObjectURL(newPost.videoFile)}
-                        className="media-preview"
-                        controls
-                      />
-                    )}
-
-                    {!showMediaActions && (
-                      <div
-                        className="media-actions-trigger"
-                        onClick={handleShowMediaActions}
-                      >
-                        <div className="actions-trigger-btn">
-                          <Edit3 size={16} />
-                          <span>Edit Media</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {showMediaActions && (
-                      <div className="media-actions-overlay active">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleEditMedia(
-                              newPost.imageFile || newPost.videoFile,
-                              newPost.mediaType
-                            )
-                          }
-                          className="media-action-btn"
-                        >
-                          <Edit3 size={16} /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setNewPost({
-                              ...newPost,
-                              imageFile: null,
-                              videoFile: null,
-                            });
-                            fileInputRef.current.value = "";
-                            setShowMediaActions(false);
-                          }}
-                          className="media-action-btn remove"
-                        >
-                          Change
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleHideMediaActions}
-                          className="media-action-btn exit"
-                        >
-                          <X size={16} /> Done
-                        </button>
-                      </div>
-                    )}
-
-                    {isEdited && <div className="edited-badge">Edited</div>}
-                  </div>
-                )}
-              </div>
-
-              {/* Column 2: Form Details */}
-              <div className="form-column">
-                <div className="form-section">
-                  <label className="form-label">What are you sharing?</label>
-                  <select
-                    name="kindOfPost"
-                    value={newPost.kindOfPost}
-                    onChange={handleNewPostChange}
-                    required
-                    className="styled-select"
-                  >
-                    <option value="">Choose post type...</option>
-                    <option value="recipe">🍳 Recipe</option>
-                    <option value="shared thoughts">💭 Shared Thoughts</option>
-                  </select>
-                </div>
-                <div className="form-section">
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder="Give your recipe a catchy title..."
-                    value={newPost.title}
-                    onChange={handleNewPostChange}
-                    className="styled-input title-input"
-                    required
-                  />
-                </div>
-                {newPost.kindOfPost === "recipe" && (
-                  <div className="recipe-details">
-                    <div className="form-section-inline">
-                      <div className="form-section">
-                        <label className="form-label">Category</label>
-                        <select
-                          name="typeRecipe"
-                          value={newPost.typeRecipe}
-                          onChange={handleNewPostChange}
-                          required
-                          className="styled-select"
-                        >
-                          <option value="">Select...</option>
-                          <option value="desert">Dessert</option>
-                          <option value="main dish">Main Dish</option>
-                          <option value="appetize">Appetizer</option>
-                          <option value="side dish">Side Dish</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="form-section">
-                      <label className="form-label">Dietary Tags</label>
-                      <div className="dietary-preferences">
-                        {[
-                          { value: "dairy-free", label: "Dairy-Free" },
-                          { value: "gluten-free", label: "Gluten-Free" },
-                          { value: "vegan", label: "Vegan" },
-                          { value: "vegeterian", label: "Vegetarian" },
-                        ].map((pref) => (
-                          <label key={pref.value} className="checkbox-label">
-                            <input
-                              type="checkbox"
-                              name="dietaryPreferences"
-                              value={pref.value}
-                              checked={newPost.dietaryPreferences.includes(
-                                pref.value
-                              )}
-                              onChange={handleNewPostChange}
-                              className="styled-checkbox"
-                            />
-                            <span className="checkbox-text">{pref.label}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="form-section">
-                  <div className="textarea-header">
-                    <label className="form-label">Recipe & Instructions</label>
-                    <button
-                      type="button"
-                      className={`template-button ${
-                        showTemplateRecipe ? "active" : ""
-                      }`}
-                      onClick={handleTemplateRecipe}
-                    >
-                      {showTemplateRecipe
-                        ? "✕ Remove Template"
-                        : "📝 Use Template"}
-                    </button>
-                  </div>
-                  <textarea
-                    name="content"
-                    placeholder="Share your story, ingredients, and step-by-step instructions..."
-                    value={newPost.content}
-                    onChange={handleNewPostChange}
-                    className="styled-textarea"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="form-actions-footer">
-              <button type="submit" className="post-submit-btn">
-                <span>Share Post</span>
-              </button>
-            </div>
-          </form>
+          <NewPostForm
+            userId={userId}
+            username={userName}
+            isGroupPost={false}
+            userProfileImage={currentUser?.profile_image}
+            onPostCreated={() => fetchPosts()}
+          />
         </div>
 
         {/*Posts*/}
-        {posts.filter((post) => !post.isGroupPost).length === 0 ? (
+        {/*Posts*/}
+        {posts.length === 0 ? (
           <div className="no-posts-message">
             <p>No posts yet. Be the first to share something delicious!</p>
           </div>
         ) : (
-          posts
-            .filter((post) => !post.isGroupPost)
-            .map((post) => (
-              <PostCard
-                key={post._id}
-                post={post}
-                onLike={handleLike}
-                onComment={handleComment}
-                onDeleteComment={handleDeleteComment}
-                onEditComment={handleEditComment}
-                onDeletePost={handleDeletePost}
-                onEditPost={handleEditPost}
-              />
-            ))
+          posts.map((post) => (
+            <PostCard
+              key={post._id}
+              post={post}
+              onLike={handleLike}
+              onComment={handleComment}
+              onDeleteComment={handleDeleteComment}
+              onEditComment={handleEditComment}
+              onDeletePost={handleDeletePost}
+              onEditPost={handleEditPost}
+            />
+          ))
         )}
       </div>
 
