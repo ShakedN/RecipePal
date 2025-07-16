@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { UserPlus, Activity } from "lucide-react";
+import { UserPlus, Activity,LogOut,Trash2} from "lucide-react";
 import axios from "axios";
 import "./GroupsPage.css";
 import { useParams } from "react-router-dom";
@@ -86,12 +86,6 @@ export default function GroupsPage() {
     if (!group || !currentUser) return false;
     return String(group.admin._id) === String(currentUser._id);
   }, [group, currentUser]); //Check if the user is the admin of the group, useMemo to ensure it happend only when both group and currentUser loaded
-  console.log("currentUser:", currentUser);
-  console.log("group:", group);
-  console.log(
-    "group.admin === currentUser._id:",
-    group?.admin === currentUser?._id
-  );
 
   const fetchGroupPosts = async (groupId) => {
     if (!groupId) {
@@ -107,6 +101,39 @@ export default function GroupsPage() {
       console.error("Error fetching group posts:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    if (!group || !userId) return;
+    
+    const confirmMessage = isGroupAdmin 
+      ? "Are you sure you want to delete this group? This action cannot be undone and will remove all posts and members."
+      : "Are you sure you want to leave this group?";
+    
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      if (isGroupAdmin) {
+        // Delete group (admin only)
+        await axios.delete(`http://localhost:5000/api/groups/${groupId}`, {
+          data: { userId }
+        });
+        alert("Group deleted successfully!");
+        // Redirect to groups page or main feed
+        window.location.href = '/';
+      } else {
+        // Leave group (regular member)
+        await axios.post(`http://localhost:5000/api/groups/${groupId}/leave`, {
+          userId
+        });
+        alert("You have left the group successfully!");
+        // Redirect to groups page or main feed
+        window.location.href = '/';
+      }
+    } catch (error) {
+      console.error("Error leaving/deleting group:", error);
+      alert(error.response?.data?.message || "Failed to perform action. Please try again.");
     }
   };
 
@@ -308,13 +335,27 @@ export default function GroupsPage() {
             <Activity size={20} />
             Group Activity
           </div>
-          <div className="activity-item">
-            <div className="group-avatar activity">G</div>
-            <div className="activity-info">
-              <div className="activity-text">New recipe posted</div>
-              <div className="activity-group">in this group</div>
-            </div>
-          </div>
+          {!group ? (
+            <p>Loading group activity...</p>
+          ) : groupPosts.length === 0 ? (
+            <p>No recent activity in this group.</p>
+          ) : (
+            groupPosts.slice(0, 3).map((post) => (
+              <div key={post._id} className="activity-item">
+                <div className="group-avatar activity">
+                  {post.user?.username?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="activity-info">
+                  <div className="activity-text">
+                    {post.user?.username || 'Unknown user'} posted "{post.title?.substring(0, 30)}{post.title?.length > 30 ? '...' : ''}"
+                  </div>
+                  <div className="activity-group">
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -330,6 +371,29 @@ export default function GroupsPage() {
               <h2>{group.name}</h2>
             </div>
             <p>{group.description}</p>
+            
+            {/* Group Actions */}
+            <div className="group-actions">
+            {isGroupAdmin ? (
+              <button 
+                className="delete-group-btn"
+                onClick={handleLeaveGroup}
+                title="Delete Group"
+              >
+                <Trash2 size={16} />
+                Delete Group
+              </button>
+            ) : (
+              <button 
+                className="leave-group-btn"
+                onClick={handleLeaveGroup}
+                title="Leave Group"
+              >
+                <LogOut size={16} />
+                Leave Group
+              </button>
+            )}
+          </div>
           </div>
         ) : (
           <div className="group-data">

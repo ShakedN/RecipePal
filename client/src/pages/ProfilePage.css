@@ -612,13 +612,6 @@ body,
   transform: scale(1.03);
 } 
 */
-body,
-.profile-page,
-.page-content {
-  background: #fff2eb;
-  font-family: "Segoe UI", sans-serif;
-  color: #333;
-}
 
 .loading,
 .error {

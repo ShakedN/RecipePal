@@ -436,6 +436,55 @@
   color: #666;
 }
 
+/* Group Actions */
+.group-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.leave-group-btn,
+.delete-group-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.leave-group-btn {
+  background: #ff6b6b;
+  color: white;
+}
+
+.leave-group-btn:hover {
+  background: #ff5252;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+.delete-group-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.delete-group-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.leave-group-btn:active,
+.delete-group-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .groups-page {
