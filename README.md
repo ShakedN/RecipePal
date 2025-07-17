@@ -1,6 +1,100 @@
 # RecipePal 🍳
 
 **RecipePal** is a comprehensive social platform for food enthusiasts to share, discover, and connect through recipes. Built with modern web technologies, it provides a seamless experience for recipe sharing, social interaction, and community building.
+## 📁 Project Structure
+
+```
+RecipePal/
+├── client/                          # React frontend application
+│   ├── public/
+│   │   ├── images/
+│   │   │   └── default-profile.png  # Default user avatar
+│   │   ├── index.html
+│   │   └── favicon.ico
+│   ├── src/
+│   │   ├── components/              # Reusable React components
+│   │   │   ├── ChatWindow.jsx       # Real-time chat interface
+│   │   │   ├── GroupCard.jsx        # Group display component
+│   │   │   ├── JoinGroupPopup.jsx   # Group join modal
+│   │   │   ├── Layout.jsx           # Main app layout wrapper
+│   │   │   ├── NewPostForm.jsx      # Post creation form
+│   │   │   ├── PhotoEditor.jsx      # Image editing component
+│   │   │   ├── PostCard.jsx         # Individual post display
+│   │   │   ├── SearchResults.jsx    # Search results dropdown
+│   │   │   ├── VideoEditor.jsx      # Video editing component
+│   │   │   └── *.css               # Component-specific styles
+│   │   ├── context/                 # React Context providers
+│   │   │   └── AuthContext.js       # Authentication state management
+│   │   ├── pages/                   # Main application pages
+│   │   │   ├── FeedPage.jsx         # Main feed/timeline
+│   │   │   ├── LoginPage.jsx        # User login
+│   │   │   ├── RegisterPage.jsx     # User registration
+│   │   │   ├── ProfilePage.jsx      # User profile management
+│   │   │   ├── GroupsPage.jsx       # Groups listing and management
+│   │   │   ├── ChatPage.jsx         # Chat interface
+│   │   │   ├── SearchPage.jsx       # Search functionality
+│   │   │   ├── VerificationPage.jsx # Email verification
+│   │   │   └── *.css               # Page-specific styles
+│   │   ├── App.js                   # Main React app component
+│   │   ├── App.css                  # Global styles
+│   │   ├── index.js                 # React app entry point
+│   │   └── index.css                # Base CSS styles
+│   ├── package.json                 # Frontend dependencies
+│   └── package-lock.json
+├── server/                          # Node.js backend application
+│   ├── config/
+│   │   └── db.js                   # Database connection configuration
+│   ├── controllers/                # Business logic controllers
+│   │   ├── authController.js       # Authentication logic
+│   │   ├── postController.js       # Post management
+│   │   ├── groupController.js      # Group operations
+│   │   └── searchController.js     # Search functionality
+│   ├── middleware/                 # Express middleware
+│   │   └── authMiddleware.js       # JWT authentication middleware
+│   ├── models/                     # MongoDB schemas
+│   │   ├── User.js                 # User data model
+│   │   ├── Post.js                 # Post data model
+│   │   ├── Group.js                # Group data model
+│   │   ├── Comment.js              # Comment data model
+│   │   └── Message.js              # Chat message model
+│   ├── routes/                     # API route definitions
+│   │   ├── auth.js                 # Authentication routes
+│   │   ├── posts.js                # Post-related routes
+│   │   ├── groups.js               # Group management routes
+│   │   ├── search.js               # Search API routes
+│   │   └── upload.js               # File upload routes
+│   ├── services/                   # External service integrations
+│   │   ├── emailService.js         # Email verification service
+│   │   └── cloudinaryService.js    # Media upload service
+│   ├── utils/                      # Utility functions
+│   │   ├── generateToken.js        # JWT token generation
+│   │   └── validators.js           # Input validation helpers
+│   ├── app.js                      # Express app configuration
+│   ├── server.js                   # Server entry point
+│   ├── package.json                # Backend dependencies
+│   └── package-lock.json
+├── .env                            # Environment variables (not in repo)
+├── .gitignore                      # Git ignore rules
+├── README.md                       # Project documentation
+└── package.json                    # Root package.json (optional)
+```
+
+### 🗂️ Key Directories Explained
+
+#### Frontend (`/client`)
+- **`components/`** - Reusable UI components with individual styling
+- **`pages/`** - Main application screens and routing endpoints
+- **`context/`** - React Context for global state management
+- **`public/`** - Static assets served directly
+
+#### Backend (`/server`)
+- **`models/`** - MongoDB schemas defining data structure
+- **`routes/`** - API endpoint definitions and routing
+- **`controllers/`** - Business logic separated from routes
+- **`middleware/`** - Express middleware for authentication, validation, etc.
+- **`services/`** - External service integrations (email, cloud storage)
+- **`config/`** - Database and app configuration
+- **`utils/`** - Helper functions and utilities
 
 ## ✨ Features
 
@@ -21,7 +115,6 @@
 - **Photo Editor**: Built-in editor with filters, text overlays, and image manipulation
 - **Video Editor**: Trim and edit videos before posting
 - **Media Upload**: Cloudinary integration for optimized media storage
-- **Responsive Design**: Mobile-first, modern UI/UX
 
 ### 🔍 Advanced Features
 - **Smart Search**: Find recipes, users, and groups with advanced filtering
