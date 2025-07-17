@@ -191,7 +191,6 @@
   margin-bottom: 10px;
 }
 
-/* ---------------------- Friends ---------------------- */
 .friends-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -205,6 +204,8 @@
   border: 1px solid #eee;
   border-radius: 8px;
   transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .friend-card:hover {
