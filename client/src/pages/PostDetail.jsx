@@ -1,10 +1,8 @@
-
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import PostCard from '../components/PostCard';
-import './PostDetail.css';
-
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import PostCard from "../components/PostCard";
+import "./PostDetail.css";
 
 export default function PostDetail() {
   const { postId } = useParams(); //Get postId from URL
@@ -20,7 +18,6 @@ export default function PostDetail() {
 
   //Fetch post by ID from the backend
   const fetchPost = async () => {
-
     try {
       const response = await axios.get(
         `http://localhost:5000/api/posts/${postId}`
@@ -32,11 +29,7 @@ export default function PostDetail() {
     } finally {
       setLoading(false); //Stop loading
     }
-  }, [postId]);
-
-  useEffect(() => {
-    fetchPost();
-  }, [postId, fetchPost]);
+  };
 
   //Handle like to post
   const handleLike = async (postId) => {
