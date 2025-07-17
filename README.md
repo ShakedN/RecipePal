@@ -76,7 +76,7 @@ RecipePal/
 ├── .env                            # Environment variables (not in repo)
 ├── .gitignore                      # Git ignore rules
 ├── README.md                       # Project documentation
-└── package.json                    # Root package.json (optional)
+└── package.json                    # Root package.json 
 ```
 
 ### 🗂️ Key Directories Explained
